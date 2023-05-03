@@ -7,6 +7,11 @@ const UserSchema = new Schema({
   active: { type: Boolean, default: false },
   joinedAt: { type: Date, required: true },
   avatarUrl: { type: String },
+  servers: [{
+    _id: { type: Schema.Types.ObjectId, ref: 'Server' },
+    name: { type: String, required: true },
+    imgUrl: { type: String },
+  }],
 });
 
 const User = mongoose.model('User', UserSchema);
