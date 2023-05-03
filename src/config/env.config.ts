@@ -5,6 +5,7 @@ import checkEmptyEnv from '../utils/checkEmptyEnv';
 const ENVIRONMENT_VARIABLES: string[] = [
   'HOST',
   'PORT',
+  'MONGODB_URI',
 ];
 
 checkEmptyEnv(ENVIRONMENT_VARIABLES);
