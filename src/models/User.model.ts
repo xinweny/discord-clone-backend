@@ -7,6 +7,7 @@ const UserSchema = new Schema({
   verified: { type: Boolean, default: false },
   joinedAt: { type: Date, required: true },
   avatarUrl: { type: String },
+  role: { type: String, required: true, enum: ['user', 'admin', 'super_admin'], default: 'user' }
 });
 
 const User = mongoose.model('User', UserSchema);
