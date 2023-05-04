@@ -22,6 +22,11 @@ app.use(apiRateLimiter);
 app.use('/api/v1', router);
 
 // ERROR HANDLING
+app.use('*', (req, res) => res.status(404).json({
+  statusCode: 404,
+  message: 'Not found',
+  error: {},
+}));
 app.use(errorHandler);
 
 export default app;
