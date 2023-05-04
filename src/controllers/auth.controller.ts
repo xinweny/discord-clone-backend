@@ -1,9 +1,10 @@
 import { RequestHandler } from 'express';
 
-import validateUser from '../middleware/validateUser';
-import checkValidation from '../middleware/checkValidation';
+import validateUser from '../validators/validateUser';
+import validateLogin from '../validators/validateLogin';
+import checkValidation from '../validators/checkValidation';
 import tryCatch from '../middleware/tryCatch';
-import CustomError from '../utils/CustomError';
+import CustomError from '../helpers/CustomError';
 
 import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
@@ -31,11 +32,31 @@ const signup: RequestHandler[] = [
   ),
 ];
 
-const login: RequestHandler = tryCatch(
-  async (req, res, next) => {
-    console.log(req, res, next);
-  }
-);
+const login: RequestHandler[] = [
+  ...validateLogin,
+  checkValidation,
+  tryCatch(
+    async (req, res, next) => {
+      const { email, password } = req.body;
+
+      const user = await UserService.findOneUser({ email });
+      if (!user) throw new CustomError('Invalid email or passsword.', 401);
+
+      const verifiedPassword = await AuthService.verifyPassword(password, user.password);
+      if (!verifiedPassword) throw new CustomError('Invalid email or passsword.', 401);
+
+      const { accessToken, refreshToken } = await AuthService.generateTokens(user);
+
+      res.json({
+        data: {
+          accessToken,
+          refreshToken,
+        },
+        message: 'Logged in successfully.',
+      });
+    }
+  )
+];
 
 export default {
   signup,

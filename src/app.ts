@@ -30,4 +30,4 @@ app.use('*', (req, res) => res.status(404).json({
 }));
 app.use(errorHandler);
 
-export default app;
+export default app; 

@@ -3,6 +3,7 @@ import User from '../models/User.model';
 const findOneUser = async (queryObj: {
   _id?: string,
   email?: string,
+  password?: string,
 }) => {
   const user = await User.findOne(queryObj);
 
@@ -18,7 +19,6 @@ const createUser = async (
     email,
     username,
     password,
-    joinedAt: new Date(),
   });
 
   await user.save();
