@@ -1,19 +1,18 @@
-interface ErrorConstructor {
-  new (message?: string): Error;
-  (message?: string): Error;
-  (code?: number): Error;
-  readonly prototype: Error;
+interface ErrorData {
+  [key: string]: string | number;
 }
 
-declare const Error: ErrorConstructor;
+class CustomError extends Error {
+  statusCode: number;
+  error: ErrorData[] | ErrorData;
 
-class Exception extends Error {
-  constructor(message: string, code: number) {
+  constructor(message: string, code: number, errorObj?: ErrorData){
     super(message);
-    this.code = code;
+    this.statusCode = code;
+    this.error = errorObj || {};
 
-    Object.setPrototypeOf(this, Exception.prototype);
+    Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
 
-export default Exception;
+export default CustomError;
