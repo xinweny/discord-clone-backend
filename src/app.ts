@@ -7,6 +7,7 @@ import apiRateLimiter from './config/rateLimit.config';
 import './config/db.config';
 
 import router from './routes/index.route';
+import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use(apiRateLimiter);
 app.use('/api/v1', router);
 
 // ERROR HANDLING
+app.use(errorHandler);
 
 export default app;

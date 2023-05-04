@@ -1,9 +1,11 @@
 import { RequestHandler } from 'express';
+
 import tryCatch from '../middleware/tryCatch';
+import CustomError from '../utils/CustomError';
 
 const login: RequestHandler = tryCatch(
-  (req, res, next) => {
-    console.log('hello');
+  async (req, res, next) => {
+    throw new CustomError('hello', 404, { field: 'lol', message: 'lolol' });
     console.log(req, res, next);
   }
 );
