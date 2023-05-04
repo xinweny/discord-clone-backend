@@ -9,7 +9,6 @@ import CustomError from '../helpers/CustomError';
 
 import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
-import { JwtPayload } from 'jsonwebtoken';
 
 const signup: RequestHandler[] = [
   ...signupValidation,
@@ -83,8 +82,24 @@ const refreshAccessToken: RequestHandler[] = [
   )
 ];
 
+const logout: RequestHandler[] = [
+  ...refreshValidation,
+  handleValidationErrors,
+  tryCatch(
+    async (req, res, next) => {
+      await AuthService.deleteRefreshToken(req.body.refreshToken);
+
+      res.json({
+        data: {},
+        message: 'Logged out successfully.',
+      });
+    }
+  )
+];
+
 export default {
   signup,
   login,
   refreshAccessToken,
+  logout,
 };

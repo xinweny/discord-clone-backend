@@ -33,7 +33,7 @@ const generateTokens = async (user: IUser) => {
   );
   
   const userToken = await UserToken.findOne({ userId: user._id });
-  if (userToken) await UserToken.deleteOne();
+  if (userToken) await UserToken.findByIdAndDelete(userToken._id);
 
   await new UserToken({ userId: user._id, token: refreshToken }).save();
 
@@ -61,10 +61,17 @@ const issueAccessToken = (payload: {
   });
 }
 
+const deleteRefreshToken = async (refreshToken: string) => {
+  const userToken = await UserToken.findOne({ token: refreshToken });
+
+  if (userToken) await UserToken.findByIdAndDelete(userToken._id);
+};
+
 export default {
   hashPassword,
   verifyPassword,
   generateTokens,
   verifyRefreshToken,
   issueAccessToken,
+  deleteRefreshToken,
 };
