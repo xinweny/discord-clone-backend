@@ -6,6 +6,7 @@ const ENVIRONMENT_VARIABLES: string[] = [
   'HOST',
   'PORT',
   'MONGODB_URI',
+  'SALT_LENGTH',
 ];
 
 checkEmptyEnv(ENVIRONMENT_VARIABLES);
