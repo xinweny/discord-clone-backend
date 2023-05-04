@@ -2,12 +2,14 @@ import { RequestHandler } from 'express';
 
 import signupValidation from '../validators/signupValidation';
 import loginValidation from '../validators/loginValidation';
+import refreshValidation from '../validators/refreshValidation';
 import handleValidationErrors from '../validators/handleValidationErrors';
 import tryCatch from '../middleware/tryCatch';
 import CustomError from '../helpers/CustomError';
 
 import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
+import { JwtPayload } from 'jsonwebtoken';
 
 const signup: RequestHandler[] = [
   ...signupValidation,
@@ -43,7 +45,7 @@ const login: RequestHandler[] = [
       if (!user) throw new CustomError('Invalid email or passsword.', 401);
 
       const verifiedPassword = await AuthService.verifyPassword(password, user.password);
-      if (!verifiedPassword) throw new CustomError('Invalid email or passsword.', 401);
+      if (!verifiedPassword) throw new CustomError('Invalid email or password.', 401);
 
       const { accessToken, refreshToken } = await AuthService.generateTokens(user);
 
@@ -59,7 +61,26 @@ const login: RequestHandler[] = [
 ];
 
 const refreshAccessToken: RequestHandler[] = [
+  ...refreshValidation,
+  handleValidationErrors,
+  tryCatch(
+    async (req, res, next) => {
+      const decodedToken = await AuthService.verifyRefreshToken(req.body.refreshToken);
 
+      if (!decodedToken) throw new CustomError('Invalid refresh token.', 400);
+
+      const { _id, email, username, role } = decodedToken;
+
+      const payload = { _id, email, username, role };
+
+      const accessToken = await AuthService.issueAccessToken(payload);
+
+      res.json({
+        data: accessToken,
+        message: 'Access token issued successfully.',
+      });
+    }
+  )
 ];
 
 export default {

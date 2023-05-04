@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import env from '../config/env.config';
 
 import UserToken from '../models/UserToken.model';
+import { IToken } from '../models/UserToken.model';
 import { IUser } from '../models/User.model';
 
 const hashPassword = async (password: string) => {
@@ -15,9 +16,9 @@ const verifyPassword = async (password: string, hash: string) => {
 }
 
 const generateTokens = async (user: IUser) => {
-  const { _id, username, role } = user;
+  const { _id, username, email, role } = user;
 
-  const payload = { _id, username, role };
+  const payload = { _id, username, email, role };
 
   const accessToken = jwt.sign(
     payload,
@@ -39,8 +40,31 @@ const generateTokens = async (user: IUser) => {
   return { accessToken, refreshToken };
 }
 
+const verifyRefreshToken = async (refreshToken: string) => {
+  const userToken = await UserToken.findOne({ token: refreshToken });
+
+  if (!userToken) return false;
+
+  const decodedToken = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as IToken;
+
+  return decodedToken;
+};
+
+const issueAccessToken = (payload: {
+  _id: string,
+  email: string,
+  username: string,
+  role: string,
+}) => {
+  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRE,
+  });
+}
+
 export default {
   hashPassword,
   verifyPassword,
   generateTokens,
+  verifyRefreshToken,
+  issueAccessToken,
 };
