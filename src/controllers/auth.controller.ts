@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 
-import userValidation from '../validators/userValidation';
+import signupValidation from '../validators/signupValidation';
 import loginValidation from '../validators/loginValidation';
 import handleValidationErrors from '../validators/handleValidationErrors';
 import tryCatch from '../middleware/tryCatch';
@@ -10,7 +10,7 @@ import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
 
 const signup: RequestHandler[] = [
-  ...userValidation,
+  ...signupValidation,
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
@@ -58,7 +58,12 @@ const login: RequestHandler[] = [
   )
 ];
 
+const refreshAccessToken: RequestHandler[] = [
+
+];
+
 export default {
   signup,
   login,
+  refreshAccessToken,
 };

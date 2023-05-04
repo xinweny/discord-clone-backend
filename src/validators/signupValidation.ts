@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { body } from 'express-validator';
 
-const userValidation: RequestHandler[] = [
+const signupValidation: RequestHandler[] = [
   body('email')
     .isEmail().withMessage('Please enter a valid email address.')
     .normalizeEmail(),
@@ -16,4 +16,4 @@ const userValidation: RequestHandler[] = [
     .withMessage('Passwords do not match.')
 ];
 
-export default userValidation;
+export default signupValidation;
