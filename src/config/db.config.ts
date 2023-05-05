@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import env from './env.config';
 
-mongoose.connect(env.MONGODB_URI);
+mongoose.connect(env.MONGODB_URI, {
+  autoIndex: true,
+});
 
 const db = mongoose.connection;
 
