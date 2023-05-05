@@ -7,7 +7,7 @@ const loginValidation: RequestHandler[] = [
     .isEmail().withMessage('Please enter a valid email address.')
     .normalizeEmail(),
   body('password')
-    .isLength({ min: 1 }).withMessage('Password is required.')
+    .isLength({ min: 1 }).withMessage('Password is required.'),
 ];
 
 export default loginValidation;
