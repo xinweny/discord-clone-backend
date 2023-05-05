@@ -5,6 +5,7 @@ import checkEmptyEnv from '../utils/checkEmptyEnv';
 const ENVIRONMENT_VARIABLES: string[] = [
   'HOST',
   'PORT',
+  'REDIS_URL',
   'MONGODB_URI',
   'BCRYPT_SALT',
   'JWT_ACCESS_SECRET',

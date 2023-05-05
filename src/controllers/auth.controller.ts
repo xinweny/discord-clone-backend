@@ -19,7 +19,7 @@ const signup: RequestHandler[] = [
 
       const existingUser = await UserService.getUser({ email });
 
-      if (existingUser) throw new CustomError('Email already in use. Please choose a different email.', 400);
+      if (existingUser) throw new CustomError(400, 'Email already in use. Please choose a different email.');
 
       const hashedPassword = await AuthService.hashPassword(password);
 
@@ -41,10 +41,10 @@ const login: RequestHandler[] = [
       const { email, password } = req.body;
 
       const user = await UserService.getUser({ email }, true);
-      if (!user) throw new CustomError('Invalid email or passsword.', 401);
+      if (!user) throw new CustomError(401, 'Invalid email or password.');
 
       const verifiedPassword = await AuthService.verifyPassword(password, user.password);
-      if (!verifiedPassword) throw new CustomError('Invalid email or password.', 401);
+      if (!verifiedPassword) throw new CustomError(401, 'Invalid email or password.');
 
       const { accessToken, refreshToken } = await AuthService.generateTokens(user);
 
@@ -66,7 +66,7 @@ const refreshAccessToken: RequestHandler[] = [
     async (req, res, next) => {
       const decodedToken = await AuthService.verifyRefreshToken(req.body.refreshToken);
 
-      if (!decodedToken) throw new CustomError('Invalid refresh token.', 400);
+      if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
 
       const { _id, email, username, role } = decodedToken;
 

@@ -10,8 +10,8 @@ const handleValidationErrors: RequestHandler = tryCatch(
 
     if (!errors.isEmpty()) {
       throw new CustomError(
-        'Validation failed.',
         400,
+        'Validation failed.',
         errors.array()
       );
     }

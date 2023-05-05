@@ -1,11 +1,12 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import ms from 'ms';
 
 import env from '../config/env.config';
 
-import UserToken from '../models/UserToken.model';
-import { IToken } from '../models/UserToken.model';
 import { IUser } from '../models/User.model';
+
+import RedisService from './redis.service';
 
 const hashPassword = async (password: string) => {
   return bcrypt.hash(password, Number(env.BCRYPT_SALT));
@@ -32,22 +33,19 @@ const generateTokens = async (user: IUser) => {
     { expiresIn: env.JWT_REFRESH_EXPIRE }
   );
   
-  const userToken = await UserToken.findOne({ userId: user._id });
-  if (userToken) await UserToken.findByIdAndDelete(userToken._id);
-
-  await new UserToken({ userId: user._id, token: refreshToken }).save();
+  await RedisService.set(user._id.toString(), refreshToken, ms(env.JWT_REFRESH_EXPIRE));
 
   return { accessToken, refreshToken };
 }
 
 const verifyRefreshToken = async (refreshToken: string) => {
-  const userToken = await UserToken.findOne({ token: refreshToken });
+  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  if (!userToken) return false;
+  const userToken = await RedisService.get(payload._id);
 
-  const decodedToken = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as IToken;
+  if (userToken !== refreshToken) return false;
 
-  return decodedToken;
+  return payload;
 };
 
 const issueAccessToken = (payload: {
@@ -62,9 +60,9 @@ const issueAccessToken = (payload: {
 }
 
 const deleteRefreshToken = async (refreshToken: string) => {
-  const userToken = await UserToken.findOne({ token: refreshToken });
+  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  if (userToken) await UserToken.findByIdAndDelete(userToken._id);
+  if (payload) await RedisService.del(payload._id);
 };
 
 export default {

@@ -9,8 +9,8 @@ class CustomError extends Error {
   error: ErrorData | ErrorData[] | ValidationError | ValidationError[];
 
   constructor(
-    message: string,
     code: number,
+    message: string,
     errorObj?: ErrorData | ErrorData[] | ValidationError | ValidationError[]
   ) {
     super(message);

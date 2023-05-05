@@ -7,13 +7,14 @@ import apiRateLimiter from './config/rateLimit.config';
 import './config/db.config';
 
 import router from './routes/index.route';
+import CustomError from './helpers/CustomError';
 import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
 // MIDDLEWARES
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(cors({ origin: [ env.HOST ] }));
@@ -23,11 +24,7 @@ app.use(apiRateLimiter);
 app.use('/api/v1', router);
 
 // ERROR HANDLING
-app.use('*', (req, res) => res.status(404).json({
-  statusCode: 404,
-  message: 'Not found',
-  error: {},
-}));
+app.use('*', (req, res) => { throw new CustomError(404, 'Resource not found.') });
 app.use(errorHandler);
 
 export default app; 
