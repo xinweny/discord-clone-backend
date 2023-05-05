@@ -1,8 +1,10 @@
 import { RequestHandler } from 'express';
 
+import env from '../config/env.config';
 import signupValidation from '../validators/signupValidation';
 import loginValidation from '../validators/loginValidation';
 import refreshValidation from '../validators/refreshValidation';
+import resetValidation from '../validators/resetValidation';
 import handleValidationErrors from '../validators/handleValidationErrors';
 import tryCatch from '../middleware/tryCatch';
 import CustomError from '../helpers/CustomError';
@@ -64,7 +66,7 @@ const refreshAccessToken: RequestHandler[] = [
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
-      const decodedToken = await AuthService.verifyRefreshToken(req.body.refreshToken);
+      const decodedToken = await AuthService.verifyToken(req.body.refreshToken, 'REFRESH');
 
       if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
 
@@ -97,9 +99,30 @@ const logout: RequestHandler[] = [
   )
 ];
 
+const requestPasswordReset: RequestHandler[] = [
+  ...resetValidation,
+  handleValidationErrors,
+  tryCatch(
+    async (req, res, next) => {
+      const { email } = req.body;
+
+      const user = await UserService.getUser({ email });
+
+      if (!user) throw new CustomError(400, 'User does not exist.');
+
+      const id = user._id.toString();
+      const resetToken = AuthService.issueResetToken(id);
+      const clientURL = `${env.HOST}:${env.PORT}`;
+
+      const link = `${clientURL}/passwordReset?token=${resetToken}&id=${id}`;
+    }
+  )
+];
+
 export default {
   signup,
   login,
   refreshAccessToken,
   logout,
+  requestPasswordReset,
 };

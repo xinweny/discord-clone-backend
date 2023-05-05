@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import crypto from 'crypto';
 import ms from 'ms';
 
 import env from '../config/env.config';
@@ -32,22 +33,18 @@ const generateTokens = async (user: IUser) => {
     env.JWT_REFRESH_SECRET,
     { expiresIn: env.JWT_REFRESH_EXPIRE }
   );
-
-  console.log(ms(env.JWT_REFRESH_EXPIRE));
   
-  await RedisService.set(user._id.toString(), refreshToken, ms(env.JWT_REFRESH_EXPIRE));
+  await RedisService.set(`${user._id.toString()}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
 
   return { accessToken, refreshToken };
 }
 
-const verifyRefreshToken = async (refreshToken: string) => {
+const verifyToken = async (refreshToken: string, tokenType: string) => {
   const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  const userToken = await RedisService.get(payload._id);
+  const token = await RedisService.get(`${payload._id.toString()}_${tokenType}`);
 
-  if (userToken !== refreshToken) return false;
-
-  return payload;
+  return (token) ? payload : null;
 };
 
 const issueAccessToken = (payload: {
@@ -67,11 +64,22 @@ const deleteRefreshToken = async (refreshToken: string) => {
   if (payload) await RedisService.del(payload._id);
 };
 
+const issueResetToken = async (userId: string) => {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  const hash = await bcrypt.hash(resetToken, Number(env.BCRYPT_SALT));
+  
+  await RedisService.set(`${userId}_RESET`, hash, 1800000);
+
+  return resetToken;
+}
+
 export default {
   hashPassword,
   verifyPassword,
   generateTokens,
-  verifyRefreshToken,
+  verifyToken,
   issueAccessToken,
+  issueResetToken,
   deleteRefreshToken,
 };
