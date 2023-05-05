@@ -32,6 +32,8 @@ const generateTokens = async (user: IUser) => {
     env.JWT_REFRESH_SECRET,
     { expiresIn: env.JWT_REFRESH_EXPIRE }
   );
+
+  console.log(ms(env.JWT_REFRESH_EXPIRE));
   
   await RedisService.set(user._id.toString(), refreshToken, ms(env.JWT_REFRESH_EXPIRE));
 

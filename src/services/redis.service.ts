@@ -11,7 +11,7 @@ const get = async (key: string) => {
 const set = async (key: string, value: string | number, expTime: number) => {
   await redisClient.connect();
   await redisClient.set(key, value, {
-    EX: expTime,
+    EX: expTime / 1000,
   });
   await redisClient.disconnect();
 };
