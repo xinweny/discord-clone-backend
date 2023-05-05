@@ -13,7 +13,7 @@ const signupValidation: RequestHandler[] = [
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.'),
   body('confirmPassword')
     .custom((value, { req }) => value === req.body.password)
-    .withMessage('Passwords do not match.')
+    .withMessage('Passwords do not match.'),
 ];
 
 export default signupValidation;
