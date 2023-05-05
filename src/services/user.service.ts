@@ -41,8 +41,9 @@ const updateUser = async (id: string, updateFields: {
   password?: string,
   username?: string,
   avatarUrl?: string,
+  verified?: boolean,
 }) => {
-  const updateQuery = keepKeys(updateFields, ['password', 'username', 'email', 'avatarUrl']);
+  const updateQuery = keepKeys(updateFields, ['password', 'username', 'email', 'avatarUrl', 'verified']);
 
   const updatedUser = await User.findByIdAndUpdate(id, {
     $set: updateQuery,
