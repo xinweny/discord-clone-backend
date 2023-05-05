@@ -2,10 +2,7 @@ import { RequestHandler } from 'express';
 
 import env from '../config/env.config';
 
-import signupValidation from '../validators/signupValidation';
-import loginValidation from '../validators/loginValidation';
-import refreshValidation from '../validators/refreshValidation';
-import resetValidation from '../validators/resetValidation';
+import validateFields from '../validators/validateFields';
 import handleValidationErrors from '../validators/handleValidationErrors';
 
 import passwordResetMail from '../data/templates/passwordResetMail';
@@ -19,7 +16,7 @@ import MailService from '../services/mail.service';
 import AuthService from '../services/auth.service';
 
 const signup: RequestHandler[] = [
-  ...signupValidation,
+  ...validateFields(['email', 'username', 'password', 'confirmPassword']),
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
@@ -42,7 +39,7 @@ const signup: RequestHandler[] = [
 ];
 
 const login: RequestHandler[] = [
-  ...loginValidation,
+  ...validateFields(['email', 'password']),
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
@@ -68,17 +65,17 @@ const login: RequestHandler[] = [
 ];
 
 const refreshAccessToken: RequestHandler[] = [
-  ...refreshValidation,
+  ...validateFields(['refreshToken']),
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
-      const decodedToken = await AuthService.verifyToken(req.body.refreshToken, 'REFRESH');
+      const decodedToken = await AuthService.verifyRefreshToken(req.body.refreshToken);
 
       if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
 
-      const { _id, email, username, role } = decodedToken;
+      const { uid, email, username, role } = decodedToken;
 
-      const payload = { _id, email, username, role };
+      const payload = { uid, email, username, role };
 
       const accessToken = AuthService.issueAccessToken(payload);
 
@@ -91,7 +88,7 @@ const refreshAccessToken: RequestHandler[] = [
 ];
 
 const logout: RequestHandler[] = [
-  ...refreshValidation,
+  ...validateFields(['refreshToken']),
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
@@ -106,7 +103,7 @@ const logout: RequestHandler[] = [
 ];
 
 const requestPasswordReset: RequestHandler[] = [
-  ...resetValidation,
+  ...validateFields(['email']),
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
@@ -120,11 +117,11 @@ const requestPasswordReset: RequestHandler[] = [
       const resetToken = await AuthService.issueResetToken(id);
       const clientURL = `${env.HOST}:${env.PORT}`;
 
-      const link = `${clientURL}/passwordReset?token=${resetToken}&id=${id}`;
+      const link = `${clientURL}/api/v1/resetPassword?token=${resetToken}&uid=${id}`;
 
       const mail = await MailService.sendMail(
         email,
-        'Discord Clone Password Reset',
+        'Discord Clone Password Reset Request',
         passwordResetMail(user.username, link)
       );
 
@@ -136,10 +133,43 @@ const requestPasswordReset: RequestHandler[] = [
   )
 ];
 
+const resetPassword: RequestHandler[] = [
+  ...validateFields(['password', 'confirmPassword']),
+  handleValidationErrors,
+  tryCatch(
+    async (req, res, next) => {
+      if (!req.query.token || !req.query.uid) throw new CustomError(404, 'Not found.');
+
+      const token = req.query.token.toString();
+      const uid = req.query.uid.toString();
+
+      const refreshToken = await AuthService.verifyResetToken(token, uid);
+
+      if (!refreshToken) throw new CustomError(401, 'Invalid password reset token.');
+
+      const hashedPassword = await AuthService.hashPassword(req.body.password);
+
+      const user = await UserService.updateUser(uid, {
+        password: hashedPassword,
+      });
+
+      if (!user) throw new CustomError(400, 'Bad request');
+
+      await AuthService.deleteRefreshToken(refreshToken);
+
+      res.json({
+        data: user,
+        message: 'Password changed successfully.',
+      });
+    }
+  )
+];
+
 export default {
   signup,
   login,
   refreshAccessToken,
   logout,
   requestPasswordReset,
+  resetPassword,
 };

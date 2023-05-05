@@ -36,7 +36,23 @@ const createUser = async (
   return user;
 };
 
+const updateUser = async (id: string, updateFields: {
+  email?: string,
+  password?: string,
+  username?: string,
+  avatarUrl?: string,
+}) => {
+  const updateQuery = keepKeys(updateFields, ['password', 'username', 'email', 'avatarUrl']);
+
+  const updatedUser = await User.findByIdAndUpdate(id, {
+    $set: updateQuery,
+  });
+
+  return updatedUser;
+}
+
 export default {
   getUser,
   createUser,
+  updateUser,
 };

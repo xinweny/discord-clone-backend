@@ -20,7 +20,7 @@ const verifyPassword = async (password: string, hash: string) => {
 const generateTokens = async (user: IUser) => {
   const { _id, username, email, role } = user;
 
-  const payload = { _id, username, email, role };
+  const payload = { uid: _id, username, email, role };
 
   const accessToken = jwt.sign(
     payload,
@@ -34,26 +34,26 @@ const generateTokens = async (user: IUser) => {
     { expiresIn: env.JWT_REFRESH_EXPIRE }
   );
   
-  await RedisService.set(`${user._id.toString()}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
+  await RedisService.set(`${payload.uid}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
 
   return { accessToken, refreshToken };
 }
 
-const verifyToken = async (refreshToken: string, tokenType: string) => {
+const verifyRefreshToken = async (refreshToken: string) => {
   const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  const token = await RedisService.get(`${payload._id.toString()}_${tokenType}`);
+  const userToken = await RedisService.get(`${payload.uid.toString()}_REFRESH`);
 
-  return (token) ? payload : null;
+  return (userToken === refreshToken) ? payload : null;
 };
 
 const issueAccessToken = (payload: {
-  _id: string,
+  uid: string,
   email: string,
   username: string,
   role: string,
 }) => {
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+  return jwt.sign(payload, env[`JWT_ACCESS_SECRET`], {
     expiresIn: env.JWT_ACCESS_EXPIRE,
   });
 }
@@ -61,7 +61,7 @@ const issueAccessToken = (payload: {
 const deleteRefreshToken = async (refreshToken: string) => {
   const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  if (payload) await RedisService.del(payload._id);
+  if (payload) await RedisService.del(payload.uid);
 };
 
 const issueResetToken = async (userId: string) => {
@@ -74,12 +74,27 @@ const issueResetToken = async (userId: string) => {
   return resetToken;
 }
 
+const verifyResetToken = async (resetToken: string, userId: string) => {
+  const hashedToken = await RedisService.get(`${userId}_RESET`);
+
+  if (!hashedToken) return null;
+
+  const isValid = await bcrypt.compare(resetToken, hashedToken);
+
+  if (!isValid) return null;
+
+  const refreshToken = await RedisService.get(`${userId}_REFRESH`);
+
+  return refreshToken;
+}
+
 export default {
   hashPassword,
   verifyPassword,
   generateTokens,
-  verifyToken,
+  verifyRefreshToken,
   issueAccessToken,
   issueResetToken,
   deleteRefreshToken,
+  verifyResetToken,
 };

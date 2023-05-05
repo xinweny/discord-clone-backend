@@ -14,4 +14,6 @@ AuthRouter.delete('/refreshToken', AuthController.logout);
 
 AuthRouter.post('/requestPasswordReset', AuthController.requestPasswordReset);
 
+AuthRouter.post('/resetPassword', AuthController.resetPassword);
+
 export default AuthRouter;
