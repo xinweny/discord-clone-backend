@@ -1,20 +1,11 @@
 import { ErrorRequestHandler } from 'express';
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  if (!err) {
-    res.status(500).json({
-      statusCode: 500,
-      error: {},
-      message: 'Internal Server Error',
-    });
-    return;
-  }
-
-  res.status(err.statusCode);
+  res.status(err.statusCode || 500);
 
   res.json({
-    statusCode: err.statusCode,
-    error: err.error || {},
+    statusCode: err.statusCode || 500,
+    error: err.error || err.stack || {},
     message: err.message,
   });
 };
