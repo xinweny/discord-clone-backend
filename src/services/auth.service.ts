@@ -8,7 +8,7 @@ import { IToken } from '../models/UserToken.model';
 import { IUser } from '../models/User.model';
 
 const hashPassword = async (password: string) => {
-  return bcrypt.hash(password, Number(env.SALT_LENGTH));
+  return bcrypt.hash(password, Number(env.BCRYPT_SALT));
 };
 
 const verifyPassword = async (password: string, hash: string) => {

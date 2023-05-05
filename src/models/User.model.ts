@@ -13,8 +13,8 @@ export interface IUser {
 
 const userSchema = new Schema({
   username: { type: String, required: true },
-  password: { type: String, required: true },
-  email: { type: String, required: true },
+  password: { type: String, required: true, select: false },
+  email: { type: String, required: true, select: false },
   verified: { type: Boolean, default: false },
   joinedAt: { type: Date, default: Date.now },
   avatarUrl: { type: String },

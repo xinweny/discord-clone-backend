@@ -1,14 +1,24 @@
 import User from '../models/User.model';
 
-const findOneUser = async (queryObj: {
+import keepKeys from '../helpers/keepKeys';
+
+const getUser = async (queryObj: {
   _id?: string,
   email?: string,
   password?: string,
-}) => {
-  const user = await User.findOne(queryObj);
+}, sensitive = false) => {
+  const query = keepKeys(queryObj, ['_id', 'email', 'password']);
+
+  let user;
+
+  if (sensitive) {
+    user = await User.findOne(query).select('+email +password');
+  } else {
+    user = await User.findOne(query);
+  }
 
   return user;
-}
+};
 
 const createUser = async (
   email: string,
@@ -24,9 +34,9 @@ const createUser = async (
   await user.save();
 
   return user;
-}
+};
 
 export default {
-  findOneUser,
+  getUser,
   createUser,
 };

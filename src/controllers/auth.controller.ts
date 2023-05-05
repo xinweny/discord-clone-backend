@@ -17,7 +17,7 @@ const signup: RequestHandler[] = [
     async (req, res, next) => {
       const { email, username, password } = req.body;
 
-      const existingUser = await UserService.findOneUser({ email });
+      const existingUser = await UserService.getUser({ email });
 
       if (existingUser) throw new CustomError('Email already in use. Please choose a different email.', 400);
 
@@ -40,7 +40,7 @@ const login: RequestHandler[] = [
     async (req, res, next) => {
       const { email, password } = req.body;
 
-      const user = await UserService.findOneUser({ email });
+      const user = await UserService.getUser({ email }, true);
       if (!user) throw new CustomError('Invalid email or passsword.', 401);
 
       const verifiedPassword = await AuthService.verifyPassword(password, user.password);
@@ -72,7 +72,7 @@ const refreshAccessToken: RequestHandler[] = [
 
       const payload = { _id, email, username, role };
 
-      const accessToken = await AuthService.issueAccessToken(payload);
+      const accessToken = AuthService.issueAccessToken(payload);
 
       res.json({
         data: accessToken,
