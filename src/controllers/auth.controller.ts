@@ -1,15 +1,21 @@
 import { RequestHandler } from 'express';
 
 import env from '../config/env.config';
+
 import signupValidation from '../validators/signupValidation';
 import loginValidation from '../validators/loginValidation';
 import refreshValidation from '../validators/refreshValidation';
 import resetValidation from '../validators/resetValidation';
 import handleValidationErrors from '../validators/handleValidationErrors';
+
+import passwordResetMail from '../data/templates/passwordResetMail';
+
 import tryCatch from '../middleware/tryCatch';
+
 import CustomError from '../helpers/CustomError';
 
 import UserService from '../services/user.service';
+import MailService from '../services/mail.service';
 import AuthService from '../services/auth.service';
 
 const signup: RequestHandler[] = [
@@ -111,10 +117,21 @@ const requestPasswordReset: RequestHandler[] = [
       if (!user) throw new CustomError(400, 'User does not exist.');
 
       const id = user._id.toString();
-      const resetToken = AuthService.issueResetToken(id);
+      const resetToken = await AuthService.issueResetToken(id);
       const clientURL = `${env.HOST}:${env.PORT}`;
 
       const link = `${clientURL}/passwordReset?token=${resetToken}&id=${id}`;
+
+      const mail = await MailService.sendMail(
+        email,
+        'Discord Clone Password Reset',
+        passwordResetMail(user.username, link)
+      );
+
+      res.json({
+        data: mail,
+        message: 'Email sent successfully.'
+      });
     }
   )
 ];
