@@ -64,28 +64,34 @@ const deleteRefreshToken = async (refreshToken: string) => {
   if (payload) await RedisService.del(payload.uid);
 };
 
-const issueResetToken = async (userId: string) => {
-  const resetToken = crypto.randomBytes(32).toString('hex');
+const issueTempToken = async (userId: string, type: 'RESET' | 'VERIFY', expTime: number) => {
+  const token = crypto.randomBytes(32).toString('hex');
 
-  const hash = await bcrypt.hash(resetToken, Number(env.BCRYPT_SALT));
+  const hash = await bcrypt.hash(token, Number(env.BCRYPT_SALT));
   
-  await RedisService.set(`${userId}_RESET`, hash, 1800000);
+  await RedisService.set(`${userId}_${type}`, hash, expTime);
 
-  return resetToken;
+  return token;
 }
 
-const verifyResetToken = async (resetToken: string, userId: string) => {
-  const hashedToken = await RedisService.get(`${userId}_RESET`);
+const verifyTempToken = async (token: string, userId: string, type: 'RESET' | 'VERIFY') => {
+  const hashedToken = await RedisService.get(`${userId}_${type}`);
 
   if (!hashedToken) return null;
 
-  const isValid = await bcrypt.compare(resetToken, hashedToken);
+  const isValid = await bcrypt.compare(token, hashedToken);
 
   if (!isValid) return null;
 
-  const refreshToken = await RedisService.get(`${userId}_REFRESH`);
+  if (type === 'RESET') {
+    const refreshToken = await RedisService.get(`${userId}_REFRESH`);
 
-  return refreshToken;
+    return refreshToken;
+  } else if (type === 'VERIFY') {
+    await RedisService.del(`${userId}_${type}`);
+
+    return hashedToken;
+  }
 }
 
 export default {
@@ -94,7 +100,7 @@ export default {
   generateTokens,
   verifyRefreshToken,
   issueAccessToken,
-  issueResetToken,
+  issueTempToken,
   deleteRefreshToken,
-  verifyResetToken,
+  verifyTempToken,
 };

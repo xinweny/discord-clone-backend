@@ -5,7 +5,8 @@ import env from '../config/env.config';
 import validateFields from '../validators/validateFields';
 import handleValidationErrors from '../validators/handleValidationErrors';
 
-import passwordResetMail from '../data/templates/passwordResetMail';
+import passwordResetMail from '../templates/passwordResetMail';
+import emailVerificationMail from '../templates/emailVerificationMail';
 
 import tryCatch from '../middleware/tryCatch';
 
@@ -114,20 +115,20 @@ const requestPasswordReset: RequestHandler[] = [
       if (!user) throw new CustomError(400, 'User does not exist.');
 
       const id = user._id.toString();
-      const resetToken = await AuthService.issueResetToken(id);
+      const resetToken = await AuthService.issueTempToken(id, 'RESET', 1800000);
       const clientURL = `${env.HOST}:${env.PORT}`;
 
-      const link = `${clientURL}/api/v1/resetPassword?token=${resetToken}&uid=${id}`;
+      const link = `${clientURL}/api/v1/reset?token=${resetToken}&uid=${id}`;
 
       const mail = await MailService.sendMail(
         email,
-        'Discord Clone Password Reset Request',
+        'Discord Clone Password Reset',
         passwordResetMail(user.username, link)
       );
 
       res.json({
         data: mail,
-        message: 'Email sent successfully.'
+        message: 'Password reset email sent successfully.'
       });
     }
   )
@@ -143,7 +144,7 @@ const resetPassword: RequestHandler[] = [
       const token = req.query.token.toString();
       const uid = req.query.uid.toString();
 
-      const refreshToken = await AuthService.verifyResetToken(token, uid);
+      const refreshToken = await AuthService.verifyTempToken(token, uid, 'RESET');
 
       if (!refreshToken) throw new CustomError(401, 'Invalid password reset token.');
 
@@ -165,6 +166,64 @@ const resetPassword: RequestHandler[] = [
   )
 ];
 
+const requestEmailVerification: RequestHandler[] = [
+  ...validateFields(['email']),
+  handleValidationErrors,
+  tryCatch(
+    async (req, res, next) => {
+      const { email } = req.body;
+
+      const user = await UserService.getUser({ email });
+
+      if (!user) throw new CustomError(400, 'User does not exist.');
+
+      const id = user._id.toString();
+      const verifyToken = await AuthService.issueTempToken(id, 'VERIFY', 1800000);
+      const clientURL = `${env.HOST}:${env.PORT}`;
+
+      const link = `${clientURL}/api/v1/verify?token=${verifyToken}&uid=${id}`;
+
+      const mail = await MailService.sendMail(
+        email,
+        'Discord Clone User Verification',
+        emailVerificationMail(user.username, link)
+      );
+
+      res.json({
+        data: mail,
+        message: 'Email verification email sent successfully.'
+      });
+    }
+  )
+];
+
+const verifyEmail: RequestHandler = tryCatch(
+  async (req, res, next) => {
+    if (!req.query.token || !req.query.uid) throw new CustomError(404, 'Not found.');
+
+    const token = req.query.token.toString();
+    const uid = req.query.uid.toString();
+
+    const user = await UserService.getUser({ _id: uid });
+
+    if (!user) throw new CustomError(400, 'User does not exist.');
+    if (user.verified) throw new CustomError(400, 'User email has already been verified.');
+
+    const hashedToken = await AuthService.verifyTempToken(token, uid, 'VERIFY');
+
+    if (!hashedToken) throw new CustomError(401, 'Invalid email verification token.');
+
+    await UserService.updateUser(uid, {
+      verified: true,
+    });
+
+    res.json({
+      data: user,
+      message: 'User email verified successfully.',
+    });
+  }
+);
+
 export default {
   signup,
   login,
@@ -172,4 +231,6 @@ export default {
   logout,
   requestPasswordReset,
   resetPassword,
+  requestEmailVerification,
+  verifyEmail,
 };

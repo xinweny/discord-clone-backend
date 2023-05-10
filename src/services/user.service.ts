@@ -47,7 +47,7 @@ const updateUser = async (id: string, updateFields: {
 
   const updatedUser = await User.findByIdAndUpdate(id, {
     $set: updateQuery,
-  });
+  }, { new: true });
 
   return updatedUser;
 }

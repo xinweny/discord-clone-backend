@@ -8,12 +8,16 @@ AuthRouter.post('/login', AuthController.login);
 
 AuthRouter.post('/signup', AuthController.signup);
 
-AuthRouter.post('/refreshToken', AuthController.refreshAccessToken);
+AuthRouter.post('/refresh', AuthController.refreshAccessToken);
 
-AuthRouter.delete('/refreshToken', AuthController.logout);
+AuthRouter.delete('/refresh', AuthController.logout);
 
-AuthRouter.post('/requestPasswordReset', AuthController.requestPasswordReset);
+AuthRouter.post('/reqReset', AuthController.requestPasswordReset);
 
-AuthRouter.post('/resetPassword', AuthController.resetPassword);
+AuthRouter.post('/reset', AuthController.resetPassword);
+
+AuthRouter.post('/reqVerify', AuthController.requestEmailVerification);
+
+AuthRouter.post('/verify', AuthController.verifyEmail);
 
 export default AuthRouter;
