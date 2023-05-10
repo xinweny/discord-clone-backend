@@ -1,8 +1,6 @@
 import { ErrorRequestHandler } from 'express';
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  if (err.stack) console.log(err.stack);
-
   res.status(err.statusCode || 500);
 
   res.json({
