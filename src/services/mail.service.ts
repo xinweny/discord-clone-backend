@@ -4,7 +4,10 @@ import env from '../config/env.config';
 
 const sendMail = async (to: string, subject: string, htmlTemplate: string) => {
   const mailOptions = {
-    from: env.SMTP_EMAIL,
+    from: {
+      name: 'Discord Clone',
+      address: env.SMTP_EMAIL,
+    },
     to,
     subject,
     html: htmlTemplate,
