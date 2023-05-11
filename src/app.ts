@@ -9,8 +9,15 @@ import './config/db.config';
 import router from './routes/index.route';
 import CustomError from './helpers/CustomError';
 import errorHandler from './middleware/errorHandler';
+import { IReqUser } from './models/User.model';
 
 const app = express();
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: IReqUser,
+  }
+}
 
 // MIDDLEWARES
 app.use(express.json());
