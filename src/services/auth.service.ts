@@ -18,9 +18,9 @@ const verifyPassword = async (password: string, hash: string) => {
 }
 
 const generateTokens = async (user: IUser) => {
-  const { _id, username, email, role } = user;
+  const { _id, username, email, role, verified } = user;
 
-  const payload = { uid: _id, username, email, role };
+  const payload = { _id: _id, username, email, role, verified };
 
   const accessToken = jwt.sign(
     payload,
@@ -34,34 +34,35 @@ const generateTokens = async (user: IUser) => {
     { expiresIn: env.JWT_REFRESH_EXPIRE }
   );
   
-  await RedisService.set(`${payload.uid}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
+  await RedisService.set(`${payload._id}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
 
   return { accessToken, refreshToken };
 }
 
 const verifyRefreshToken = async (refreshToken: string) => {
-  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
+  const user = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  const userToken = await RedisService.get(`${payload.uid.toString()}_REFRESH`);
+  const userToken = await RedisService.get(`${user._id.toString()}_REFRESH`);
 
-  return (userToken === refreshToken) ? payload : null;
+  return (userToken === refreshToken) ? user : null;
 };
 
-const issueAccessToken = (payload: {
-  uid: string,
+const issueAccessToken = (user: {
+  _id: string,
   email: string,
   username: string,
   role: string,
+  verified: boolean,
 }) => {
-  return jwt.sign(payload, env[`JWT_ACCESS_SECRET`], {
+  return jwt.sign(user, env[`4JWT_ACCESS_SECRET`], {
     expiresIn: env.JWT_ACCESS_EXPIRE,
   });
 }
 
 const deleteRefreshToken = async (refreshToken: string) => {
-  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
+  const user = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  if (payload) await RedisService.del(payload.uid);
+  if (user) await RedisService.del(user._id);
 };
 
 const issueTempToken = async (userId: string, type: 'RESET' | 'VERIFY', expTime: number) => {
