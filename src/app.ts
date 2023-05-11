@@ -24,7 +24,7 @@ app.use(apiRateLimiter);
 app.use('/api/v1', router);
 
 // ERROR HANDLING
-app.use('*', (req, res) => { throw new CustomError(404, 'Resource not found.') });
+app.use('*', (req, res) => { throw new CustomError(404, 'Resource not found.'); });
 app.use(errorHandler);
 
 export default app; 
