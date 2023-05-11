@@ -10,7 +10,7 @@ const authenticate = tryCatch(
     if (!req.headers.authorization) throw new CustomError(401, 'Unauthorized');
 
     const accessToken = req.headers.authorization.split(' ')[1];
-    
+
     const payload = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
 
     const user = await UserService.getUser({ _id: payload._id });
@@ -24,4 +24,3 @@ const authenticate = tryCatch(
 )
 
 export default authenticate;
-

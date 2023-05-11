@@ -20,7 +20,7 @@ const verifyPassword = async (password: string, hash: string) => {
 const generateTokens = async (user: IUser) => {
   const { _id, username, email, role, verified } = user;
 
-  const payload = { _id: _id, username, email, role, verified };
+  const payload = { _id, username, email, role, verified };
 
   const accessToken = jwt.sign(
     payload,
@@ -42,7 +42,7 @@ const generateTokens = async (user: IUser) => {
 const verifyRefreshToken = async (refreshToken: string) => {
   const user = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  const userToken = await RedisService.get(`${user._id.toString()}_REFRESH`);
+  const userToken = await RedisService.get(`${user._id}_REFRESH`);
 
   return (userToken === refreshToken) ? user : null;
 };
@@ -54,7 +54,7 @@ const issueAccessToken = (user: {
   role: string,
   verified: boolean,
 }) => {
-  return jwt.sign(user, env[`4JWT_ACCESS_SECRET`], {
+  return jwt.sign(user, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRE,
   });
 }

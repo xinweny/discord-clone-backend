@@ -11,6 +11,14 @@ export interface IUser {
   role: string;
 }
 
+export interface IReqUser {
+  _id: Types.ObjectId;
+  email: string;
+  username: string;
+  verified: boolean;
+  role: string;
+}
+
 const userSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, required: true, select: false },
