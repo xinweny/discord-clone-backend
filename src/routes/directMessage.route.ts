@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
-import directMessageController from '../controllers/directMessage.controller';
+import DirectMessageController from '../controllers/directMessage.controller';
 
 const DirectMessageRouter = Router();
 
-DirectMessageRouter.post('/', directMessageController.createChat);
+DirectMessageRouter.post('/', DirectMessageController.createChat);
 
 export default DirectMessageRouter;

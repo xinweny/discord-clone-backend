@@ -1,4 +1,4 @@
-type objType = { [key: string]: string | number | boolean | Date };
+type objType = { [key: string]: any };
 
 const keepKeys = (obj: objType, incKeys: string[]) => {
   return Object.keys(obj)

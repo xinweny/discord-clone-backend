@@ -20,7 +20,7 @@ export interface IReqUser {
 }
 
 const userSchema = new Schema({
-  username: { type: String, required: true },
+  username: { type: String, required: true, length: { max: 32 } },
   password: { type: String, required: true, select: false },
   email: { type: String, required: true, select: false, unique: true },
   verified: { type: Boolean, default: false },
