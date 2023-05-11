@@ -20,7 +20,7 @@ const getUser = async (queryObj: {
   return user;
 };
 
-const createUser = async (
+const create = async (
   email: string,
   username: string,
   password: string,
@@ -36,7 +36,7 @@ const createUser = async (
   return user;
 };
 
-const updateUser = async (id: string, updateFields: {
+const update = async (id: string, updateFields: {
   email?: string,
   password?: string,
   username?: string,
@@ -54,6 +54,6 @@ const updateUser = async (id: string, updateFields: {
 
 export default {
   getUser,
-  createUser,
-  updateUser,
+  create,
+  update,
 };

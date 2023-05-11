@@ -29,7 +29,7 @@ const signup: RequestHandler[] = [
 
       const hashedPassword = await AuthService.hashPassword(password);
 
-      const newUser = await UserService.createUser(email, username, hashedPassword);
+      const newUser = await UserService.create(email, username, hashedPassword);
 
       res.json({
         data: newUser,
@@ -150,7 +150,7 @@ const resetPassword: RequestHandler[] = [
 
       const hashedPassword = await AuthService.hashPassword(req.body.password);
 
-      const user = await UserService.updateUser(uid, {
+      const user = await UserService.update(uid, {
         password: hashedPassword,
       });
 
@@ -213,7 +213,7 @@ const verifyEmail: RequestHandler = tryCatch(
 
     if (!hashedToken) throw new CustomError(401, 'Invalid email verification token.');
 
-    await UserService.updateUser(uid, {
+    await UserService.update(uid, {
       verified: true,
     });
 
