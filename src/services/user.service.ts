@@ -9,27 +9,19 @@ const getUser = async (queryObj: {
 }, sensitive = false) => {
   const query = keepKeys(queryObj, ['_id', 'email', 'password']);
 
-  let user;
-
-  if (sensitive) {
-    user = await User.findOne(query).select('+email +password');
-  } else {
-    user = await User.findOne(query);
-  }
+  const user = sensitive
+    ? await User.findOne(query).select('+email +password')
+    : await User.findOne(query);
 
   return user;
 };
 
-const create = async (
+const create = async (fields: {
   email: string,
   username: string,
   password: string,
-) => {
-  const user = new User({
-    email,
-    username,
-    password,
-  });
+}) => {
+  const user = new User(fields);
 
   await user.save();
 

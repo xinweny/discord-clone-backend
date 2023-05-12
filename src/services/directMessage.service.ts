@@ -4,14 +4,11 @@ import keepKeys from '../helpers/keepKeys';
 
 import DirectMessage from '../models/DirectMessage.model';
 
-const create = async (
+const create = async (fields: {
   creatorId: Types.ObjectId,
-  participantIds: Types.ObjectId[] | string[]
-) => {
-  const directMessage = new DirectMessage({
-    creatorId,
-    participantIds,
-  });
+  participantIds: Types.ObjectId[] | string[],
+}) => {
+  const directMessage = new DirectMessage(fields);
 
   await directMessage.save();
 
@@ -20,11 +17,11 @@ const create = async (
 
 const update = async (
   id: string,
-  updateFields: {
+  fields: {
     participantIds: string[],
   }
 ) => {
-  const updateQuery = keepKeys(updateFields, ['participantIds']);
+  const updateQuery = keepKeys(fields, ['participantIds']);
 
   const updatedDirectMessage = await DirectMessage.findByIdAndUpdate(id, {
     $set: updateQuery,

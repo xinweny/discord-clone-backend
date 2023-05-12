@@ -1,33 +1,33 @@
 import { Server, Socket } from 'socket.io';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { ExtendedError } from 'socket.io/dist/namespace';
 
 import env from './env.config';
 
-import MessageController from '../controllers/message.controller';
+import MessageHandler from '../handlers/message.handler';
 
 const socketIo = (io: Server) => {
   io
   .use((socket: Socket, next) => {
-    try {
       const accessToken = socket.handshake.query.accessToken as string | undefined;
 
-      if (!accessToken) throw new Error('Authentication error');
+      if (!accessToken) return next(new Error('Authentication error'));
   
       const user = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
   
       socket.user = user;
       next();
-    } catch (err) {
-      return next(err as ExtendedError);
-    }
   })
   .on('connection', (socket: Socket) => {
-    const messageController = new MessageController(socket);
-  
-    socket.on('dm:join', (chatId: string) => socket.join(chatId));
-    socket.on('dm:create', (payload) => messageController.sendDirectMessage(payload));
-    socket.on('dm:update', (payload) => messageController.updateMessage(payload));
+    const messageHandler = new MessageHandler(socket);
+
+    socket.on('friend_request:join', () => socket.join(`${socket.user._id}_friend_requests`));
+    socket.on('friend_request:join', () => socket.join(`${socket.user._id}_friend_statuses`));
+    socket.on('chat:join', (chatId: string) => socket.join(chatId));
+
+    socket.on('message:send', (payload) => messageHandler.sendDirectMessage(payload));
+    socket.on('message:update', (payload) => messageHandler.updateDirectMessage(payload));
+
+    socket.on('disconnect', () => console.log(`${new Date}: ${socket.id} disconnected`));
 
     socket.on('error', (err) => console.log(err));
   });

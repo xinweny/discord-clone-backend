@@ -29,7 +29,11 @@ const signup: RequestHandler[] = [
 
       const hashedPassword = await AuthService.hashPassword(password);
 
-      const newUser = await UserService.create(email, username, hashedPassword);
+      const newUser = await UserService.create({
+        email,
+        username,
+        password: hashedPassword,
+      });
 
       res.json({
         data: newUser,

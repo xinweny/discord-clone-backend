@@ -9,7 +9,10 @@ const createChat: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res, next) => {
-      const directMessage = await DirectMessageService.create(req.user!._id, req.body.participantIds);
+      const directMessage = await DirectMessageService.create({
+        creatorId: req.user!._id,
+        participantIds: req.body.participantIds
+      });
 
       res.json({
         data: directMessage,
