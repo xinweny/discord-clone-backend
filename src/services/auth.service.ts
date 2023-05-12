@@ -47,6 +47,14 @@ const verifyRefreshToken = async (refreshToken: string) => {
   return (userToken === refreshToken) ? user : null;
 };
 
+const verifyAccessToken = (accessToken: string) => {
+  try {
+    const user = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
+
+    return user;
+  } catch (err) { return null; }
+};
+
 const issueAccessToken = (user: {
   _id: string,
   email: string,
@@ -100,6 +108,7 @@ export default {
   verifyPassword,
   generateTokens,
   verifyRefreshToken,
+  verifyAccessToken,
   issueAccessToken,
   issueTempToken,
   deleteRefreshToken,

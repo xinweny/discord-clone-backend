@@ -1,23 +1,21 @@
 import { Server, Socket } from 'socket.io';
-import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import env from './env.config';
+import checkSessionValidity from '../helpers/checkSessionValidity';
 
 import MessageHandler from '../handlers/message.handler';
+import AuthHandler from '../handlers/auth.handler';
+import SessionHandler from '../handlers/session.handler';
 
 const socketIo = (io: Server) => {
   io
-  .use((socket: Socket, next) => {
-      const accessToken = socket.handshake.query.accessToken as string | undefined;
+  .use(AuthHandler.authenticate)
+  .on('connection', async (socket: Socket) => {
+    await SessionHandler.set(
+      socket,
+      socket.handshake.query.accessToken as string,
+      Number(socket.user.exp)
+    );
 
-      if (!accessToken) return next(new Error('Authentication error'));
-  
-      const user = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
-  
-      socket.user = user;
-      next();
-  })
-  .on('connection', (socket: Socket) => {
     const messageHandler = new MessageHandler(socket);
 
     socket.join(socket.user._id);
@@ -27,12 +25,19 @@ const socketIo = (io: Server) => {
       messageHandler.getHistory(roomId);
     });
 
-    socket.on('message:send', (payload) => messageHandler.sendDirectMessage(payload));
-    socket.on('message:update', (payload) => messageHandler.updateDirectMessage(payload));
+    socket.on('message:send', (payload) => messageHandler.sendMessage(payload));
+    socket.on('message:update', (payload) => messageHandler.updateMessage(payload));
+
+    socket.on('token:refresh', async (token) => {
+      const decoded = AuthHandler.verifyToken(token);
+      if (decoded) await SessionHandler.set(socket, token, Number(decoded.exp));
+    });
 
     socket.on('disconnect', () => console.log(`${new Date}: ${socket.id} disconnected`));
 
     socket.on('error', (err) => console.log(err));
+
+    checkSessionValidity(socket);
   });
 }
 

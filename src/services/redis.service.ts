@@ -8,10 +8,14 @@ const get = async (key: string) => {
   return result;
 }
 
-const set = async (key: string, value: string | number, expTime: number) => {
+const set = async (
+  key: string,
+  value: string | number,
+  expTime: number
+) => {
   await redisClient.connect();
   await redisClient.set(key, value, {
-    EX: expTime / 1000,
+    EX: Math.round(expTime / 1000),
   });
   await redisClient.disconnect();
 };

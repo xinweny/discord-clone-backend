@@ -18,8 +18,8 @@ class MessageHandler {
 
     this.socket.emit(roomId, messages);
   }
-
-  async sendDirectMessage(payload: {
+  
+  async sendMessage(payload: {
     roomId: string,
     body: string,
     attachments?: string[],
@@ -37,7 +37,7 @@ class MessageHandler {
     await MessageService.save(message);
   }
 
-  async updateDirectMessage(payload: {
+  async updateMessage(payload: {
     roomId: string,
     messageId: string,
     fields: {
