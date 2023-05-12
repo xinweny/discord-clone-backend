@@ -7,6 +7,7 @@ import DirectMessage from '../models/DirectMessage.model';
 const create = async (fields: {
   creatorId: Types.ObjectId,
   participantIds: Types.ObjectId[] | string[],
+  name?: string,
 }) => {
   const directMessage = new DirectMessage(fields);
 
@@ -30,7 +31,14 @@ const update = async (
   return updatedDirectMessage;
 };
 
+const exists = async (fields: {
+  creatorId: Types.ObjectId,
+  participantIds: Types.ObjectId[] | string[],
+  name?: string,
+}) => await DirectMessage.exists(fields);
+
 export default {
   create,
   update,
+  exists,
 }

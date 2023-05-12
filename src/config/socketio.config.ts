@@ -20,9 +20,12 @@ const socketIo = (io: Server) => {
   .on('connection', (socket: Socket) => {
     const messageHandler = new MessageHandler(socket);
 
-    socket.on('friend_request:join', () => socket.join(`${socket.user._id}_friend_requests`));
-    socket.on('friend_request:join', () => socket.join(`${socket.user._id}_friend_statuses`));
-    socket.on('chat:join', (chatId: string) => socket.join(chatId));
+    socket.join(socket.user._id);
+
+    socket.on('chat:join', (roomId: string) => {
+      socket.join(roomId);
+      messageHandler.getHistory(roomId);
+    });
 
     socket.on('message:send', (payload) => messageHandler.sendDirectMessage(payload));
     socket.on('message:update', (payload) => messageHandler.updateDirectMessage(payload));

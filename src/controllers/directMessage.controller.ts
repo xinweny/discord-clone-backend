@@ -11,7 +11,7 @@ const createChat: RequestHandler[] = [
     async (req, res, next) => {
       const directMessage = await DirectMessageService.create({
         creatorId: req.user!._id,
-        participantIds: req.body.participantIds
+        ...req.body,
       });
 
       res.json({

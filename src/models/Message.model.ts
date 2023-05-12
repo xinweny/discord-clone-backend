@@ -1,7 +1,7 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
 
 export interface IMessage extends Document {
-  chatId: Types.ObjectId;
+  roomId: Types.ObjectId;
   senderId: Types.ObjectId;
   body: string;
   attachments: string[];
@@ -10,7 +10,7 @@ export interface IMessage extends Document {
 }
 
 const messageSchema = new Schema({
-  chatId: { type: Types.ObjectId, required: true },
+  roomId: { type: Types.ObjectId, required: true },
   senderId: { type: Types.ObjectId, required: true },
   body: { type: String, required: true },
   attachments: [{ type: String }],
@@ -34,14 +34,14 @@ messageSchema.virtual('serverMemberSender', {
 
 messageSchema.virtual('direct', {
   ref: 'Channel',
-  localField: 'chatId',
+  localField: 'roomId',
   foreignField: '_id',
   justOne: true,
 });
 
 messageSchema.virtual('channel', {
   ref: 'DirectMessage',
-  localField: 'chatId',
+  localField: 'roomId',
   foreignField: '_id',
   justOne: true,
 });
