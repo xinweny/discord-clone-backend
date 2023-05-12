@@ -1,10 +1,19 @@
-import mongoose, { Schema, Types } from 'mongoose';
+import mongoose, { Schema, Types, Document } from 'mongoose';
+
+export interface IMessage extends Document {
+  chatId: Types.ObjectId;
+  senderId: Types.ObjectId;
+  body: string;
+  attachments: string[];
+  createdAt: Date;
+  updatedAt?: Date;
+}
 
 const messageSchema = new Schema({
   chatId: { type: Types.ObjectId, required: true },
   senderId: { type: Types.ObjectId, required: true },
   body: { type: String, required: true },
-  attachments: [String],
+  attachments: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
 });
@@ -37,6 +46,6 @@ messageSchema.virtual('channel', {
   justOne: true,
 });
 
-const Message = mongoose.model('Message', messageSchema);
+const Message = mongoose.model<IMessage>('Message', messageSchema);
 
 export default Message;

@@ -1,20 +1,21 @@
 import { Types } from 'mongoose';
-import Message from '../models/Message.model';
+
+import Message, { IMessage } from '../models/Message.model';
 
 import keepKeys from '../helpers/keepKeys';
 
-const create = async (fields: {
+const create = (fields: {
   senderId: Types.ObjectId | string,
   chatId: Types.ObjectId | string,
   body: string,
   attachments?: string[],
 }) => {
   const message = new Message(fields);
-
-  await message.save();
   
   return message;
 };
+
+const save = async (message: IMessage) => await message.save();
 
 const update = async (
   id: string,
@@ -37,5 +38,6 @@ const update = async (
 
 export default {
   create,
+  save,
   update,
 }

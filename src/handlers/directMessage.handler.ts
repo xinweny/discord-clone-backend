@@ -1,8 +1,5 @@
 import { Socket } from 'socket.io';
 
-import { io } from '../server';
-
-
 class DirectMessageHandler {
   userId: string;
   socket: Socket;

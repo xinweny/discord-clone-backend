@@ -1,7 +1,6 @@
-import mongoose, { Schema, Types } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IUser {
-  _id: Types.ObjectId;
+export interface IUser extends Document {
   username: string;
   password: string;
   email: string;
@@ -11,8 +10,7 @@ export interface IUser {
   role: string;
 }
 
-export interface IReqUser {
-  _id: Types.ObjectId;
+export interface IReqUser extends Document {
   email: string;
   username: string;
   verified: boolean;
@@ -34,6 +32,6 @@ const userSchema = new Schema({
   },
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model<IUser>('User', userSchema);
 
 export default User;
