@@ -23,7 +23,7 @@ class MessageController {
     const message = await MessageService.create(this.userId, chatId, body, attachments);
 
     io.sockets.in(chatId)
-      .emit('dm:get', message);
+      .emit(chatId, message);
   }
 
   async updateMessage(payload: {
@@ -39,7 +39,7 @@ class MessageController {
     const updatedMessage = await MessageService.update(messageId, fields);
 
     io.sockets.in(chatId)
-      .emit('dm:get', updatedMessage);
+      .emit(chatId, updatedMessage);
   }
 }
 

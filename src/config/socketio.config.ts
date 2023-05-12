@@ -28,6 +28,8 @@ const socketIo = (io: Server) => {
     socket.on('dm:join', (chatId: string) => socket.join(chatId));
     socket.on('dm:create', (payload) => messageController.sendDirectMessage(payload));
     socket.on('dm:update', (payload) => messageController.updateMessage(payload));
+
+    socket.on('error', (err) => console.log(err));
   });
 }
 
