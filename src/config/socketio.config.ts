@@ -13,14 +13,13 @@ const socketIo = (io: Server) => {
     await SessionHandler.set(
       socket,
       socket.handshake.query.accessToken as string,
-      Number(socket.user.exp)
     );
 
     const messageHandler = new MessageHandler(socket);
 
     socket.join(socket.user._id);
 
-    socket.on('chat:join', (roomId: string) => {
+    socket.on('room:join', (roomId: string) => {
       socket.join(roomId);
       messageHandler.getHistory(roomId);
     });
@@ -30,12 +29,12 @@ const socketIo = (io: Server) => {
 
     socket.on('token:refresh', async (token) => {
       const decoded = AuthHandler.verifyToken(token);
-      if (decoded) await SessionHandler.set(socket, token, Number(decoded.exp));
+      if (decoded) await SessionHandler.set(socket, token);
     });
 
-    socket.on('disconnect', () => console.log(`${new Date}: ${socket.id} disconnected`));
+    socket.on('disconnect', () => console.log(`${new Date()}: ${socket.id} disconnected`));
 
-    socket.on('error', (err) => console.log(err));
+    socket.on('error', (err) => socket.emit(socket.user._id, err));
 
     checkSessionValidity(socket);
   });

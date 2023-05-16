@@ -1,6 +1,8 @@
 import { Socket } from 'socket.io';
+import ms from 'ms';
 
 import RedisService from '../services/redis.service';
+import env from '../config/env.config';
 
 const get = async (userId: string) => {
   const data = await RedisService.get(`${userId}_SESSION`);
@@ -8,7 +10,7 @@ const get = async (userId: string) => {
   return data ? JSON.parse(data) : null;
 }
 
-const set = async (socket: Socket, token: string, expiry: number) => {
+const set = async (socket: Socket, token: string) => {
   const session = {
     sessionId: socket.id,
     token,
@@ -16,7 +18,7 @@ const set = async (socket: Socket, token: string, expiry: number) => {
 
   const json = JSON.stringify(session);
 
-  await RedisService.set(`${socket.user._id}_SESSION`, json, (expiry * 1000) - Date.now());
+  await RedisService.set(`${socket.user._id}_SESSION`, json, ms(env.JWT_ACCESS_EXPIRE));
 };
 
 const remove = async (userId: string) => {

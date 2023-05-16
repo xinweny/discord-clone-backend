@@ -5,7 +5,7 @@ import tryCatch from '../middleware/tryCatch';
 
 import DirectMessageService from '../services/directMessage.service';
 
-const createChat: RequestHandler[] = [
+const createRoom: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res, next) => {
@@ -23,5 +23,5 @@ const createChat: RequestHandler[] = [
 ];
 
 export default {
-  createChat,
+  createRoom,
 }

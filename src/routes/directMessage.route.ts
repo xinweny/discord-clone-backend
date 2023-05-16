@@ -4,6 +4,6 @@ import DirectMessageController from '../controllers/directMessage.controller';
 
 const DirectMessageRouter = Router();
 
-DirectMessageRouter.post('/', DirectMessageController.createChat);
+DirectMessageRouter.post('/', DirectMessageController.createRoom);
 
 export default DirectMessageRouter;

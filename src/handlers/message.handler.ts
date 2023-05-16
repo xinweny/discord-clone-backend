@@ -14,7 +14,7 @@ class MessageHandler {
   }
 
   async getHistory(roomId: string) {
-    const messages = await MessageService.get({ roomId });
+    const messages = await MessageService.getMany({ roomId });
 
     this.socket.emit(roomId, messages);
   }
@@ -33,7 +33,8 @@ class MessageHandler {
       attachments,
     });
 
-    io.in(roomId).emit(roomId, message);
+    io.to(roomId).emit(roomId, message);
+
     await MessageService.save(message);
   }
 
@@ -47,9 +48,23 @@ class MessageHandler {
   }) {
     const { roomId, messageId, fields } = payload;
 
-    const updatedMessage = await MessageService.update(messageId, fields);
+    const message = await MessageService.getOne(messageId);
 
-    io.in(roomId).emit(roomId, updatedMessage);
+    if (!message) throw new Error('Message not found.');
+
+    const updatedMessage = MessageService.create({
+      _id: messageId,
+      roomId: message.roomId,
+      senderId: message.senderId,
+      updatedAt: new Date(),
+      body: fields.body || message.body,
+      attachments: fields.attachments || message.attachments,
+      createdAt: message.createdAt,
+    });
+
+    io.to(roomId).emit(roomId, updatedMessage);
+
+    await MessageService.save(updatedMessage);
   }
 }
 

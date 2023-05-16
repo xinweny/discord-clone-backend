@@ -4,8 +4,13 @@ import Message, { IMessage } from '../models/Message.model';
 
 import keepKeys from '../helpers/keepKeys';
 
-const get = async (fields: {
-  _id?: Types.ObjectId | string,
+const getOne = async (id: string) => {
+  const message = await Message.findById(id);
+
+  return message;
+}
+
+const getMany = async (fields: {
   senderId?: Types.ObjectId | string,
   roomId?: Types.ObjectId | string,
 }) => {
@@ -15,10 +20,13 @@ const get = async (fields: {
 }
 
 const create = (fields: {
+  _id?: Types.ObjectId | string,
   senderId: Types.ObjectId | string,
   roomId: Types.ObjectId | string,
   body: string,
   attachments?: string[],
+  updatedAt?: Date,
+  createdAt?: Date,
 }) => {
   const message = new Message(fields);
   
@@ -47,7 +55,8 @@ const update = async (
 }
 
 export default {
-  get,
+  getOne,
+  getMany,
   create,
   save,
   update,
