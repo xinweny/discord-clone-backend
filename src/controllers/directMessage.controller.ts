@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 
+import { io } from '../server';
 import authenticate from '../middleware/authenticate';
 import tryCatch from '../middleware/tryCatch';
 
@@ -12,6 +13,11 @@ const createRoom: RequestHandler[] = [
       const directMessage = await DirectMessageService.create({
         creatorId: req.user!._id,
         ...req.body,
+      });
+
+      io.emit('direct_message:subscribe', {
+        roomId: directMessage._id,
+        participantIds: directMessage.participantIds,
       });
 
       res.json({

@@ -12,13 +12,13 @@ const get = async (userId: string) => {
 
 const set = async (socket: Socket, token: string) => {
   const session = {
-    sessionId: socket.id,
+    socketId: socket.id,
     token,
   };
 
   const json = JSON.stringify(session);
 
-  await RedisService.set(`${socket.user._id}_SESSION`, json, ms(env.JWT_ACCESS_EXPIRE));
+  await RedisService.set(`${socket.user._id}_SESSION`, json);
 };
 
 const remove = async (userId: string) => {
