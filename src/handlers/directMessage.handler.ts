@@ -24,7 +24,7 @@ class DirectMessageHandler {
     
     const sockets = sessions
       .filter(session => session !== null)
-      .map(session => io.sockets.sockets.get(session.socketId));
+      .map(socketId => io.sockets.sockets.get(socketId as string));
 
     for (const socket of sockets) {
       if (socket) socket.join(roomId);

@@ -5,18 +5,11 @@ import RedisService from './redis.service';
 const get = async (userId: string) => {
   const data = await RedisService.get(`${userId}_SESSION`);
 
-  return data ? JSON.parse(data) : null;
+  return data;
 }
 
-const set = async (socket: Socket, token: string) => {
-  const session = {
-    socketId: socket.id,
-    token,
-  };
-
-  const json = JSON.stringify(session);
-
-  await RedisService.set(`${socket.user._id}_SESSION`, json);
+const set = async (socket: Socket) => {
+  await RedisService.set(`${socket.user._id}_SESSION`, socket.id);
 };
 
 const remove = async (userId: string) => {
