@@ -7,11 +7,11 @@ const authenticate = async (
   socket: Socket,
   next: (err?: ExtendedError | undefined) => void,
 ) => {
-    const accessToken = socket.handshake.query.accessToken as string | undefined; // Change to auth later
+    const token = socket.handshake.query.token as string | undefined; // Change to auth later
 
-    if (!accessToken) return next(new Error('Authentication failed.'));
+    if (!token) return next(new Error('Authentication failed.'));
   
-    const user = AuthService.verifyAccessToken(accessToken);
+    const user = AuthService.verifyAccessToken(token);
 
     if (!user) return next(new Error('Authentication failed.'));
 

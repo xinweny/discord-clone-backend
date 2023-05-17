@@ -26,6 +26,8 @@ class DirectMessageHandler {
       .filter(session => session !== null)
       .map(socketId => io.sockets.sockets.get(socketId as string));
 
+    sockets.push(this.socket);
+
     for (const socket of sockets) {
       if (socket) socket.join(roomId);
     }
