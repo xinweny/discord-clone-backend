@@ -27,7 +27,10 @@ const socketIo = (io: Server) => {
 
     socket.on('direct_message:subscribe', (payload) => directMessageHandler.subscribe(payload));
 
-    socket.on('disconnect', () => console.log(`${new Date()}: ${socket.id} disconnected`));
+    socket.on('disconnect', async () => {
+      await sessionHandler.removeSession();
+      console.log(`${new Date()}: ${socket.id} disconnected`);
+    });
 
     socket.on('error', (err) => socket.emit(socket.user._id, err));
   });

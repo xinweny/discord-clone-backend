@@ -36,6 +36,10 @@ class SessionHandler {
       if (!session) this.socket.disconnect();
     }, ms(env.JWT_ACCESS_EXPIRE));
   }
+
+  async removeSession() {
+    await SessionService.remove(this.userId);
+  }
 }
 
 export default SessionHandler;

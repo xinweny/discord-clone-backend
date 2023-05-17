@@ -1,8 +1,6 @@
 import { Socket } from 'socket.io';
-import ms from 'ms';
 
 import RedisService from './redis.service';
-import env from '../config/env.config';
 
 const get = async (userId: string) => {
   const data = await RedisService.get(`${userId}_SESSION`);
