@@ -34,8 +34,6 @@ class MessageHandler {
     });
 
     io.to(roomId).emit(roomId, message);
-
-    await MessageService.save(message);
   }
 
   async updateMessage(payload: {
@@ -52,19 +50,7 @@ class MessageHandler {
 
     if (!message) throw new Error('Message not found.');
 
-    const updatedMessage = MessageService.create({
-      _id: messageId,
-      roomId: message.roomId,
-      senderId: message.senderId,
-      updatedAt: new Date(),
-      body: fields.body || message.body,
-      attachments: fields.attachments || message.attachments,
-      createdAt: message.createdAt,
-    });
-
-    io.to(roomId).emit(roomId, updatedMessage);
-
-    await MessageService.save(updatedMessage);
+    // TODO: implement emit updated message
   }
 }
 

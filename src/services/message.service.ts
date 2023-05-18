@@ -19,16 +19,15 @@ const getMany = async (fields: {
   return messages;
 }
 
-const create = (fields: {
-  _id?: Types.ObjectId | string,
+const create = async (fields: {
   senderId: Types.ObjectId | string,
   roomId: Types.ObjectId | string,
   body: string,
   attachments?: string[],
-  updatedAt?: Date,
-  createdAt?: Date,
 }) => {
   const message = new Message(fields);
+
+  await message.save();
   
   return message;
 };

@@ -14,7 +14,7 @@ serverSchema.pre('save', function (next) {
   this.roles = [...new Set(this.roles)];
   this.channelCategories = [...new Set(this.channelCategories)];
   next();
-})
+});
 
 const Server = mongoose.model('Server', serverSchema);
 

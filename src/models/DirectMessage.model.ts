@@ -6,6 +6,11 @@ const directMessageSchema = new Schema({
   name: { type: String, length: { min: 2, max: 32 }, trim: true },
 });
 
+directMessageSchema.pre('save', function (next) {
+  this.participantIds = [this.creatorId, ...this.participantIds];
+  next();
+});
+
 const DirectMessage = mongoose.model('DirectMessage', directMessageSchema, 'direct_messages');
 
 export default DirectMessage;

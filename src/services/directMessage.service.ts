@@ -37,8 +37,15 @@ const exists = async (fields: {
   name?: string,
 }) => await DirectMessage.exists(fields);
 
+const checkMembership = async (userId: string, roomId: string) => {
+  const directMessage = await DirectMessage.findById(roomId);
+
+  return directMessage?.participantIds.some((id) => id.toString() === userId);
+}
+
 export default {
   create,
   update,
   exists,
+  checkMembership,
 }
