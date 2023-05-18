@@ -16,6 +16,7 @@ const messageSchema = new Schema({
   attachments: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
+  type: { type: String, required: true, enum: ['DM', 'CHANNEL'] },
 });
 
 messageSchema.virtual('userSender', {

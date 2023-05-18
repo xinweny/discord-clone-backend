@@ -8,8 +8,8 @@ const router = Router();
 
 router.use('/', AuthRouter);
 
-router.use('/dm', DirectMessageRouter);
+router.use('/dms', DirectMessageRouter);
 
-router.use('/message', MessageRouter);
+router.use('/messages', MessageRouter);
 
 export default router;

@@ -2,8 +2,6 @@ import { Types } from 'mongoose';
 
 import Message, { IMessage } from '../models/Message.model';
 
-import keepKeys from '../helpers/keepKeys';
-
 const getOne = async (id: string) => {
   const message = await Message.findById(id);
 
@@ -32,31 +30,31 @@ const create = async (fields: {
   return message;
 };
 
-const save = async (message: IMessage) => await message.save();
-
 const update = async (
   id: string,
-  updateFields: {
+  fields: {
     body?: string,
     attachments?: string[],
   },
 ) => {
-  const updateQuery = keepKeys(updateFields, ['body', 'attachments']);
-
-  const updatedUser = await Message.findByIdAndUpdate(id, {
+  const updatedMessage = await Message.findByIdAndUpdate(id, {
     $set: {
-      ...updateQuery,
+      ...fields,
       updatedAt: new Date(),
     },
   }, { new: true });
 
-  return updatedUser;
-}
+  return updatedMessage;
+};
+
+const del = async (id: string) => {
+  await Message.findByIdAndDelete(id);
+};
 
 export default {
   getOne,
   getMany,
   create,
-  save,
   update,
+  del,
 }

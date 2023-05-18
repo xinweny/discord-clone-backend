@@ -17,13 +17,9 @@ const socketIo = (io: Server) => {
 
     socket.join(socket.user._id);
 
-    socket.on('room:join', (roomId: string) => {
-      socket.join(roomId);
-      messageHandler.getHistory(roomId);
-    });
+    socket.on('room:join', (roomId: string) => socket.join(roomId));
 
     socket.on('message:send', (payload) => messageHandler.sendMessage(payload));
-    socket.on('message:update', (payload) => messageHandler.updateMessage(payload));
 
     socket.on('direct_message:subscribe', (payload) => directMessageHandler.subscribe(payload));
 
