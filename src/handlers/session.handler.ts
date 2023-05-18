@@ -12,9 +12,9 @@ class SessionHandler {
   }
 
   async setSession() {
-    const { accessToken } = this.socket.handshake.query;
+    const { token } = this.socket.handshake.query;
   
-    if (!accessToken) throw new Error('Access token not provided.');
+    if (!token) throw new Error('Access token not provided.');
   
     const session = await SessionService.set(this.socket);
   

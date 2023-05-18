@@ -2,10 +2,14 @@ import { RequestHandler } from 'express';
 
 import authenticate from '../middleware/authenticate';
 import tryCatch from '../middleware/tryCatch';
+
 import validateFields from '../validators/validateFields';
 import handleValidationErrors from '../validators/handleValidationErrors';
+
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
+
+import { io } from '../server';
 
 import DirectMessageService from '../services/directMessage.service';
 import MessageService from '../services/message.service';
@@ -54,6 +58,8 @@ const createMessage: RequestHandler[] = [
         ...req.body,
       });
 
+      io.in(roomId).emit('message:new', message);
+
       res.json({
         data: message,
         message: 'Message successfully sent.',
@@ -80,6 +86,8 @@ const updateMessage: RequestHandler[] = [
       const updateQuery = keepKeys(req.body, ['body', 'attachments']);
 
       const updatedMessage = await MessageService.update(messageId, updateQuery);
+
+      io.in(message.roomId.toString()).emit('message:updated', message);
 
       res.json({
         data: updatedMessage,
