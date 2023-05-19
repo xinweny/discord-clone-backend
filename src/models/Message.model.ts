@@ -10,41 +10,20 @@ export interface IMessage extends Document {
 }
 
 const messageSchema = new Schema({
-  roomId: { type: Types.ObjectId, required: true },
-  senderId: { type: Types.ObjectId, required: true },
+  roomId: { type: Types.ObjectId, required: true, refPath: 'roomType' },
+  senderId: { type: Types.ObjectId, required: true, refPath: 'userType' },
   body: { type: String, required: true },
   attachments: [{ type: String }],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date },
-  type: { type: String, required: true, enum: ['DM', 'CHANNEL'] },
-});
-
-messageSchema.virtual('userSender', {
-  ref: 'User',
-  localField: 'senderId',
-  foreignField: '_id',
-  justOne: true,
-});
-
-messageSchema.virtual('serverMemberSender', {
-  ref: 'ServerMember',
-  localField: 'senderId',
-  foreignField: '_id',
-  justOne: true,
-});
-
-messageSchema.virtual('direct', {
-  ref: 'Channel',
-  localField: 'roomId',
-  foreignField: '_id',
-  justOne: true,
-});
-
-messageSchema.virtual('channel', {
-  ref: 'DirectMessage',
-  localField: 'roomId',
-  foreignField: '_id',
-  justOne: true,
+  roomType: { type: String, required: true, enum: ['DirectMessage', 'Channel'] },
+  userType: { type: String, required: true, enum: ['User', 'ServerMember'] },
+  reactions: {
+    type: Map,
+    of: Number,
+    default: {},
+  },
+},
+{
+  timestamps: true,
 });
 
 const Message = mongoose.model<IMessage>('Message', messageSchema);

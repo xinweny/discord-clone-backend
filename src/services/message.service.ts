@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-import Message, { IMessage } from '../models/Message.model';
+import Message from '../models/Message.model';
 
 const getOne = async (id: string) => {
   const message = await Message.findById(id);
@@ -22,6 +22,7 @@ const create = async (fields: {
   roomId: Types.ObjectId | string,
   body: string,
   attachments?: string[],
+  type: 'DirectMessage' | 'Channel',
 }) => {
   const message = new Message(fields);
 
@@ -38,10 +39,7 @@ const update = async (
   },
 ) => {
   const updatedMessage = await Message.findByIdAndUpdate(id, {
-    $set: {
-      ...fields,
-      updatedAt: new Date(),
-    },
+    $set: fields,
   }, { new: true });
 
   return updatedMessage;
@@ -50,6 +48,8 @@ const update = async (
 const del = async (id: string) => {
   await Message.findByIdAndDelete(id);
 };
+
+const react = async (messageId: Types.ObjectId | string, emoji: string)
 
 export default {
   getOne,

@@ -109,6 +109,8 @@ const deleteMessage: RequestHandler = tryCatch(
 
     await MessageService.del(messageId);
 
+    io.in(message.roomId.toString()).emit('message:deleted', message._id);
+
     res.json({ message: 'Message deleted successfully.' });
   }
 )
