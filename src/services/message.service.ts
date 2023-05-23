@@ -100,11 +100,6 @@ const react = async (
       }
     };
 
-  console.log({
-    _id: messageId,
-    ...(emojiExists && { [updateField]: identifier }),
-  });
-
   const reactedMessage = await Message.findOneAndUpdate(
     {
       _id: messageId,
