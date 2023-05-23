@@ -7,6 +7,13 @@ export interface IMessage extends Document {
   attachments: string[];
   createdAt: Date;
   updatedAt?: Date;
+  reactions: {
+    name: string,
+    count: number,
+    emojiId?: Types.ObjectId,
+    url?: string,
+    emoji?: string,
+  }[];
 }
 
 const messageSchema = new Schema({
@@ -16,11 +23,13 @@ const messageSchema = new Schema({
   attachments: [{ type: String }],
   roomType: { type: String, required: true, enum: ['DirectMessage', 'Channel'] },
   userType: { type: String, required: true, enum: ['User', 'ServerMember'] },
-  reactions: {
-    type: Map,
-    of: Number,
-    default: {},
-  },
+  reactions: [{
+    name: { type: String, required: true, unique: true },
+    count: { type: Number, default: 0 },
+    emojiId: { type: Types.ObjectId, ref: 'CustomEmoji' },
+    url: { type: String },
+    emoji: { type: String },
+  }],
 },
 {
   timestamps: true,
