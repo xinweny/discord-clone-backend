@@ -6,4 +6,6 @@ const ReactionRouter = Router({ mergeParams: true });
 
 ReactionRouter.post('/', ReactionController.reactToMessage);
 
+ReactionRouter.delete('/:reactionId', ReactionController.unreactToMessage);
+
 export default ReactionRouter;

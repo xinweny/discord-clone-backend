@@ -13,7 +13,9 @@ const getMany = async (fields: {
   senderId?: Types.ObjectId | string,
   roomId?: Types.ObjectId | string,
 }) => {
-  const messages = await Message.find(fields);
+  const messages = await Message
+    .find(fields)
+    .sort({ createdAt: -1 });
 
   return messages;
 }
@@ -110,7 +112,42 @@ const react = async (
   );
 
   return reactedMessage;
-}
+};
+
+const unreact = async (
+  messageId: string,
+  emoji: string | {
+    id: string,
+    url: string,
+    name: string,
+  }
+) => {
+  const message = await Message.findById(messageId);
+
+  if (!message) return null;
+
+  const custom = typeof emoji !== 'string';
+  const identifier = custom ? { emojiId: emoji.id } : { emoji };
+
+  const messageReaction = custom
+    ? message.reactions.find(reaction => reaction.emojiId?.toString() === emoji.id)
+    : message.reactions.find(reaction => reaction.emoji === emoji);
+
+  if (!messageReaction) return null;
+
+  const unreactedMessage = (messageReaction.count === 1) 
+    ? await Message.findByIdAndUpdate(messageId, {
+      $pull: { reactions: identifier }
+    }, { safe: true, new: true })
+    : await Message.findOneAndUpdate({
+      _id: messageId,
+      ...(custom ? { 'reactions.emojiId': emoji.id } : { 'reactions.emoji' : emoji }),
+    }, {
+      $inc: { 'reactions.$.count': -1 },
+    }, { new: true });
+
+  return unreactedMessage;
+};
 
 export default {
   getOne,
@@ -119,4 +156,5 @@ export default {
   update,
   del,
   react,
+  unreact,
 }

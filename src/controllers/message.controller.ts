@@ -58,7 +58,10 @@ const createMessage: RequestHandler[] = [
         ...req.body,
       });
 
-      io.in(roomId).emit('message:new', message);
+      io.in(roomId).emit('message', {
+        data: message,
+        action: 'POST',
+      });
 
       res.json({
         data: message,
@@ -87,7 +90,10 @@ const updateMessage: RequestHandler[] = [
 
       const updatedMessage = await MessageService.update(messageId, updateQuery);
 
-      io.in(message.roomId.toString()).emit('message:updated', message);
+      io.in(message.roomId.toString()).emit('message', {
+        data: updatedMessage,
+        action: 'PUT',
+      });
 
       res.json({
         data: updatedMessage,
@@ -109,7 +115,10 @@ const deleteMessage: RequestHandler = tryCatch(
 
     await MessageService.del(messageId);
 
-    io.in(message.roomId.toString()).emit('message:deleted', message._id);
+    io.in(message.roomId.toString()).emit('message', {
+      data: message._id,
+      action: 'DELETE',
+    });
 
     res.json({ message: 'Message deleted successfully.' });
   }

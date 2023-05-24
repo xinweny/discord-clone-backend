@@ -43,7 +43,10 @@ const reactToMessage: RequestHandler[] = [
       ]);
 
       if (message) {
-        io.in(message.roomId.toString()).emit('reaction:created', reaction);
+        io.in(message.roomId.toString()).emit('reaction', {
+          data: reaction,
+          action: 'POST',
+        });
       }
 
       res.json({
@@ -54,6 +57,45 @@ const reactToMessage: RequestHandler[] = [
   )
 ];
 
+const unreactToMessage: RequestHandler[] = [
+  authenticate,
+  tryCatch(
+    async (req, res, next) => {
+      const { messageId, reactionId } = req.params;
+
+      const reaction = await ReactionService.getOneById(reactionId);
+
+      if (!reaction) throw new CustomError(400, 'Reaction not found.');
+
+      if (req.user!._id !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
+
+      const custom = !!req.body.emojiId;
+
+      const [message] = await Promise.all([
+        MessageService.unreact(messageId, custom ? {
+          id: req.body.emojiId,
+          url: req.body.url,
+          name: req.body.name,
+        } : req.body.emoji),
+        ReactionService.remove(reactionId)
+      ]);
+
+      if (!message) throw new CustomError(400, 'Message not found.');
+
+      io.in(message.roomId.toString()).emit('reaction', {
+        data: reaction._id,
+        action: 'DELETE',
+      });
+
+      res.json({
+        data: reaction,
+        message: 'Message unreacted successfully.',
+      })
+    }
+  )
+]
+
 export default {
   reactToMessage,
+  unreactToMessage,
 };
