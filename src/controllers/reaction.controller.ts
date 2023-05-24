@@ -67,16 +67,10 @@ const unreactToMessage: RequestHandler[] = [
 
       if (!reaction) throw new CustomError(400, 'Reaction not found.');
 
-      if (req.user!._id !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
-
-      const custom = !!req.body.emojiId;
+      if (req.user!._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
 
       const [message] = await Promise.all([
-        MessageService.unreact(messageId, custom ? {
-          id: req.body.emojiId,
-          url: req.body.url,
-          name: req.body.name,
-        } : req.body.emoji),
+        MessageService.unreact(messageId, reaction),
         ReactionService.remove(reactionId)
       ]);
 

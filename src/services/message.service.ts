@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import emojilib from 'emojilib';
 
 import Message from '../models/Message.model';
+import { IReaction } from '../models/Reaction.model';
 
 const getOne = async (id: string) => {
   const message = await Message.findById(id);
@@ -116,32 +117,31 @@ const react = async (
 
 const unreact = async (
   messageId: string,
-  emoji: string | {
-    id: string,
-    url: string,
-    name: string,
-  }
+  reaction: IReaction,
 ) => {
   const message = await Message.findById(messageId);
 
   if (!message) return null;
 
-  const custom = typeof emoji !== 'string';
-  const identifier = custom ? { emojiId: emoji.id } : { emoji };
+  const custom = !!reaction.emojiId;
+  const emoji = custom ? reaction.emojiId : reaction.emoji;
+
+  const fieldName = custom ? 'emojiId' : 'emoji';
+  const identifierField = `reactions.${fieldName}`;
 
   const messageReaction = custom
-    ? message.reactions.find(reaction => reaction.emojiId?.toString() === emoji.id)
+    ? message.reactions.find(reaction => reaction.emojiId?.toString() === emoji)
     : message.reactions.find(reaction => reaction.emoji === emoji);
 
   if (!messageReaction) return null;
 
   const unreactedMessage = (messageReaction.count === 1) 
     ? await Message.findByIdAndUpdate(messageId, {
-      $pull: { reactions: identifier }
+      $pull: { reactions: { [fieldName]: emoji } }
     }, { safe: true, new: true })
     : await Message.findOneAndUpdate({
       _id: messageId,
-      ...(custom ? { 'reactions.emojiId': emoji.id } : { 'reactions.emoji' : emoji }),
+      [identifierField]: emoji,
     }, {
       $inc: { 'reactions.$.count': -1 },
     }, { new: true });

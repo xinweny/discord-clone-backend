@@ -1,4 +1,11 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
+
+export interface IReaction {
+  reactorId: Types.ObjectId;
+  messageId: Types.ObjectId;
+  emojiId?: Types.ObjectId;
+  emoji?: string;
+}
 
 const reactionSchema = new Schema({
   reactorId: { type: Schema.Types.ObjectId, required: true },
