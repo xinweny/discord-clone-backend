@@ -2,18 +2,30 @@ import { RequestHandler } from 'express';
 
 import tryCatch from '../middleware/tryCatch';
 import authenticate from '../middleware/authenticate';
+import CustomError from '../helpers/CustomError';
+
 import { io } from '../server';
 
 import MessageService from '../services/message.service';
 import ReactionService from '../services/reaction.service';
+
 
 const reactToMessage: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res, next) => {
       const { messageId } = req.params;
-  
+
       const custom = !!req.body.emojiId;
+
+      const userHasReacted = await ReactionService.getOne({
+        reactorId: req.user?._id,
+        messageId,
+        ...(custom && { emojiId: req.body.emojiId }),
+        ...(!!custom && { emoji: req.body.emoji }),
+      });
+
+      if (userHasReacted) throw new CustomError(400, 'Reaction already exists.');
 
       const createQuery = {
         messageId,

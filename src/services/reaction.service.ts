@@ -15,6 +15,18 @@ const create = async (fields: {
   return reaction;
 };
 
+const getOne = async (fields: {
+  reactorId: Types.ObjectId | string,
+  messageId: Types.ObjectId | string,
+  emojiId?: Types.ObjectId | string,
+  emoji?: string,
+}) => {
+ const reaction = await Reaction.findOne(fields);
+
+ return reaction;
+}
+
 export default {
   create,
+  getOne,
 };
