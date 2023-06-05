@@ -16,20 +16,18 @@ export interface IMessage extends Document {
   }[];
 }
 
+const reactionCountSchema = new Schema({
+  name: { type: String, required: true, unique: true },
+  count: { type: Number, default: 0 },
+  emojiId: { type: Types.ObjectId, ref: 'CustomEmoji' },
+  url: { type: String },
+  emoji: { type: String },
+});
+
 const messageSchema = new Schema({
-  roomId: { type: Types.ObjectId, required: true, refPath: 'roomType' },
-  senderId: { type: Types.ObjectId, required: true, refPath: 'userType' },
   body: { type: String, required: true },
   attachments: [{ type: String }],
-  roomType: { type: String, required: true, enum: ['DirectMessage', 'Channel'] },
-  userType: { type: String, required: true, enum: ['User', 'ServerMember'] },
-  reactions: [{
-    name: { type: String, required: true, unique: true },
-    count: { type: Number, default: 0 },
-    emojiId: { type: Types.ObjectId, ref: 'CustomEmoji' },
-    url: { type: String },
-    emoji: { type: String },
-  }],
+  reactions: [{ type: reactionCountSchema }],
 },
 {
   timestamps: true,

@@ -2,6 +2,9 @@ import { Types } from 'mongoose';
 import emojilib from 'emojilib';
 
 import Message from '../models/Message.model';
+import MessageDirect from '../models/MessageDirect.model';
+import MessageChannel from '../models/MessageChannel.model';
+
 import { IReaction } from '../models/Reaction.model';
 
 const getOne = async (id: string) => {
@@ -26,9 +29,8 @@ const create = async (fields: {
   roomId: Types.ObjectId | string,
   body: string,
   attachments?: string[],
-  type: 'DirectMessage' | 'Channel',
-}) => {
-  const message = new Message(fields);
+}, messageType: 'DIRECT' | 'CHANNEL') => {
+  const message = (messageType === 'DIRECT') ? new MessageDirect(fields) : new MessageChannel(fields);
 
   await message.save();
   

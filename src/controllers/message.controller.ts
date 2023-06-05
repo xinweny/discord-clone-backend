@@ -9,8 +9,6 @@ import handleValidationErrors from '../validators/handleValidationErrors';
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
 
-import { io } from '../server';
-
 import DirectMessageService from '../services/directMessage.service';
 import MessageService from '../services/message.service';
 
@@ -46,22 +44,30 @@ const createMessage: RequestHandler[] = [
   handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
-      const { roomId } = req.body;
+      const { roomId, serverId } = req.body;
       const userId = req.user!._id;
 
-      const isMember = DirectMessageService.checkMembership(userId, roomId);
+      let message;
 
-      if (!isMember) throw new CustomError(401, 'Unauthorized');
-
-      const message = await MessageService.create({
-        senderId: userId,
-        ...req.body,
-      });
-
-      io.in(roomId).emit('message', {
-        data: message,
-        action: 'POST',
-      });
+      if (serverId) {
+        const serverUser = await ServerService.getMember(userId, roomId);
+  
+        if (!serverUser) throw new CustomError(401, 'Unauthorized');
+  
+        message = await MessageService.create({
+          senderId: serverUser._id,
+          ...req.body,
+        }, 'CHANNEL');
+      } else {
+        const isMember = await DirectMessageService.checkMembership(userId, roomId);
+  
+        if (!isMember) throw new CustomError(401, 'Unauthorized');
+  
+        message = await MessageService.create({
+          senderId: userId,
+          ...req.body,
+        }, 'DIRECT');
+      }
 
       res.json({
         data: message,
@@ -90,11 +96,6 @@ const updateMessage: RequestHandler[] = [
 
       const updatedMessage = await MessageService.update(messageId, updateQuery);
 
-      io.in(message.roomId.toString()).emit('message', {
-        data: updatedMessage,
-        action: 'PUT',
-      });
-
       res.json({
         data: updatedMessage,
         message: 'Message updated successfully.',
@@ -114,11 +115,6 @@ const deleteMessage: RequestHandler = tryCatch(
     if (message._id !== req.user!._id) throw new CustomError(401, 'Unauthorized');
 
     await MessageService.del(messageId);
-
-    io.in(message.roomId.toString()).emit('message', {
-      data: message._id,
-      action: 'DELETE',
-    });
 
     res.json({ message: 'Message deleted successfully.' });
   }
