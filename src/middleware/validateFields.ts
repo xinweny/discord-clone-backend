@@ -1,6 +1,8 @@
 import { RequestHandler } from 'express';
 import { body } from 'express-validator';
 
+import handleValidationErrors from '../helpers/handleValidationErrors';
+
 const VALIDATION_FIELDS: { [key: string]: RequestHandler } = {
   email: body('email')
     .isLength({ min: 1 }).withMessage('Email is required.')
@@ -25,7 +27,10 @@ const VALIDATION_FIELDS: { [key: string]: RequestHandler } = {
 const validateFields = (fields: string[]): RequestHandler[] => {
   const validator = fields.map((fieldName: string) => VALIDATION_FIELDS[fieldName]);
 
-  return validator;
+  return [
+    ...validator,
+    handleValidationErrors,
+  ];
 }
 
 export default validateFields;

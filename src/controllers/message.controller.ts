@@ -2,9 +2,7 @@ import { RequestHandler } from 'express';
 
 import authenticate from '../middleware/authenticate';
 import tryCatch from '../middleware/tryCatch';
-
-import validateFields from '../validators/validateFields';
-import handleValidationErrors from '../validators/handleValidationErrors';
+import validateFields from '../middleware/validateFields';
 
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
@@ -41,7 +39,6 @@ const getMessages: RequestHandler[] = [
 const createMessage: RequestHandler[] = [
   authenticate,
   ...validateFields(['body']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const { roomId, serverId } = req.body;
@@ -50,7 +47,7 @@ const createMessage: RequestHandler[] = [
       let message;
 
       if (serverId) {
-        const serverUser = await ServerService.getMember(userId, roomId);
+        const serverUser = await ServerMemberService.getMember(userId, roomId);
   
         if (!serverUser) throw new CustomError(401, 'Unauthorized');
   
@@ -80,7 +77,6 @@ const createMessage: RequestHandler[] = [
 const updateMessage: RequestHandler[] = [
   authenticate,
   ...validateFields(['body']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const { messageId } = req.params;

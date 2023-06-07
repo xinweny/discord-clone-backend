@@ -2,8 +2,7 @@ import { RequestHandler } from 'express';
 
 import env from '../config/env.config';
 
-import validateFields from '../validators/validateFields';
-import handleValidationErrors from '../validators/handleValidationErrors';
+import validateFields from '../middleware/validateFields';
 
 import passwordResetMail from '../templates/passwordResetMail';
 import emailVerificationMail from '../templates/emailVerificationMail';
@@ -18,7 +17,6 @@ import AuthService from '../services/auth.service';
 
 const signup: RequestHandler[] = [
   ...validateFields(['email', 'username', 'password', 'confirmPassword']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const { email, username, password } = req.body;
@@ -45,7 +43,6 @@ const signup: RequestHandler[] = [
 
 const login: RequestHandler[] = [
   ...validateFields(['email', 'password']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const { email, password } = req.body;
@@ -71,7 +68,6 @@ const login: RequestHandler[] = [
 
 const refreshAccessToken: RequestHandler[] = [
   ...validateFields(['refreshToken']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const decodedToken = await AuthService.verifyRefreshToken(req.body.refreshToken);
@@ -94,7 +90,6 @@ const refreshAccessToken: RequestHandler[] = [
 
 const logout: RequestHandler[] = [
   ...validateFields(['refreshToken']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       await AuthService.deleteRefreshToken(req.body.refreshToken);
@@ -109,7 +104,6 @@ const logout: RequestHandler[] = [
 
 const requestPasswordReset: RequestHandler[] = [
   ...validateFields(['email']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const { email } = req.body;
@@ -140,7 +134,6 @@ const requestPasswordReset: RequestHandler[] = [
 
 const resetPassword: RequestHandler[] = [
   ...validateFields(['password', 'confirmPassword']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       if (!req.query.token || !req.query.uid) throw new CustomError(404, 'Not found.');
@@ -172,7 +165,6 @@ const resetPassword: RequestHandler[] = [
 
 const requestEmailVerification: RequestHandler[] = [
   ...validateFields(['email']),
-  handleValidationErrors,
   tryCatch(
     async (req, res, next) => {
       const { email } = req.body;
