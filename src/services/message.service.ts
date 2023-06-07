@@ -159,4 +159,4 @@ export default {
   del,
   react,
   unreact,
-}
+};

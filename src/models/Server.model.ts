@@ -2,26 +2,33 @@ import mongoose, { Schema, Types } from 'mongoose';
 
 const channelSchema = new Schema({
   name: { type: String, required: true, length: { max: 32 } },
-  category: { type: String },
-  accessBy: [{
-    memberId: { type: Types.ObjectId, ref: 'ServerMember' },
-  }],
+  category: { type: Types.ObjectId, refPath: 'categories' },
+  type: { type: String, enum: ['text', 'voice'] },
+});
+
+const roleSchema = new Schema({
+  name: { type: String, unique: true },
+  color: { type: String },
+  permissions: {
+    read: [{ type: Types.ObjectId, refPath: 'channels' }],
+    write: [{ type: Types.ObjectId, refPath: 'channels' }],
+  },
+});
+
+const categorySchema = new Schema({
+  name: { type: String, unique: true },
 });
 
 const serverSchema = new Schema({
   creatorId: { type: Types.ObjectId, ref: 'User', required: true },
   name: { type: String, required: true, length: { max: 32 } },
-  roles: [{ type: String }],
-  categories: [{ type: String }],
-  channels: [{ type: channelSchema, required: true }],
+  roles: { type: [roleSchema], default: () => ([]) },
+  categories: { type: [categorySchema] },
+  channels: { type: [channelSchema] },
   imageUrl: { type: String },
   public: { type: Boolean, default: true },
-});
-
-serverSchema.pre('save', function (next) {
-  this.roles = [...new Set(this.roles)];
-  this.categories = [...new Set(this.categories)];
-  next();
+}, {
+  timestamps: { createdAt: true, updatedAt: false },
 });
 
 const Server = mongoose.model('Server', serverSchema);
