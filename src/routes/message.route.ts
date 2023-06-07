@@ -1,19 +1,19 @@
 import { Router } from 'express';
 
-import MessageController from '../controllers/message.controller';
+import messageController from '../controllers/message.controller';
 
-import ReactionRouter from './reaction.route';
+import reactionRouter from './reaction.route';
 
-const MessageRouter = Router();
+const messageRouter = Router();
 
-MessageRouter.get('/', MessageController.getMessages);
+messageRouter.get('/', messageController.getMessages);
 
-MessageRouter.post('/', MessageController.createMessage);
+messageRouter.post('/', messageController.createMessage);
 
-MessageRouter.use('/:messageId/reactions', ReactionRouter);
+messageRouter.use('/:messageId/reactions', reactionRouter);
 
-MessageRouter.get('/:messageId', MessageController.getMessage);
+messageRouter.get('/:messageId', messageController.getMessage);
 
-MessageRouter.put('/:messageId', MessageController.updateMessage);
+messageRouter.put('/:messageId', messageController.updateMessage);
 
-export default MessageRouter;
+export default messageRouter;

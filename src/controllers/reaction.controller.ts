@@ -2,13 +2,13 @@ import { RequestHandler } from 'express';
 
 import tryCatch from '../middleware/tryCatch';
 import authenticate from '../middleware/authenticate';
+
 import CustomError from '../helpers/CustomError';
 
 import { io } from '../server';
 
-import MessageService from '../services/message.service';
-import ReactionService from '../services/reaction.service';
-
+import messageService from '../services/message.service';
+import reactionService from '../services/reaction.service';
 
 const reactToMessage: RequestHandler[] = [
   authenticate,
@@ -18,7 +18,7 @@ const reactToMessage: RequestHandler[] = [
 
       const custom = !!req.body.emojiId;
 
-      const userHasReacted = await ReactionService.getOne({
+      const userHasReacted = await reactionService.getOne({
         reactorId: req.user?._id,
         messageId,
         ...(custom && { emojiId: req.body.emojiId }),
@@ -34,12 +34,12 @@ const reactToMessage: RequestHandler[] = [
       };
   
       const [message, reaction] = await Promise.all([
-        MessageService.react(messageId, custom ? {
+        messageService.react(messageId, custom ? {
           id: req.body.emojiId,
           name: req.body.name,
           url: req.body.url,
         } : req.body.emoji),
-        ReactionService.create(createQuery)
+        reactionService.create(createQuery)
       ]);
 
       if (message) {
@@ -63,15 +63,15 @@ const unreactToMessage: RequestHandler[] = [
     async (req, res, next) => {
       const { messageId, reactionId } = req.params;
 
-      const reaction = await ReactionService.getOneById(reactionId);
+      const reaction = await reactionService.getOneById(reactionId);
 
       if (!reaction) throw new CustomError(400, 'Reaction not found.');
 
       if (req.user!._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
 
       const [message] = await Promise.all([
-        MessageService.unreact(messageId, reaction),
-        ReactionService.remove(reactionId)
+        messageService.unreact(messageId, reaction),
+        reactionService.remove(reactionId)
       ]);
 
       if (!message) throw new CustomError(400, 'Message not found.');

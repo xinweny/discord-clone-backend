@@ -1,11 +1,11 @@
 import { Router } from 'express';
 
-import ReactionController from '../controllers/reaction.controller';
+import reactionController from '../controllers/reaction.controller';
 
-const ReactionRouter = Router({ mergeParams: true });
+const reactionRouter = Router({ mergeParams: true });
 
-ReactionRouter.post('/', ReactionController.reactToMessage);
+reactionRouter.post('/', reactionController.reactToMessage);
 
-ReactionRouter.delete('/:reactionId', ReactionController.unreactToMessage);
+reactionRouter.delete('/:reactionId', reactionController.unreactToMessage);
 
-export default ReactionRouter;
+export default reactionRouter;

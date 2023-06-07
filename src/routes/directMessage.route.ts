@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
-import DirectMessageController from '../controllers/directMessage.controller';
+import directMessageController from '../controllers/directMessage.controller';
 
-const DirectMessageRouter = Router();
+const directMessageRouter = Router();
 
-DirectMessageRouter.post('/', DirectMessageController.createRoom);
+directMessageRouter.post('/', directMessageController.createRoom);
 
-export default DirectMessageRouter;
+export default directMessageRouter;

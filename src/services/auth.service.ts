@@ -7,7 +7,7 @@ import env from '../config/env.config';
 
 import { IUser } from '../models/User.model';
 
-import RedisService from './redis.service';
+import redisService from './redis.service';
 
 const hashPassword = async (password: string) => {
   return bcrypt.hash(password, Number(env.BCRYPT_SALT));
@@ -34,7 +34,7 @@ const generateTokens = async (user: IUser) => {
     { expiresIn: env.JWT_REFRESH_EXPIRE }
   );
   
-  await RedisService.set(`${payload._id}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
+  await redisService.set(`${payload._id}_REFRESH`, refreshToken, ms(env.JWT_REFRESH_EXPIRE));
 
   return { accessToken, refreshToken };
 }
@@ -42,7 +42,7 @@ const generateTokens = async (user: IUser) => {
 const verifyRefreshToken = async (refreshToken: string) => {
   const user = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  const userToken = await RedisService.get(`${user._id}_REFRESH`);
+  const userToken = await redisService.get(`${user._id}_REFRESH`);
 
   return (userToken === refreshToken) ? user : null;
 };
@@ -70,7 +70,7 @@ const issueAccessToken = (user: {
 const deleteRefreshToken = async (refreshToken: string) => {
   const user = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  if (user) await RedisService.del(user._id);
+  if (user) await redisService.del(user._id);
 };
 
 const issueTempToken = async (userId: string, type: 'RESET' | 'VERIFY', expTime: number) => {
@@ -78,13 +78,13 @@ const issueTempToken = async (userId: string, type: 'RESET' | 'VERIFY', expTime:
 
   const hash = await bcrypt.hash(token, Number(env.BCRYPT_SALT));
   
-  await RedisService.set(`${userId}_${type}`, hash, expTime);
+  await redisService.set(`${userId}_${type}`, hash, expTime);
 
   return token;
 }
 
 const verifyTempToken = async (token: string, userId: string, type: 'RESET' | 'VERIFY') => {
-  const hashedToken = await RedisService.get(`${userId}_${type}`);
+  const hashedToken = await redisService.get(`${userId}_${type}`);
 
   if (!hashedToken) return null;
 
@@ -93,11 +93,11 @@ const verifyTempToken = async (token: string, userId: string, type: 'RESET' | 'V
   if (!isValid) return null;
 
   if (type === 'RESET') {
-    const refreshToken = await RedisService.get(`${userId}_REFRESH`);
+    const refreshToken = await redisService.get(`${userId}_REFRESH`);
 
     return refreshToken;
   } else if (type === 'VERIFY') {
-    await RedisService.del(`${userId}_${type}`);
+    await redisService.del(`${userId}_${type}`);
 
     return hashedToken;
   }

@@ -21,12 +21,12 @@ const categorySchema = new Schema({
 
 const serverSchema = new Schema({
   creatorId: { type: Types.ObjectId, ref: 'User', required: true },
-  name: { type: String, required: true, length: { max: 32 } },
+  name: { type: String, required: true, unique: true },
   roles: { type: [roleSchema], default: () => ([]) },
   categories: { type: [categorySchema] },
   channels: { type: [channelSchema] },
   imageUrl: { type: String },
-  public: { type: Boolean, default: true },
+  private: { type: Boolean, default: false },
 }, {
   timestamps: { createdAt: true, updatedAt: false },
 });

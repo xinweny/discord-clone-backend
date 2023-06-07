@@ -7,14 +7,14 @@ import validateFields from '../middleware/validateFields';
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
 
-import DirectMessageService from '../services/directMessage.service';
-import MessageService from '../services/message.service';
+import directMessageService from '../services/directMessage.service';
+import messageService from '../services/message.service';
 
 const getMessage: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res, next) => {
-      const message = await MessageService.getOne(req.params.messageId);
+      const message = await messageService.getOne(req.params.messageId);
   
       if (!message) throw new CustomError(400, 'Message not found.');
   
@@ -29,7 +29,7 @@ const getMessages: RequestHandler[] = [
     async (req, res, next) => {
       const findQuery = keepKeys(req.query, ['roomId', 'senderId']);
   
-      const messages = await MessageService.getMany(findQuery);
+      const messages = await messageService.getMany(findQuery);
   
       res.json({ data: messages });
     }
@@ -47,20 +47,20 @@ const createMessage: RequestHandler[] = [
       let message;
 
       if (serverId) {
-        const serverUser = await ServerMemberService.getMember(userId, roomId);
+        const serverUser = await serverMemberService.getMember(userId, roomId);
   
         if (!serverUser) throw new CustomError(401, 'Unauthorized');
   
-        message = await MessageService.create({
+        message = await messageService.create({
           senderId: serverUser._id,
           ...req.body,
         }, 'CHANNEL');
       } else {
-        const isMember = await DirectMessageService.checkMembership(userId.toString(), roomId);
+        const isMember = await directMessageService.checkMembership(userId.toString(), roomId);
   
         if (!isMember) throw new CustomError(401, 'Unauthorized');
   
-        message = await MessageService.create({
+        message = await messageService.create({
           senderId: userId,
           ...req.body,
         }, 'DIRECT');
@@ -82,7 +82,7 @@ const updateMessage: RequestHandler[] = [
       const { messageId } = req.params;
       const userId = req.user!._id;
 
-      const message = await MessageService.getOne(messageId);
+      const message = await messageService.getOne(messageId);
 
       if (!message) throw new CustomError(400, 'Message not found.');
 
@@ -90,7 +90,7 @@ const updateMessage: RequestHandler[] = [
 
       const updateQuery = keepKeys(req.body, ['body', 'attachments']);
 
-      const updatedMessage = await MessageService.update(messageId, updateQuery);
+      const updatedMessage = await messageService.update(messageId, updateQuery);
 
       res.json({
         data: updatedMessage,
@@ -104,13 +104,13 @@ const deleteMessage: RequestHandler = tryCatch(
   async (req, res, next) => {
     const { messageId } = req.params;
 
-    const message = await MessageService.getOne(messageId);
+    const message = await messageService.getOne(messageId);
 
     if (!message) throw new CustomError(400, 'Message not found.');
 
     if (message._id !== req.user!._id) throw new CustomError(401, 'Unauthorized');
 
-    await MessageService.del(messageId);
+    await messageService.del(messageId);
 
     res.json({ message: 'Message deleted successfully.' });
   }

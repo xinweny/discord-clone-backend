@@ -1,23 +1,23 @@
 import { Router } from 'express';
 
-import AuthController from '../controllers/auth.controller';
+import authController from '../controllers/auth.controller';
 
-const AuthRouter = Router();
+const authRouter = Router();
 
-AuthRouter.post('/login', AuthController.login);
+authRouter.post('/login', authController.login);
 
-AuthRouter.post('/signup', AuthController.signup);
+authRouter.post('/signup', authController.signup);
 
-AuthRouter.post('/refresh', AuthController.refreshAccessToken);
+authRouter.post('/refresh', authController.refreshAccessToken);
 
-AuthRouter.delete('/refresh', AuthController.logout);
+authRouter.delete('/refresh', authController.logout);
 
-AuthRouter.post('/reqReset', AuthController.requestPasswordReset);
+authRouter.post('/reqReset', authController.requestPasswordReset);
 
-AuthRouter.post('/reset', AuthController.resetPassword);
+authRouter.post('/reset', authController.resetPassword);
 
-AuthRouter.post('/reqVerify', AuthController.requestEmailVerification);
+authRouter.post('/reqVerify', authController.requestEmailVerification);
 
-AuthRouter.post('/verify', AuthController.verifyEmail);
+authRouter.post('/verify', authController.verifyEmail);
 
-export default AuthRouter;
+export default authRouter;
