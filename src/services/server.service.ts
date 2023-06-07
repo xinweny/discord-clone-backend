@@ -15,8 +15,8 @@ const create = async (fields: {
 
   server.channels.push({
     $each: [
-      { name: 'general', category: server.categories[0], type: 'text' },
-      { name: 'General', category: server.categories[1], type: 'voice' },
+      { name: 'general', category: server.categories[0]._id, type: 'text' },
+      { name: 'General', category: server.categories[1]._id, type: 'voice' },
     ],
   });
 
