@@ -2,11 +2,11 @@ import mongoose, { Schema, Types } from 'mongoose';
 
 import Message, { IMessage } from './Message.model';
 
-Message.discriminator('Channel', new Schema({
+Message.discriminator('channel', new Schema({
   roomId: { type: Types.ObjectId, required: true, refPath: '' },
   senderId: { type: Types.ObjectId, required: true, ref: 'User' },
 }));
 
-const MessageDirect = mongoose.model<IMessage>('MessageChannel');
+const MessageChannel = mongoose.model<IMessage>('channel');
 
-export default MessageDirect;
+export default MessageChannel;

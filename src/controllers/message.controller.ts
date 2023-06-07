@@ -59,7 +59,7 @@ const createMessage: RequestHandler[] = [
           ...req.body,
         }, 'CHANNEL');
       } else {
-        const isMember = await DirectMessageService.checkMembership(userId, roomId);
+        const isMember = await DirectMessageService.checkMembership(userId.toString(), roomId);
   
         if (!isMember) throw new CustomError(401, 'Unauthorized');
   

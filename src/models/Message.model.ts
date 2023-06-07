@@ -31,6 +31,7 @@ const messageSchema = new Schema({
 },
 {
   timestamps: true,
+  discriminatorKey: 'type',
 });
 
 const Message = mongoose.model<IMessage>('Message', messageSchema);

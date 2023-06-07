@@ -40,7 +40,9 @@ const exists = async (fields: {
 const checkMembership = async (userId: string, roomId: string) => {
   const directMessage = await DirectMessage.findById(roomId);
 
-  return directMessage?.participantIds.some((id) => id.toString() === userId);
+  if (!directMessage) return false;
+
+  return directMessage.participantIds.some((id) => id.toString() === userId);
 }
 
 export default {
