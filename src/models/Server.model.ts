@@ -20,7 +20,7 @@ const categorySchema = new Schema({
 });
 
 const serverSchema = new Schema({
-  creatorId: { type: Types.ObjectId, ref: 'User', required: true },
+  creatorId: { type: Types.ObjectId, ref: 'ServerMember', required: true },
   name: { type: String, required: true, unique: true },
   roles: { type: [roleSchema], default: () => ([]) },
   categories: { type: [categorySchema] },

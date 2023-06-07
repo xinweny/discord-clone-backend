@@ -18,9 +18,7 @@ const verifyPassword = async (password: string, hash: string) => {
 }
 
 const generateTokens = async (user: IUser) => {
-  const { _id, username, email, role, verified } = user;
-
-  const payload = { _id, username, email, role, verified };
+  const payload = { _id: user._id };
 
   const accessToken = jwt.sign(
     payload,

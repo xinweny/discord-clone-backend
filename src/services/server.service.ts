@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import Server from '../models/Server.model';
 
 const create = async (fields: {
+  _id?: Types.ObjectId,
   creatorId: Types.ObjectId | string,
   name: string,
   private: boolean,
