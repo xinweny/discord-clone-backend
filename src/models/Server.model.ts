@@ -12,6 +12,7 @@ const roleSchema = new Schema({
   permissions: {
     read: [{ type: Types.ObjectId, refPath: 'channels' }],
     write: [{ type: Types.ObjectId, refPath: 'channels' }],
+    admin: { type: Boolean, default: false },
   },
 });
 
