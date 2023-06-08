@@ -9,6 +9,7 @@ import keepKeys from '../helpers/keepKeys';
 
 import directMessageService from '../services/directMessage.service';
 import messageService from '../services/message.service';
+import serverMemberService from '../services/serverMember.service';
 
 const getMessage: RequestHandler[] = [
   authenticate,
@@ -47,7 +48,7 @@ const createMessage: RequestHandler[] = [
       let message;
 
       if (serverId) {
-        const serverUser = await serverMemberService.getMember(userId, roomId);
+        const serverUser = await serverMemberService.getById(userId, serverId);
   
         if (!serverUser) throw new CustomError(401, 'Unauthorized');
   
