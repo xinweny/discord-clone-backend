@@ -22,8 +22,6 @@ const createServer: RequestHandler[] = [
 
       const serverId = new mongoose.Types.ObjectId();
 
-      console.log(serverId);
-
       const creator = await serverMemberService.create({
         userId: user._id,
         serverId,

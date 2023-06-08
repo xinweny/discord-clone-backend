@@ -46,7 +46,7 @@ const editServerProfile: RequestHandler[] = [
       const member = await serverMemberService.getById(memberId);
 
       if (!member) throw new CustomError(400, 'User is not a member of this server.');
-      if (member.userId !== req.user!._id) throw new CustomError(401, 'Unauthorized');
+      if (!member.userId.equals(req.user!._id)) throw new CustomError(401, 'Unauthorized');
 
       const updatedMember = await serverMemberService.update(memberId, { ...req.body });
 
@@ -67,7 +67,7 @@ const leaveServer: RequestHandler[] = [
       const member = await serverMemberService.getById(memberId);
 
       if (!member) throw new CustomError(400, 'User is not a member of this server.');
-      if (member.userId !== req.user!._id) throw new CustomError(401, 'Unauthorized');
+      if (!member.userId.equals(req.user!._id)) throw new CustomError(401, 'Unauthorized');
 
       await serverMemberService.remove(memberId);
 
