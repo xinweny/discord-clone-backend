@@ -1,5 +1,7 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
 
+import reactionCountSchema from './ReactionCount.schema';
+
 export interface IMessage extends Document {
   roomId: Types.ObjectId;
   senderId: Types.ObjectId;
@@ -15,14 +17,6 @@ export interface IMessage extends Document {
     emoji?: string,
   }[];
 }
-
-const reactionCountSchema = new Schema({
-  name: { type: String, required: true, unique: true },
-  count: { type: Number, default: 0 },
-  emojiId: { type: Types.ObjectId, ref: 'CustomEmoji' },
-  url: { type: String },
-  emoji: { type: String },
-});
 
 const messageSchema = new Schema({
   body: { type: String, required: true },
