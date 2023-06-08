@@ -4,10 +4,10 @@ import keepKeys from '../helpers/keepKeys';
 
 import ServerMember from '../models/ServerMember.model';
 
-const checkMembership = async (userId: Types.ObjectId | string, serverId: Types.ObjectId | string) => {
+const getById = async (userId: Types.ObjectId | string, serverId: Types.ObjectId | string) => {
   const member = await ServerMember.findOne({ userId, serverId });
 
-  return !!member;
+  return member;
 };
 
 const getMany = async (fields: {
@@ -52,7 +52,7 @@ const remove = async (userId: Types.ObjectId | string, serverId: Types.ObjectId 
 };
 
 export default {
-  checkMembership,
+  getById,
   getMany,
   create,
   update,

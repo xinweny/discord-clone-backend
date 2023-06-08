@@ -58,7 +58,7 @@ const leaveServer: RequestHandler[] = [
       const { serverId } = req.body;
       const userId = req.user!._id;
 
-      const isMember = await serverMemberService.checkMembership(userId, serverId);
+      const isMember = await serverMemberService.getById(userId, serverId);
 
       if (!isMember) throw new CustomError(400, 'User is not a member of this server.');
 
