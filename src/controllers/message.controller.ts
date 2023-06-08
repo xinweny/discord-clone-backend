@@ -59,9 +59,9 @@ const createMessage: RequestHandler[] = [
           ...req.body,
         }, 'CHANNEL');
       } else {
-        const isMember = await directMessageService.checkMembership(userId.toString(), roomId);
+        const member = await directMessageService.checkMembership(userId, roomId);
   
-        if (!isMember) throw new CustomError(401, 'Unauthorized');
+        if (member) throw new CustomError(401, 'Unauthorized');
   
         message = await messageService.create({
           senderId: userId,
