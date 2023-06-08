@@ -13,7 +13,7 @@ const authenticate = tryCatch(
 
     const payload = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
 
-    const user = await UserService.getUser({ _id: payload._id });
+    const user = await UserService.getById(payload._id);
 
     if (!user) throw new CustomError(400, 'User not found.');
 

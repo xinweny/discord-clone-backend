@@ -73,9 +73,9 @@ const refreshAccessToken: RequestHandler[] = [
 
       if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
 
-      const { _id, email, username, role, verified } = decodedToken;
+      const { _id } = decodedToken;
 
-      const user = { _id, email, username, role, verified };
+      const user = { _id };
 
       const accessToken = authService.issueAccessToken(user);
 

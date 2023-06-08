@@ -55,10 +55,6 @@ const verifyAccessToken = (accessToken: string) => {
 
 const issueAccessToken = (user: {
   _id: string,
-  email: string,
-  username: string,
-  role: string,
-  verified: boolean,
 }) => {
   return jwt.sign(user, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRE,
