@@ -15,12 +15,12 @@ const joinServer: RequestHandler[] = [
     async (req, res, next) => {
       const { serverId } = req.params;
 
-      const server = await serverService.getById(serverId);
+      const [server, user] = await Promise.all([
+        serverService.getById(serverId),
+        userService.getById(req.user!._id),
+      ]);
 
       if (!server) throw new CustomError(500, 'Server not found.');
-
-      const user = await userService.getById(req.user!._id);
-
       if (!user) throw new CustomError(500, 'User not found.');
 
       const member = await serverMemberService.create({
@@ -41,10 +41,17 @@ const editServerProfile: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res, next) => {
-      const member = await serverMemberService.update(req.user!._id, { ...req.body });
+      const { memberId } = req.params;
+
+      const member = await serverMemberService.getById(memberId);
+
+      if (!member) throw new CustomError(400, 'User is not a member of this server.');
+      if (member.userId !== req.user!._id) throw new CustomError(401, 'Unauthorized');
+
+      const updatedMember = await serverMemberService.update(memberId, { ...req.body });
 
       res.json({
-        data: member,
+        data: updatedMember,
         message: 'Server member info successfully updated.',
       });
     }
@@ -55,14 +62,14 @@ const leaveServer: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res, next) => {
-      const { serverId } = req.body;
-      const userId = req.user!._id;
+      const { memberId } = req.params;
 
-      const isMember = await serverMemberService.getById(userId, serverId);
+      const member = await serverMemberService.getById(memberId);
 
-      if (!isMember) throw new CustomError(400, 'User is not a member of this server.');
+      if (!member) throw new CustomError(400, 'User is not a member of this server.');
+      if (member.userId !== req.user!._id) throw new CustomError(401, 'Unauthorized');
 
-      const member = await serverMemberService.remove(userId, serverId);
+      await serverMemberService.remove(memberId);
 
       res.json({
         data: member,

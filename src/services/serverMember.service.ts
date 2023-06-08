@@ -4,7 +4,13 @@ import keepKeys from '../helpers/keepKeys';
 
 import ServerMember from '../models/ServerMember.model';
 
-const getById = async (userId: Types.ObjectId | string, serverId: Types.ObjectId | string) => {
+const getById = async (id: Types.ObjectId | string) => {
+  const member = await ServerMember.findById(id);
+
+  return member;
+};
+
+const getOne = async (userId: Types.ObjectId | string, serverId: Types.ObjectId | string) => {
   const member = await ServerMember.findOne({ userId, serverId });
 
   return member;
@@ -17,7 +23,7 @@ const getMany = async (fields: {
   const members = await ServerMember.find(fields);
 
   return members;
-}
+};
 
 const create = async (fields: {
   userId: Types.ObjectId | string,
@@ -45,14 +51,15 @@ const update = async (id: Types.ObjectId | string, fields: {
   return member;
 };
 
-const remove = async (userId: Types.ObjectId | string, serverId: Types.ObjectId | string) => {
-  const deletedMember = await ServerMember.findOneAndDelete({ userId, serverId });
+const remove = async (id: Types.ObjectId | string) => {
+  const deletedMember = await ServerMember.findByIdAndDelete(id);
 
   return deletedMember;
 };
 
 export default {
   getById,
+  getOne,
   getMany,
   create,
   update,

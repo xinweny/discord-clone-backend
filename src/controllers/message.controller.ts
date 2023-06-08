@@ -48,7 +48,9 @@ const createMessage: RequestHandler[] = [
       let message;
 
       if (serverId) {
-        const serverUser = await serverMemberService.getById(userId, serverId);
+        const serverUser = await serverMemberService.getOne(userId, serverId);
+
+        // TODO: Check server member role
   
         if (!serverUser) throw new CustomError(401, 'Unauthorized');
   

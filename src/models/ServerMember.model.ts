@@ -12,6 +12,8 @@ const serverMemberSchema = new Schema({
   collection: 'server_members',
 });
 
+serverMemberSchema.index({ userId: 1, serverId: 1 }, { unique: true });
+
 const ServerMember = mongoose.model('ServerMember', serverMemberSchema);
 
 export default ServerMember;
