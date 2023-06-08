@@ -16,7 +16,7 @@ const createServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   tryCatch(
     async (req, res, next) => {
-      const user = await userService.getUser({ _id: req.user!._id });
+      const user = await userService.getById(req.user!._id);
 
       if (!user) throw new CustomError(401, 'Unauthorized');
 
@@ -27,7 +27,7 @@ const createServer: RequestHandler[] = [
       const creator = await serverMemberService.create({
         userId: user._id,
         serverId,
-        username: user.username,
+        displayName: user.username,
       });
 
       const server = await serverService.create({

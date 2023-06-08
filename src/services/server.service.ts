@@ -2,6 +2,12 @@ import { Types } from 'mongoose';
 
 import Server from '../models/Server.model';
 
+const getById = async (id: Types.ObjectId | string) => {
+  const server = await Server.findById(id);
+
+  return server;
+};
+
 const create = async (fields: {
   _id?: Types.ObjectId,
   creatorId: Types.ObjectId | string,
@@ -27,5 +33,6 @@ const create = async (fields: {
 };
 
 export default {
+  getById,
   create,
 };

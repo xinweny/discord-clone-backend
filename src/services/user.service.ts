@@ -1,9 +1,11 @@
+import { Types } from 'mongoose';
+
 import User from '../models/User.model';
 
 import keepKeys from '../helpers/keepKeys';
 
-const getUser = async (queryObj: {
-  _id?: string,
+const getOne = async (queryObj: {
+  _id?: Types.ObjectId | string,
   email?: string,
   password?: string,
 }, sensitive = false) => {
@@ -15,6 +17,12 @@ const getUser = async (queryObj: {
 
   return user;
 };
+
+const getById = async (id: Types.ObjectId | string) => {
+  const user = await User.findById(id);
+
+  return user;
+}
 
 const create = async (fields: {
   email: string,
@@ -28,7 +36,7 @@ const create = async (fields: {
   return user;
 };
 
-const update = async (id: string, updateFields: {
+const update = async (id: Types.ObjectId | string, updateFields: {
   email?: string,
   password?: string,
   username?: string,
@@ -45,7 +53,8 @@ const update = async (id: string, updateFields: {
 }
 
 export default {
-  getUser,
+  getOne,
+  getById,
   create,
   update,
 };

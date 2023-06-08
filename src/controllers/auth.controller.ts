@@ -20,7 +20,7 @@ const signup: RequestHandler[] = [
     async (req, res, next) => {
       const { email, username, password } = req.body;
 
-      const existingUser = await userService.getUser({ email });
+      const existingUser = await userService.getOne({ email });
 
       if (existingUser) throw new CustomError(400, 'Email already in use. Please choose a different email.');
 
@@ -46,7 +46,7 @@ const login: RequestHandler[] = [
     async (req, res, next) => {
       const { email, password } = req.body;
 
-      const user = await userService.getUser({ email }, true);
+      const user = await userService.getOne({ email }, true);
       if (!user) throw new CustomError(401, 'Invalid email or password.');
 
       const verifiedPassword = await authService.verifyPassword(password, user.password);
@@ -107,7 +107,7 @@ const requestPasswordReset: RequestHandler[] = [
     async (req, res, next) => {
       const { email } = req.body;
 
-      const user = await userService.getUser({ email });
+      const user = await userService.getOne({ email });
 
       if (!user) throw new CustomError(400, 'User does not exist.');
 
@@ -168,7 +168,7 @@ const requestEmailVerification: RequestHandler[] = [
     async (req, res, next) => {
       const { email } = req.body;
 
-      const user = await userService.getUser({ email });
+      const user = await userService.getOne({ email });
 
       if (!user) throw new CustomError(400, 'User does not exist.');
 
@@ -199,7 +199,7 @@ const verifyEmail: RequestHandler = tryCatch(
     const token = req.query.token.toString();
     const uid = req.query.uid.toString();
 
-    const user = await userService.getUser({ _id: uid });
+    const user = await userService.getOne({ _id: uid });
 
     if (!user) throw new CustomError(400, 'User does not exist.');
     if (user.verified) throw new CustomError(400, 'User email has already been verified.');

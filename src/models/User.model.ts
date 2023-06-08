@@ -31,6 +31,8 @@ const userSchema = new Schema({
     default: 'user',
   },
   relationships: { type: [Types.ObjectId], ref: 'Relationship', default: [] },
+  bio: { type: String, default: '', length: { max: 190 } },
+  bannerColor: { type: String, default: '' },
 });
 
 const User = mongoose.model<IUser>('User', userSchema);
