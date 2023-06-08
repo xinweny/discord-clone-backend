@@ -1,5 +1,14 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
+export interface IServerMember extends Document {
+  userId: Types.ObjectId;
+  serverId: Types.ObjectId;
+  displayName: string;
+  roles: [Types.ObjectId];
+  bio: string;
+  bannerColor: string;
+}
+
 const serverMemberSchema = new Schema({
   userId: { type: Types.ObjectId, ref: 'User', required: true },
   serverId: { type: Types.ObjectId, ref: 'Server', required: true },
@@ -14,6 +23,6 @@ const serverMemberSchema = new Schema({
 
 serverMemberSchema.index({ userId: 1, serverId: 1 }, { unique: true });
 
-const ServerMember = mongoose.model('ServerMember', serverMemberSchema);
+const ServerMember = mongoose.model<IServerMember>('ServerMember', serverMemberSchema);
 
 export default ServerMember;
