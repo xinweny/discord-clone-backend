@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
   username: string;
@@ -30,6 +30,7 @@ const userSchema = new Schema({
     enum: ['user', 'admin', 'super_admin'],
     default: 'user',
   },
+  relationships: { type: [Types.ObjectId], ref: 'Relationship', default: [] },
 });
 
 const User = mongoose.model<IUser>('User', userSchema);
