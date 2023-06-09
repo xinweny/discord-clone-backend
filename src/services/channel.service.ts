@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
 import Server from '../models/Server.model';
+import ServerMember from '../models/ServerMember.model';
 
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
@@ -50,7 +51,7 @@ const remove = async (serverId: Types.ObjectId | string, channelId: Types.Object
   await server.save();
 
   return channel;
-}
+};
 
 export default {
   create,

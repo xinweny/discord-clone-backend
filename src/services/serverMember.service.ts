@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 
 import keepKeys from '../helpers/keepKeys';
 
+import Server from '../models/Server.model';
 import ServerMember from '../models/ServerMember.model';
 
 const getById = async (id: Types.ObjectId | string) => {
@@ -30,7 +31,12 @@ const create = async (fields: {
   serverId: Types.ObjectId | string,
   displayName: string,
 }) => {
+  const server = await Server.findById(fields.serverId);
+  
+  if (!server) return null;
+
   const member = new ServerMember(fields);
+  member.roles.push(server.roles[0]._id);
 
   await member.save();
 

@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { RequestHandler } from 'express';
 
 import tryCatch from '../middleware/tryCatch';
@@ -7,8 +6,6 @@ import validateFields from '../middleware/validateFields';
 
 import CustomError from '../helpers/CustomError';
 
-import userService from '../services/user.service';
-import serverMemberService from '../services/serverMember.service';
 import serverService from '../services/server.service';
 
 const createServer: RequestHandler[] = [
@@ -16,29 +13,12 @@ const createServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   tryCatch(
     async (req, res, next) => {
-      const user = await userService.getById(req.user!._id);
+      const data = await serverService.create({ ...req.body }, req.user!._id);
 
-      if (!user) throw new CustomError(401, 'Unauthorized');
-
-      const serverId = new mongoose.Types.ObjectId();
-
-      const creator = await serverMemberService.create({
-        userId: user._id,
-        serverId,
-        displayName: user.username,
-      });
-
-      const server = await serverService.create({
-        _id: serverId,
-        creatorId: creator._id,
-        ...req.body,
-      });
+      if (!data) throw new CustomError(400, 'Bad request');
 
       res.json({
-        data: {
-          server,
-          creator,
-        },
+        data: data,
         message: 'Server created successfully.',
       });
     }
