@@ -5,7 +5,7 @@ import authenticate from '../middleware/authenticate';
 
 import CustomError from '../helpers/CustomError';
 
-import { io } from '../server';
+import { IReaction } from '../models/Reaction.model';
 
 import messageService from '../services/message.service';
 import reactionService from '../services/reaction.service';
@@ -13,7 +13,7 @@ import reactionService from '../services/reaction.service';
 const reactToMessage: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { messageId } = req.params;
 
       const custom = !!req.body.emojiId;
@@ -42,13 +42,6 @@ const reactToMessage: RequestHandler[] = [
         reactionService.create(createQuery)
       ]);
 
-      if (message) {
-        io.in(message.roomId.toString()).emit('reaction', {
-          data: reaction,
-          action: 'POST',
-        });
-      }
-
       res.json({
         data: reaction,
         message: 'Reacted to message successfully.',
@@ -60,10 +53,10 @@ const reactToMessage: RequestHandler[] = [
 const unreactToMessage: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { messageId, reactionId } = req.params;
 
-      const reaction = await reactionService.getOneById(reactionId);
+      const reaction = await reactionService.getById(reactionId) as IReaction;
 
       if (!reaction) throw new CustomError(400, 'Reaction not found.');
 
@@ -71,15 +64,10 @@ const unreactToMessage: RequestHandler[] = [
 
       const [message] = await Promise.all([
         messageService.unreact(messageId, reaction),
-        reactionService.remove(reactionId)
+        reactionService.remove(reactionId),
       ]);
 
       if (!message) throw new CustomError(400, 'Message not found.');
-
-      io.in(message.roomId.toString()).emit('reaction', {
-        data: reaction._id,
-        action: 'DELETE',
-      });
 
       res.json({
         data: reaction,

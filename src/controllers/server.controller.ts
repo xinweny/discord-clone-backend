@@ -12,7 +12,7 @@ const createServer: RequestHandler[] = [
   authenticate,
   ...validateFields(['serverName']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const data = await serverService.create({
         name: req.body.serverName,
         private: !!req.body.private,
@@ -32,7 +32,7 @@ const updateServer: RequestHandler[] = [
   authenticate,
   ...validateFields(['serverName']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { serverId } = req.params;
 
       const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageServer']);
@@ -55,7 +55,7 @@ const updateServer: RequestHandler[] = [
 const deleteServer: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { serverId } = req.params;
 
       const authorized = await serverService.checkPermissions(serverId, req.user!._id);

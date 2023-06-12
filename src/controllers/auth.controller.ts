@@ -17,7 +17,7 @@ import authService from '../services/auth.service';
 const signup: RequestHandler[] = [
   ...validateFields(['email', 'username', 'password', 'confirmPassword']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { email, username, password } = req.body;
 
       const existingUser = await userService.getOne({ email });
@@ -43,7 +43,7 @@ const signup: RequestHandler[] = [
 const login: RequestHandler[] = [
   ...validateFields(['email', 'password']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { email, password } = req.body;
 
       const user = await userService.getOne({ email }, true);
@@ -68,7 +68,7 @@ const login: RequestHandler[] = [
 const refreshAccessToken: RequestHandler[] = [
   ...validateFields(['refreshToken']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const decodedToken = await authService.verifyRefreshToken(req.body.refreshToken);
 
       if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
@@ -90,7 +90,7 @@ const refreshAccessToken: RequestHandler[] = [
 const logout: RequestHandler[] = [
   ...validateFields(['refreshToken']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       await authService.deleteRefreshToken(req.body.refreshToken);
 
       res.json({
@@ -104,7 +104,7 @@ const logout: RequestHandler[] = [
 const requestPasswordReset: RequestHandler[] = [
   ...validateFields(['email']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { email } = req.body;
 
       const user = await userService.getOne({ email });
@@ -134,7 +134,7 @@ const requestPasswordReset: RequestHandler[] = [
 const resetPassword: RequestHandler[] = [
   ...validateFields(['password', 'confirmPassword']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       if (!req.query.token || !req.query.uid) throw new CustomError(404, 'Not found.');
 
       const token = req.query.token.toString();
@@ -165,7 +165,7 @@ const resetPassword: RequestHandler[] = [
 const requestEmailVerification: RequestHandler[] = [
   ...validateFields(['email']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { email } = req.body;
 
       const user = await userService.getOne({ email });
@@ -193,7 +193,7 @@ const requestEmailVerification: RequestHandler[] = [
 ];
 
 const verifyEmail: RequestHandler = tryCatch(
-  async (req, res, next) => {
+  async (req, res) => {
     if (!req.query.token || !req.query.uid) throw new CustomError(404, 'Not found.');
 
     const token = req.query.token.toString();

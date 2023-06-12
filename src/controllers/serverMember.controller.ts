@@ -12,7 +12,7 @@ import serverMemberService from '../services/serverMember.service';
 const joinServer: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { serverId } = req.params;
 
       const [server, user] = await Promise.all([
@@ -40,7 +40,7 @@ const joinServer: RequestHandler[] = [
 const editServerProfile: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { memberId } = req.params;
 
       const member = await serverMemberService.getById(memberId);
@@ -61,7 +61,7 @@ const editServerProfile: RequestHandler[] = [
 const leaveServer: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { memberId } = req.params;
 
       const member = await serverMemberService.getById(memberId);

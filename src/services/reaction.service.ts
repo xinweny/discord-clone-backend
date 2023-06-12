@@ -9,7 +9,7 @@ interface IFields {
   emoji?: string;
 }
 
-const getOneById = async (id: Types.ObjectId | string) => {
+const getById = async (id: Types.ObjectId | string) => {
   return await Reaction.findById(id);
 };
 
@@ -49,7 +49,7 @@ const remove = async (id: string) => {
 export default {
   create,
   getOne,
-  getOneById,
+  getById,
   getByUser,
   getByMessage,
   remove,

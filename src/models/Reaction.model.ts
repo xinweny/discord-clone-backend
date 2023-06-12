@@ -1,6 +1,7 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
 export interface IReaction {
+  _id: Types.ObjectId;
   reactorId: Types.ObjectId;
   messageId: Types.ObjectId;
   emojiId?: Types.ObjectId;
