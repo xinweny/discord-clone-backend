@@ -8,7 +8,6 @@ import CustomError from '../helpers/CustomError';
 import renameObjectKey from '../helpers/renameObjectKey';
 
 import serverService from '../services/server.service';
-import serverMemberService from '../services/serverMember.service';
 import channelService from '../services/channel.service';
 
 const createChannel: RequestHandler[] = [
@@ -19,14 +18,9 @@ const createChannel: RequestHandler[] = [
       const { serverId } = req.params;
       const userId = req.user!._id;
 
-      const [server, member] = await Promise.all([
-        serverService.getById(serverId),
-        serverMemberService.getOne(userId, serverId),
-      ]);
+      const authorized = await serverService.checkPermissions(serverId, userId, ['manageChannels']);
 
-      if (!server) throw new CustomError(400, 'Server not found.');
-      if (!member) throw new CustomError(400, 'Member not found.');
-      if (!server.checkPermissions(member, ['manageChannels'])) throw new CustomError(401, 'Unauthorized');
+      if (!authorized) throw new CustomError(401, 'Unauthorized');
 
       const fields = { ...req.body };
       renameObjectKey(fields, 'name', 'channelName');

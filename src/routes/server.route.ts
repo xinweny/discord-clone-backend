@@ -13,4 +13,8 @@ serverRouter.use('/:serverId/members', serverMemberRouter);
 
 serverRouter.use('/:serverId/channels', channelRouter);
 
+serverRouter.put('/:serverId', serverController.updateServer);
+
+serverRouter.delete('/:serverId', serverController.deleteServer);
+
 export default serverRouter;
