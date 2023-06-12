@@ -39,6 +39,4 @@ const createChannel: RequestHandler[] = [
 
 export default {
   createChannel,
-  updateChannel,
-  deleteChannel,
 };
