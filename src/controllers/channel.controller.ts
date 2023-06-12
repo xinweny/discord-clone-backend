@@ -5,7 +5,6 @@ import validateFields from '../middleware/validateFields';
 import tryCatch from '../middleware/tryCatch';
 
 import CustomError from '../helpers/CustomError';
-import renameObjectKey from '../helpers/renameObjectKey';
 
 import serverService from '../services/server.service';
 import channelService from '../services/channel.service';
@@ -16,16 +15,12 @@ const createChannel: RequestHandler[] = [
   tryCatch(
     async (req, res) => {
       const { serverId } = req.params;
-      const userId = req.user!._id;
 
-      const authorized = await serverService.checkPermissions(serverId, userId, ['manageChannels']);
+      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageChannels']);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
-
-      const fields = { ...req.body };
-      renameObjectKey(fields, 'name', 'channelName');
       
-      const channel = await channelService.create(serverId, { ...fields });
+      const channel = await channelService.create(serverId, { ...req.body });
 
       res.json({
         data: channel,
@@ -35,6 +30,48 @@ const createChannel: RequestHandler[] = [
   )
 ];
 
+const updateChannel: RequestHandler[] = [
+  authenticate,
+  ...validateFields(['channelName']),
+  tryCatch(
+    async (req, res) => {
+      const { serverId, channelId } = req.params;
+
+      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageChannels']);
+
+      if (!authorized) throw new CustomError(401, 'Unauthorized');
+      
+      const channel = await channelService.update(serverId, channelId, { ...req.body });
+
+      res.json({
+        data: channel,
+        message: 'Channel successfully updated',
+      });
+    }
+  )
+];
+
+const deleteChannel: RequestHandler[] = [
+  authenticate,
+  tryCatch(
+    async (req, res) => {
+      const { serverId, channelId } = req.params;
+
+      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageChannels']);
+
+      if (!authorized) throw new CustomError(401, 'Unauthorized');
+
+      await channelService.remove(serverId, channelId);
+
+      res.json({
+        message: 'Channel successfully deleted.',
+      });
+    }
+  )
+]
+
 export default {
   createChannel,
+  updateChannel,
+  deleteChannel,
 };

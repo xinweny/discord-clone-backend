@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 
 import Server, { IServer } from '../models/Server.model';
 import { IServerMember } from '../models/ServerMember.model';
+import Message from '../models/Message.model';
 
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
@@ -54,7 +55,10 @@ const remove = async (serverId: Types.ObjectId | string, channelId: Types.Object
 
   server.channels.pull(channelId);
 
-  await server.save();
+  await Promise.all([
+    server.save(),
+    Message.deleteMany({ roomId: channelId }),
+  ]);
 
   return channel;
 };

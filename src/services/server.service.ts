@@ -60,6 +60,7 @@ const create = async (
 const update = async (id: Types.ObjectId | string, fields: {
   name?: string,
   private?: boolean,
+  type?: 'text' | 'voice',
 }) => {
   const server = await Server.findByIdAndUpdate(id, {
     $set: fields,

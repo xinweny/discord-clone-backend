@@ -13,10 +13,7 @@ const createServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   tryCatch(
     async (req, res) => {
-      const data = await serverService.create({
-        name: req.body.serverName,
-        private: !!req.body.private,
-      }, req.user!._id);
+      const data = await serverService.create({ ...req.body }, req.user!._id);
 
       if (!data) throw new CustomError(400, 'Bad request');
 
@@ -39,10 +36,7 @@ const updateServer: RequestHandler[] = [
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 
-      const updatedServer = await serverService.update(serverId, {
-        name: req.body.serverName,
-        private: !!req.body.private,
-      });
+      const updatedServer = await serverService.update(serverId, { ...req.body });
 
       res.json({
         data: updatedServer,
