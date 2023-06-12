@@ -25,7 +25,14 @@ const createChannel: RequestHandler[] = [
 
       if (!server) throw new CustomError(400, 'Server not found.');
       if (!member) throw new CustomError(400, 'Member not found.');
+      if (!server.checkPermissions(member, ['manageChannels'])) throw new CustomError(401, 'Unauthorized');
       
+      const channel = await channelService.create(serverId, { ...req.body });
+
+      res.json({
+        data: channel,
+        message: 'Channel created successfully.',
+      });
     }
   )
 ];

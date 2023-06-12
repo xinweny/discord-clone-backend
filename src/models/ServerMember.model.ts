@@ -1,6 +1,7 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
 export interface IServerMember extends Document {
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   serverId: Types.ObjectId;
   displayName: string;

@@ -3,7 +3,9 @@ import { Schema, Types } from 'mongoose';
 interface IRole extends Types.Subdocument {
   name: string,
   color: string,
-  permissions?: { [key: string]: boolean },
+  permissions: {
+    [key: string]: boolean,
+  },
 }
 
 const roleSchema = new Schema({

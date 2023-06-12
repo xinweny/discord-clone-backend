@@ -6,6 +6,7 @@ import roleSchema, { IRole } from './Role.schema';
 import categorySchema, { ICategory } from './Category.schema';
 import customEmojiSchema, { ICustomEmoji } from './CustomEmoji.schema';
 import channelSchema, { IChannel } from './Channel.schema';
+import { IServerMember } from './ServerMember.model';
 
 interface IServer extends Document {
   creatorId: Types.ObjectId;
@@ -16,6 +17,7 @@ interface IServer extends Document {
   customEmojis: Types.DocumentArray<ICustomEmoji>;
   imageUrl?: string;
   private: boolean;
+  checkPermissions(member: IServerMember, permissionKeys: string[]): boolean;
 }
 
 export { IServer };
@@ -41,6 +43,28 @@ serverSchema.pre('save', function (next) {
 
   next();
 });
+
+serverSchema.method(
+  'checkPermissions',
+  function (member: IServerMember, permissionKeys: string[] = []) {
+    if (this.creatorId.equals(member._id)) return true;
+
+    const roles = this.roles;
+
+    if (member.roles.some(id => {
+      const role = roles.id(id);
+
+      if (!role) return false;
+      if (role.permissions.administrator) return true;
+
+      if (permissionKeys.some(key => role.permissions[key])) return true;
+
+      return false;
+    })) return true;
+
+    return false;
+  }
+);
 
 const Server = mongoose.model<IServer>('Server', serverSchema);
 
