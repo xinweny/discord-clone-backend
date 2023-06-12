@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import serverMemberRouter from './serverMember.route';
-import channelRouter from './channel.route';
+import serverMemberRouter from './serverMember.router';
+import channelRouter from './channel.router';
 
 import serverController from '../controllers/server.controller';
 

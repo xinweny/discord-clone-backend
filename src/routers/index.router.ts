@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
-import authRouter from './auth.route';
-import directMessageRouter from './directMessage.route';
-import messageRouter from './message.route';
-import serverRouter from './server.route';
+import authRouter from './auth.router';
+import directMessageRouter from './directMessage.router';
+import messageRouter from './message.router';
+import serverRouter from './server.router';
 
 const router = Router();
 

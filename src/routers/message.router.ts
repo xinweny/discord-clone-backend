@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import messageController from '../controllers/message.controller';
 
-import reactionRouter from './reaction.route';
+import reactionRouter from './reaction.router';
 
 const messageRouter = Router();
 
