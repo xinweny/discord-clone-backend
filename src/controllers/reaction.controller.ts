@@ -33,7 +33,7 @@ const reactToMessage: RequestHandler[] = [
         ...(custom ? { emojiId: req.body.emojiId }  : { emoji: req.body.emoji }),
       };
   
-      const [message, reaction] = await Promise.all([
+      const [, reaction] = await Promise.all([
         messageService.react(messageId, custom ? {
           id: req.body.emojiId,
           name: req.body.name,

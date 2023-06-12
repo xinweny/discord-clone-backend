@@ -14,7 +14,7 @@ import serverMemberService from '../services/serverMember.service';
 const getMessage: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const message = await messageService.getOne(req.params.messageId);
   
       if (!message) throw new CustomError(400, 'Message not found.');
@@ -27,7 +27,7 @@ const getMessage: RequestHandler[] = [
 const getMessages: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const findQuery = keepKeys(req.query, ['roomId', 'senderId']);
   
       const messages = await messageService.getMany(findQuery);
@@ -41,7 +41,7 @@ const createMessage: RequestHandler[] = [
   authenticate,
   ...validateFields(['body']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { roomId, serverId } = req.body;
       const userId = req.user!._id;
 
@@ -81,7 +81,7 @@ const updateMessage: RequestHandler[] = [
   authenticate,
   ...validateFields(['body']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { messageId } = req.params;
       const userId = req.user!._id;
 
@@ -104,7 +104,7 @@ const updateMessage: RequestHandler[] = [
 ];
 
 const deleteMessage: RequestHandler = tryCatch(
-  async (req, res, next) => {
+  async (req, res) => {
     const { messageId } = req.params;
 
     const message = await messageService.getOne(messageId);
