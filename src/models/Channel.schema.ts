@@ -6,8 +6,8 @@ interface IChannel extends Types.Subdocument {
   type: string;
   permissions: {
     private: boolean,
-    view?: [Types.ObjectId],
-    message?: [Types.ObjectId],
+    view: [Types.ObjectId],
+    message: [Types.ObjectId],
   };
 }
 

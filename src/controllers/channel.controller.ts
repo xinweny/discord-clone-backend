@@ -14,7 +14,7 @@ const createChannel: RequestHandler[] = [
   authenticate,
   ...validateFields(['channelName']),
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const { serverId } = req.params;
       const userId = req.user!._id;
 

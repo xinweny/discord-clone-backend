@@ -9,7 +9,8 @@ import keepKeys from '../helpers/keepKeys';
 
 import directMessageService from '../services/directMessage.service';
 import messageService from '../services/message.service';
-import serverMemberService from '../services/serverMember.service';
+import serverService from '../services/server.service';
+import channelService from '../services/channel.service';
 
 const getMessage: RequestHandler[] = [
   authenticate,
@@ -48,14 +49,18 @@ const createMessage: RequestHandler[] = [
       let message;
 
       if (serverId) {
-        const serverUser = await serverMemberService.getOne(userId, serverId);
+        const data = await serverService.checkPermissions(serverId, userId, ['sendMessages']);
 
-        // TODO: Check server member role
-  
-        if (!serverUser) throw new CustomError(401, 'Unauthorized');
+        if (!data) throw new CustomError(401, 'Unauthorized');
+
+        const { server, member } = data;
+
+        const authorized = await channelService.checkPermissions(roomId, server, member);
+
+        if (!authorized) throw new CustomError(401, 'Unauthorized');
   
         message = await messageService.create({
-          senderId: serverUser._id,
+          senderId: member._id,
           ...req.body,
         }, 'CHANNEL');
       } else {

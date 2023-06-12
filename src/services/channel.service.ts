@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
-import Server from '../models/Server.model';
+import Server, { IServer } from '../models/Server.model';
+import { IServerMember } from '../models/ServerMember.model';
 
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
@@ -58,8 +59,23 @@ const remove = async (serverId: Types.ObjectId | string, channelId: Types.Object
   return channel;
 };
 
+const checkPermissions = (channelId: string, server: IServer, member: IServerMember) => {
+  const channel = server.channels.id(channelId);
+
+  if (!channel) return false;
+
+  if (!channel.permissions.private) return true;
+
+  const messagePermission = channel.permissions.message;
+
+  if (messagePermission.some(id => member.roles.map(i => i.toString()).includes(id.toString()))) return true; 
+  
+  return false;
+};
+
 export default {
   create,
   update,
   remove,
+  checkPermissions,
 }

@@ -82,7 +82,7 @@ const checkPermissions = async (
 
   if (!server.checkPermissions(member, permissionKeys)) return false;
 
-  return true;
+  return { server, member };
 };
 
 const remove = async (id: Types.ObjectId | string) => {
