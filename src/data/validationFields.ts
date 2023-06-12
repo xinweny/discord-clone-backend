@@ -20,10 +20,10 @@ const VALIDATION_FIELDS: { [key: string]: RequestHandler } = {
     .withMessage('Passwords do not match.'),
   refreshToken: body('refreshToken')
     .isLength({ min: 1 }).withMessage('Refresh token is required.'),
-  serverName: body('name')
+  serverName: body('serverName')
     .trim().isLength({ min: 2, max: 32 }).withMessage('Server name must be between 2 and 32 characters long.'),
-  channelName: body('name')
-  .trim().isLength({ min: 2, max: 32 }).withMessage('Server name must be between 2 and 32 characters long.'),
+  channelName: body('channelName')
+    .trim().isLength({ min: 2, max: 32 }).withMessage('Channel name must be between 2 and 32 characters long.'),
 };
 
 export default VALIDATION_FIELDS;

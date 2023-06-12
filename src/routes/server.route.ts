@@ -5,12 +5,12 @@ import channelRouter from './channel.route';
 
 import serverController from '../controllers/server.controller';
 
-const serverRouter = Router();
+const serverRouter = Router({ mergeParams: true });
 
 serverRouter.post('/', serverController.createServer);
 
 serverRouter.use('/:serverId/members', serverMemberRouter);
 
-channelRouter.use('/:serverId/channels', channelRouter);
+serverRouter.use('/:serverId/channels', channelRouter);
 
 export default serverRouter;

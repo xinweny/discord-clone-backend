@@ -13,7 +13,10 @@ const createServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   tryCatch(
     async (req, res, next) => {
-      const data = await serverService.create({ ...req.body }, req.user!._id);
+      const data = await serverService.create({
+        name: req.body.serverName,
+        private: !!req.body.private,
+      }, req.user!._id);
 
       if (!data) throw new CustomError(400, 'Bad request');
 
