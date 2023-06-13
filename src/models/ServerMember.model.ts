@@ -5,7 +5,7 @@ export interface IServerMember extends Document {
   userId: Types.ObjectId;
   serverId: Types.ObjectId;
   displayName: string;
-  roles: [Types.ObjectId];
+  roleIds: [Types.ObjectId];
   bio: string;
   bannerColor: string;
 }
@@ -14,7 +14,7 @@ const serverMemberSchema = new Schema({
   userId: { type: Types.ObjectId, ref: 'User', required: true },
   serverId: { type: Types.ObjectId, ref: 'Server', required: true },
   displayName: { type: String, required: true },
-  roles: { type: [Types.ObjectId], ref: 'Server.roles', default: [] },
+  roleIds: { type: [Types.ObjectId], ref: 'Server.roles', default: [] },
   bio: { type: String, default: '', length: { max: 190 } },
   bannerColor: { type: String, default: '' },
 }, {
