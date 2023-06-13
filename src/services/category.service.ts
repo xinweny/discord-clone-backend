@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
 
+import formatSetQuery from '../helpers/formatSetQuery';
+
 import Server from '../models/Server.model';
 
 const create = async (serverId: Types.ObjectId | string, name: string) => {
@@ -9,7 +11,9 @@ const create = async (serverId: Types.ObjectId | string, name: string) => {
 
   server.categories.push({ name });
 
-  const category = server.categories.slice(-1);
+  await server.save();
+
+  const category = server.categories.slice(-1)[0];
 
   return category;
 };
@@ -19,10 +23,10 @@ const update = async (serverId: Types.ObjectId | string, categoryId: Types.Objec
     _id: serverId,
     'categories._id': categoryId,
   }, {
-    $set: { 'categories.$': { name } },
+    $set: formatSetQuery({ name }, 'categories'),
   }, { new: true });
 
-  const category = server?.channels.id(categoryId);
+  const category = server?.categories.id(categoryId);
 
   return category;
 };

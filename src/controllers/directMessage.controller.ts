@@ -10,7 +10,7 @@ import directMessageService from '../services/directMessage.service';
 const createRoom: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const roomExists = await directMessageService.exists({
         creatorId: req.body.creatorId,
         participantIds: req.body.participantIds,

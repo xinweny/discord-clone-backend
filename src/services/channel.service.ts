@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
 
+import formatSetQuery from '../helpers/formatSetQuery';
+
 import Server, { IServer } from '../models/Server.model';
 import { IServerMember } from '../models/ServerMember.model';
 import Message from '../models/Message.model';
@@ -40,7 +42,7 @@ const update = async (
     _id: serverId,
     'channels._id': channelId,
   }, {
-    $set: { 'channels.$': fields },
+    $set: formatSetQuery(fields, 'channels'),
   }, { new: true });
 
   const channel = server?.channels.id(channelId);
