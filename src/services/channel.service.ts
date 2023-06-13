@@ -6,7 +6,7 @@ import Message from '../models/Message.model';
 
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
-  category?: Types.ObjectId | string,
+  categoryId?: Types.ObjectId | string,
   type?: string,
   permissions?: {
     private: boolean,
@@ -17,6 +17,8 @@ const create = async (serverId: Types.ObjectId | string, fields: {
   const server = await Server.findById(serverId);
 
   if (!server) return null;
+
+  if (!server.categories.id(fields.categoryId)) return null;
 
   server.channels.push(fields);
 
@@ -32,7 +34,7 @@ const update = async (
   channelId: Types.ObjectId | string,
   fields: {
     name?: string,
-    category?: Types.ObjectId | string,
+    categoryId?: Types.ObjectId | string,
 }) => {
   const server = await Server.findOneAndUpdate({
     _id: serverId,
@@ -72,7 +74,7 @@ const checkPermissions = (channelId: string, server: IServer, member: IServerMem
 
   const messagePermission = channel.permissions.message;
 
-  if (messagePermission.some(id => member.roles.map(i => i.toString()).includes(id.toString()))) return true; 
+  if (messagePermission.some(id => member.roleIds.map(i => i.toString()).includes(id.toString()))) return true; 
   
   return false;
 };
