@@ -6,7 +6,7 @@ import env from './config/env.config';
 import apiRateLimiter from './config/rateLimit.config';
 import './config/db.config';
 
-import router from './routes/index.route';
+import router from './routers/index.router';
 import CustomError from './helpers/CustomError';
 import errorHandler from './middleware/errorHandler';
 import { IReqUser } from './models/User.model';
