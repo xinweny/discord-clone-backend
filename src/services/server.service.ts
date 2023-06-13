@@ -49,7 +49,7 @@ const create = async (
 
   // Default roles
   server.roles.push({ name: '@everyone', color: '#99AAB5' });
-  creator.roles.push(server.roles[0]._id);
+  creator.roleIds.push(server.roles[0]._id);
 
   await server.save();
   await creator.save();
