@@ -36,7 +36,7 @@ const create = async (fields: {
   if (!server) return null;
 
   const member = new ServerMember(fields);
-  member.roles.push(server.roles[0]._id);
+  member.roleIds.push(server.roles[0]._id);
 
   await member.save();
 

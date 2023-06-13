@@ -51,7 +51,7 @@ serverSchema.method(
 
     const roles = this.roles;
 
-    if (member.roles.some(id => {
+    if (member.roleIds.some(id => {
       const role = roles.id(id);
 
       if (!role) return false;
