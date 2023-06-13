@@ -34,7 +34,7 @@ const update = async (serverId: Types.ObjectId | string, categoryId: Types.Objec
 const remove = async (serverId: Types.ObjectId | string, categoryId: Types.ObjectId | string) => {
   const server = await Server.findByIdAndUpdate(serverId, {
     $pull: { categories: { _id: categoryId } },
-    $unset: { 'channels.$[c].categoryId': true }
+    $unset: { 'channels.$[c].categoryId': true },
   }, {
     arrayFilters: [
       { 'c.categoryId': categoryId },
