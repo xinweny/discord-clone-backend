@@ -47,8 +47,9 @@ const update = async (id: Types.ObjectId | string, fields: {
   displayName?: string,
   bio?: string,
   bannerColor?: string,
+  roleIds?: Types.ObjectId[] | string[],
 }) => {
-  const updateQuery = keepKeys(fields, ['displayName', 'bio', 'bannerColor']);
+  const updateQuery = keepKeys(fields, ['displayName', 'bio', 'bannerColor', 'roleIds']);
 
   const member = await ServerMember.findByIdAndUpdate(id, {
     $set: updateQuery,

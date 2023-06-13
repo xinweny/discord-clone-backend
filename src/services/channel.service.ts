@@ -24,7 +24,7 @@ const create = async (serverId: Types.ObjectId | string, fields: {
 
   server.channels.push(fields);
 
-  const channel = server.channels.slice(-1);
+  const channel = server.channels.slice(-1)[0];
 
   await server.save();
 
