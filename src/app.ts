@@ -6,7 +6,7 @@ import env from './config/env.config';
 import apiRateLimiter from './config/rateLimit.config';
 import './config/db.config';
 
-import '../utils/reqInterface.ts';
+import './utils/reqInterface';
 
 import router from './routers/index.router';
 import CustomError from './helpers/CustomError';
