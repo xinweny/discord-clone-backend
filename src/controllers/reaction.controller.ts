@@ -75,7 +75,7 @@ const unreactToMessage: RequestHandler[] = [
       })
     }
   )
-]
+];
 
 export default {
   reactToMessage,

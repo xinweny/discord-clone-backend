@@ -48,7 +48,7 @@ const updateCategory: RequestHandler[] = [
       });
     }
   )
-]
+];
 
 const deleteCategory: RequestHandler[] = [
   authenticate,

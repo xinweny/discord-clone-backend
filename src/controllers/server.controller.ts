@@ -63,7 +63,7 @@ const deleteServer: RequestHandler[] = [
       });
     }
   )
-]
+];
 
 export default {
   createServer,
