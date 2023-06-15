@@ -13,7 +13,7 @@ const createServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   tryCatch(
     async (req, res) => {
-      const data = await serverService.create({ ...req.body }, req.user!._id);
+      const data = await serverService.create({ ...req.body }, req.user?._id);
 
       if (!data) throw new CustomError(400, 'Bad request');
 
@@ -32,7 +32,7 @@ const updateServer: RequestHandler[] = [
     async (req, res) => {
       const { serverId } = req.params;
 
-      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageServer']);
+      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageServer']);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 
@@ -52,7 +52,7 @@ const deleteServer: RequestHandler[] = [
     async (req, res) => {
       const { serverId } = req.params;
 
-      const authorized = await serverService.checkPermissions(serverId, req.user!._id);
+      const authorized = await serverService.checkPermissions(serverId, req.user?._id);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 

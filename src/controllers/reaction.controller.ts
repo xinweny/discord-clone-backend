@@ -29,7 +29,7 @@ const reactToMessage: RequestHandler[] = [
 
       const createQuery = {
         messageId,
-        reactorId: req.user!._id,
+        reactorId: req.user?._id,
         ...(custom ? { emojiId: req.body.emojiId }  : { emoji: req.body.emoji }),
       };
   
@@ -60,7 +60,7 @@ const unreactToMessage: RequestHandler[] = [
 
       if (!reaction) throw new CustomError(400, 'Reaction not found.');
 
-      if (req.user!._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
+      if (req.user?._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
 
       const [message] = await Promise.all([
         messageService.unreact(messageId, reaction),

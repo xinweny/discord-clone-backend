@@ -16,7 +16,7 @@ const createCategory: RequestHandler[] = [
     async (req, res) => {
       const { serverId } = req.params;
 
-      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageChannels']);
+      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageChannels']);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 
@@ -36,7 +36,7 @@ const updateCategory: RequestHandler[] = [
     async (req, res) => {
       const { serverId, categoryId } = req.params;
 
-      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageChannels']);
+      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageChannels']);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 
@@ -56,7 +56,7 @@ const deleteCategory: RequestHandler[] = [
     async (req, res) => {
       const { serverId, categoryId } = req.params;
 
-      const authorized = await serverService.checkPermissions(serverId, req.user!._id, ['manageChannels']);
+      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageChannels']);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 

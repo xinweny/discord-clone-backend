@@ -44,7 +44,7 @@ const createMessage: RequestHandler[] = [
   tryCatch(
     async (req, res) => {
       const { roomId, serverId } = req.body;
-      const userId = req.user!._id;
+      const userId = req.user?._id;
 
       let message;
 
@@ -88,7 +88,7 @@ const updateMessage: RequestHandler[] = [
   tryCatch(
     async (req, res) => {
       const { messageId } = req.params;
-      const userId = req.user!._id;
+      const userId = req.user?._id;
 
       const message = await messageService.getOne(messageId);
 
@@ -116,7 +116,7 @@ const deleteMessage: RequestHandler = tryCatch(
 
     if (!message) throw new CustomError(400, 'Message not found.');
 
-    if (message._id !== req.user!._id) throw new CustomError(401, 'Unauthorized');
+    if (message._id !== req.user?._id) throw new CustomError(401, 'Unauthorized');
 
     await messageService.del(messageId);
 
