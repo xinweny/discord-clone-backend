@@ -51,7 +51,7 @@ const update = async (
   return updatedMessage;
 };
 
-const del = async (id: string) => {
+const remove = async (id: string) => {
   await Message.findByIdAndDelete(id);
 };
 
@@ -156,7 +156,7 @@ export default {
   getMany,
   create,
   update,
-  del,
+  remove,
   react,
   unreact,
 };

@@ -28,7 +28,8 @@ const createServer: RequestHandler[] = [
 
 const updateServer: RequestHandler[] = [
   authenticate,
-  ...validateFields(['serverName', 'test']),
+  authorize.server('manageServer'),
+  ...validateFields(['serverName']),
   authorize.server('manageServer'),
   tryCatch(
     async (req, res) => {

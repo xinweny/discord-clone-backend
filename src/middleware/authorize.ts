@@ -6,6 +6,7 @@ import serverService from '../services/server.service';
 import serverMemberService from '../services/serverMember.service';
 import channelService from '../services/channel.service';
 import directMessageService from '../services/directMessage.service';
+import messageService from '../services/message.service';
 
 const server = (permissionNames: string | string[] = []) => {
   const authorizeMiddleware: RequestHandler = async (req, res, next) => {
@@ -69,8 +70,23 @@ const message: RequestHandler = async (req, res, next) => {
   next();
 };
 
+const messageSelf: RequestHandler = async (req, res, next) => {
+  const { serverId } = req.params;
+  
+  const message = await messageService.getOne(req.params.messageId);
+
+  if (!message) throw new CustomError(400, 'Message not found.');
+
+  if (!serverId && message._id !== req.user?._id
+    || serverId 
+  ) throw new CustomError(401, 'Unauthorized');
+
+  next();
+};
+
 export default {
   server,
   memberSelf,
   message,
+  messageSelf,
 }

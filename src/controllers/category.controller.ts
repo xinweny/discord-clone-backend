@@ -1,24 +1,19 @@
 import { RequestHandler } from 'express';
 
 import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
 import validateFields from '../middleware/validateFields';
 import tryCatch from '../middleware/tryCatch';
 
-import CustomError from '../helpers/CustomError';
-
-import serverService from '../services/server.service';
 import categoryService from '../services/category.service';
 
 const createCategory: RequestHandler[] = [
   authenticate,
+  authorize.server('manageChannels'),
   ...validateFields(['categoryName']),
   tryCatch(
     async (req, res) => {
       const { serverId } = req.params;
-
-      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageChannels']);
-
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
 
       const category = await categoryService.create(serverId, req.body.name);
 
@@ -32,13 +27,10 @@ const createCategory: RequestHandler[] = [
 
 const updateCategory: RequestHandler[] = [
   authenticate,
+  authorize.server('manageChannels'),
   tryCatch(
     async (req, res) => {
       const { serverId, categoryId } = req.params;
-
-      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageChannels']);
-
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
 
       const category = await categoryService.update(serverId, categoryId, req.body.name);
 
@@ -52,13 +44,10 @@ const updateCategory: RequestHandler[] = [
 
 const deleteCategory: RequestHandler[] = [
   authenticate,
+  authorize.server('manageChannels'),
   tryCatch(
     async (req, res) => {
       const { serverId, categoryId } = req.params;
-
-      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageChannels']);
-
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
 
       const category = await categoryService.remove(serverId, categoryId);
 

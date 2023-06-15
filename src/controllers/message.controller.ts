@@ -65,46 +65,34 @@ const createMessage: RequestHandler[] = [
 ];
 
 const updateMessage: RequestHandler[] = [
-  authenticate,
   ...validateFields(['body']),
+  authenticate,
+  authorize.messageSelf,
   tryCatch(
     async (req, res) => {
-      const { messageId } = req.params;
-      const userId = req.user?._id;
-
-      const message = await messageService.getOne(messageId);
-
-      if (!message) throw new CustomError(400, 'Message not found.');
-
-      if (message._id !== userId) throw new CustomError(401, 'Unauthorized');
-
       const updateQuery = keepKeys(req.body, ['body', 'attachments']);
 
-      const updatedMessage = await messageService.update(messageId, updateQuery);
+      const message = await messageService.update(req.params.messageId, updateQuery);
 
       res.json({
-        data: updatedMessage,
+        data: message,
         message: 'Message updated successfully.',
       });
     }
   )
 ];
 
-const deleteMessage: RequestHandler = tryCatch(
-  async (req, res) => {
-    const { messageId } = req.params;
-
-    const message = await messageService.getOne(messageId);
-
-    if (!message) throw new CustomError(400, 'Message not found.');
-
-    if (message._id !== req.user?._id) throw new CustomError(401, 'Unauthorized');
-
-    await messageService.del(messageId);
-
-    res.json({ message: 'Message deleted successfully.' });
-  }
-)
+const deleteMessage: RequestHandler[] = [
+  authenticate,
+  authorize.messageSelf,
+  tryCatch(
+    async (req, res) => {  
+      await messageService.remove(req.params.messageId);
+  
+      res.json({ message: 'Message deleted successfully.' });
+    }
+  )
+];
 
 export default {
   getMessage,

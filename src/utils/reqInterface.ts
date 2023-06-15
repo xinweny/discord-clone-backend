@@ -12,3 +12,5 @@ declare module 'express-serve-static-core' {
     dm?: IDirectMessage,
   }
 }
+
+export default Request;
