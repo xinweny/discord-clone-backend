@@ -9,7 +9,7 @@ const uploadEmoji = multer({
     files: 1,
   },
   fileFilter: fileTypeFilter(/jpeg|jpg|png|gif/),
-}).single('emojiFile');
+}).single('file');
 
 export {
   uploadEmoji,
