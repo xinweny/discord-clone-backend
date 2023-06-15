@@ -11,9 +11,11 @@ const createRoom: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
+      const { creatorId, participantIds } = req.body;
+
       const roomExists = await directMessageService.exists({
-        creatorId: req.body.creatorId,
-        participantIds: req.body.participantIds,
+        creatorId,
+        participantIds,
       });
 
       if (roomExists) throw new CustomError(400, 'Direct message room already exists.');

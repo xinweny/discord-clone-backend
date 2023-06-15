@@ -10,8 +10,8 @@ import CustomError from '../helpers/CustomError';
 import serverService from '../services/server.service';
 
 const createServer: RequestHandler[] = [
-  authenticate,
   ...validateFields(['serverName']),
+  authenticate,
   tryCatch(
     async (req, res) => {
       const data = await serverService.create({ ...req.body }, req.user?._id);
@@ -27,9 +27,9 @@ const createServer: RequestHandler[] = [
 ];
 
 const updateServer: RequestHandler[] = [
+  ...validateFields(['serverName']),
   authenticate,
   authorize.server('manageServer'),
-  ...validateFields(['serverName']),
   authorize.server('manageServer'),
   tryCatch(
     async (req, res) => {

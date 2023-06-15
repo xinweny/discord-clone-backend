@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 
 import tryCatch from '../middleware/tryCatch';
 import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
 
 import CustomError from '../helpers/CustomError';
 
@@ -10,6 +11,7 @@ import reactionService from '../services/reaction.service';
 
 const reactToMessage: RequestHandler[] = [
   authenticate,
+  authorize.message,
   tryCatch(
     async (req, res) => {
       const { messageId } = req.params;
@@ -50,6 +52,7 @@ const reactToMessage: RequestHandler[] = [
 
 const unreactToMessage: RequestHandler[] = [
   authenticate,
+  authorize.message,
   tryCatch(
     async (req, res) => {
       const { messageId, reactionId } = req.params;

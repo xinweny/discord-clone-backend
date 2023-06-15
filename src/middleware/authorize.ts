@@ -32,9 +32,7 @@ const memberSelf: RequestHandler = async (req, res, next) => {
 
   const member = await serverMemberService.getById(memberId);
 
-  if (!member) throw new CustomError(400, 'User is not a member of this server.');
-
-  if (!member.userId.equals(req.user?._id)) throw new CustomError(401, 'Unauthorized');
+  if (!member || !member.userId.equals(req.user?._id)) throw new CustomError(401, 'Unauthorized');
 
   req.member = member;
 
@@ -84,9 +82,18 @@ const messageSelf: RequestHandler = async (req, res, next) => {
   next();
 };
 
+const user: RequestHandler = (req, res, next) => {
+  const { userId } = req.params;
+
+  if (!req.user?._id.equals(userId)) throw new CustomError(401, 'Unauthorized');
+
+  next();
+};
+
 export default {
   server,
   memberSelf,
   message,
   messageSelf,
+  user,
 }

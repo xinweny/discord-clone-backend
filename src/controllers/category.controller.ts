@@ -8,9 +8,9 @@ import tryCatch from '../middleware/tryCatch';
 import categoryService from '../services/category.service';
 
 const createCategory: RequestHandler[] = [
+  ...validateFields(['categoryName']),
   authenticate,
   authorize.server('manageChannels'),
-  ...validateFields(['categoryName']),
   tryCatch(
     async (req, res) => {
       const { serverId } = req.params;
@@ -26,6 +26,7 @@ const createCategory: RequestHandler[] = [
 ];
 
 const updateCategory: RequestHandler[] = [
+  ...validateFields(['categoryName']),
   authenticate,
   authorize.server('manageChannels'),
   tryCatch(
