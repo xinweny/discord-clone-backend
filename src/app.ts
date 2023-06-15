@@ -6,18 +6,13 @@ import env from './config/env.config';
 import apiRateLimiter from './config/rateLimit.config';
 import './config/db.config';
 
+import '../utils/reqInterface.ts';
+
 import router from './routers/index.router';
 import CustomError from './helpers/CustomError';
 import errorHandler from './middleware/errorHandler';
-import { IReqUser } from './models/User.model';
 
 const app = express();
-
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: IReqUser,
-  }
-}
 
 // MIDDLEWARES
 app.use(express.json());
