@@ -65,7 +65,7 @@ const leaveServer: RequestHandler[] = [
       const { serverId, memberId } = req.params;
       const userId = req.user?._id;
       
-      const authorized = await serverService.checkPermissions(serverId, userId, [], memberId);
+      const authorized = await serverService.checkPermissions(serverId, userId, ['kickMembers'], memberId);
 
       if (!authorized) throw new CustomError(401, 'Unauthorized');
 

@@ -57,7 +57,7 @@ serverSchema.method(
       if (!role) return false;
       if (role.permissions.administrator) return true;
 
-      if (permissionKeys.length > 0 && permissionKeys.some(key => role.permissions[key])) return true;
+      if (permissionKeys.some(key => role.permissions[key])) return true;
 
       return false;
     })) return true;

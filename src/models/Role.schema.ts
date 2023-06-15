@@ -16,6 +16,7 @@ const roleSchema = new Schema({
     manageChannels: { type: Boolean, default: false },
     manageRoles: { type: Boolean, default: false },
     manageExpressions: { type: Boolean, default: false },
+    kickMembers: { type: Boolean, default: false },
     manageServer: { type: Boolean, default: false },
     createInvite: { type: Boolean, default: true },
     sendMessages: { type: Boolean, default: true },
