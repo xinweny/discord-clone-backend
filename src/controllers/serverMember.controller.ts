@@ -17,7 +17,7 @@ const joinServer: RequestHandler[] = [
 
       const [server, user] = await Promise.all([
         serverService.getById(serverId),
-        userService.getById(req.user!._id),
+        userService.getById(req.user?._id),
       ]);
 
       if (!server) throw new CustomError(500, 'Server not found.');
@@ -46,7 +46,7 @@ const editServerProfile: RequestHandler[] = [
       const member = await serverMemberService.getById(memberId);
 
       if (!member) throw new CustomError(400, 'User is not a member of this server.');
-      if (!member.userId.equals(req.user!._id)) throw new CustomError(401, 'Unauthorized');
+      if (!member.userId.equals(req.user?._id)) throw new CustomError(401, 'Unauthorized');
 
       const updatedMember = await serverMemberService.update(memberId, { ...req.body });
 
@@ -62,12 +62,14 @@ const leaveServer: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const { memberId } = req.params;
+      const { serverId, memberId } = req.params;
+      const userId = req.user?._id;
+      
+      const authorized = await serverService.checkPermissions(serverId, userId, [], memberId);
 
-      const member = await serverMemberService.getById(memberId);
+      if (!authorized) throw new CustomError(401, 'Unauthorized');
 
-      if (!member) throw new CustomError(400, 'User is not a member of this server.');
-      if (!member.userId.equals(req.user!._id)) throw new CustomError(401, 'Unauthorized');
+      const { member } = authorized;
 
       await serverMemberService.remove(memberId);
 

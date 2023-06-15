@@ -72,7 +72,8 @@ const update = async (id: Types.ObjectId | string, fields: {
 const checkPermissions = async (
   serverId: Types.ObjectId | string,
   userId: Types.ObjectId | string,
-  permissionKeys: string[] = []
+  permissionKeys: string[] = [],
+  memberId?: Types.ObjectId | string,
 ) => {
   const [server, member] = await Promise.all([
     Server.findById(serverId),
@@ -81,14 +82,16 @@ const checkPermissions = async (
 
   if (!server || !member) return false;
 
-  if (!server.checkPermissions(member, permissionKeys)) return false;
+  if (memberId && member._id.equals(memberId)) return { server, member };
 
-  return { server, member };
+  if (server.checkPermissions(member, permissionKeys)) return { server, member };
+
+  return false;
 };
 
 const remove = async (id: Types.ObjectId | string) => {
   const server = await Server.findById(id);
-  const channelIds = server!.channels.map(channel => channel._id);
+  const channelIds = server?.channels.map(channel => channel._id);
 
   await Promise.all([
     Server.findByIdAndDelete(id),
