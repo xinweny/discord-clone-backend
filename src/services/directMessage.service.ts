@@ -42,7 +42,9 @@ const checkMembership = async (userId: string, roomId: string) => {
 
   if (!directMessage) return false;
 
-  return directMessage.participantIds.some((id) => id.toString() === userId);
+  if (directMessage.participantIds.some((id) => id.toString() === userId)) return directMessage;
+
+  return false;
 }
 
 export default {

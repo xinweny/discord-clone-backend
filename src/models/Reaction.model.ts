@@ -15,6 +15,6 @@ const reactionSchema = new Schema({
   emoji: { type: 'String' },
 });
 
-const Reaction = mongoose.model('Reaction', reactionSchema);
+const Reaction = mongoose.model<IReaction>('Reaction', reactionSchema);
 
 export default Reaction;

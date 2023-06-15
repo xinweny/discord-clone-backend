@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 
 import tryCatch from '../middleware/tryCatch';
 import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
 import validateFields from '../middleware/validateFields';
 
 import CustomError from '../helpers/CustomError';
@@ -27,16 +28,11 @@ const createServer: RequestHandler[] = [
 
 const updateServer: RequestHandler[] = [
   authenticate,
-  ...validateFields(['serverName']),
+  ...validateFields(['serverName', 'test']),
+  authorize.server('manageServer'),
   tryCatch(
     async (req, res) => {
-      const { serverId } = req.params;
-
-      const authorized = await serverService.checkPermissions(serverId, req.user?._id, ['manageServer']);
-
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
-
-      const updatedServer = await serverService.update(serverId, { ...req.body });
+      const updatedServer = await serverService.update(req.server?._id, { ...req.body });
 
       res.json({
         data: updatedServer,
@@ -48,6 +44,7 @@ const updateServer: RequestHandler[] = [
 
 const deleteServer: RequestHandler[] = [
   authenticate,
+  authorize.server(),
   tryCatch(
     async (req, res) => {
       const { serverId } = req.params;

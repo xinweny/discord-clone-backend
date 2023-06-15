@@ -4,7 +4,7 @@ import messageController from '../controllers/message.controller';
 
 import reactionRouter from './reaction.router';
 
-const messageRouter = Router();
+const messageRouter = Router({ mergeParams: true });
 
 messageRouter.get('/', messageController.getMessages);
 

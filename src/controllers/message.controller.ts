@@ -1,16 +1,14 @@
 import { RequestHandler } from 'express';
 
 import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
 import tryCatch from '../middleware/tryCatch';
 import validateFields from '../middleware/validateFields';
 
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
 
-import directMessageService from '../services/directMessage.service';
 import messageService from '../services/message.service';
-import serverService from '../services/server.service';
-import channelService from '../services/channel.service';
 
 const getMessage: RequestHandler[] = [
   authenticate,
@@ -29,50 +27,34 @@ const getMessages: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const findQuery = keepKeys(req.query, ['roomId', 'senderId']);
+      const findQuery = keepKeys(req.query, ['senderId']);
   
-      const messages = await messageService.getMany(findQuery);
+      const messages = await messageService.getMany({
+        roomId: req.params.roomId,
+        ...findQuery,
+      });
   
       res.json({ data: messages });
     }
   )
 ];
 
+// TODO: add attachments
+
 const createMessage: RequestHandler[] = [
-  authenticate,
   ...validateFields(['body']),
+  authenticate,
+  authorize.message,
   tryCatch(
     async (req, res) => {
-      const { roomId, serverId } = req.body;
+      const { roomId, serverId } = req.params;
       const userId = req.user?._id;
 
-      let message;
-
-      if (serverId) {
-        const data = await serverService.checkPermissions(serverId, userId, ['sendMessages']);
-
-        if (!data) throw new CustomError(401, 'Unauthorized');
-
-        const { server, member } = data;
-
-        const authorized = await channelService.checkPermissions(roomId, server, member);
-
-        if (!authorized) throw new CustomError(401, 'Unauthorized');
-  
-        message = await messageService.create({
-          senderId: member._id,
-          ...req.body,
-        }, 'CHANNEL');
-      } else {
-        const member = await directMessageService.checkMembership(userId, roomId);
-  
-        if (member) throw new CustomError(401, 'Unauthorized');
-  
-        message = await messageService.create({
-          senderId: userId,
-          ...req.body,
-        }, 'DIRECT');
-      }
+      const message = await messageService.create({
+        senderId: (serverId) ? req.member?._id : userId,
+        roomId,
+        ...req.body,
+      }, (serverId) ? 'CHANNEL' : 'DIRECT');
 
       res.json({
         data: message,

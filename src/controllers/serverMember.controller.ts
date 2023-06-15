@@ -2,6 +2,8 @@ import { RequestHandler } from 'express';
 
 import tryCatch from '../middleware/tryCatch';
 import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
+import validateFields from '../middleware/validateFields';
 
 import CustomError from '../helpers/CustomError';
 
@@ -38,17 +40,12 @@ const joinServer: RequestHandler[] = [
 ];
 
 const editServerProfile: RequestHandler[] = [
+  ...validateFields(['displayName', 'bio', 'bannerColor']),
   authenticate,
+  authorize.memberSelf,
   tryCatch(
     async (req, res) => {
-      const { memberId } = req.params;
-
-      const member = await serverMemberService.getById(memberId);
-
-      if (!member) throw new CustomError(400, 'User is not a member of this server.');
-      if (!member.userId.equals(req.user?._id)) throw new CustomError(401, 'Unauthorized');
-
-      const updatedMember = await serverMemberService.update(memberId, { ...req.body });
+      const updatedMember = await serverMemberService.update(req.params.memberId, { ...req.body });
 
       res.json({
         data: updatedMember,
@@ -60,22 +57,14 @@ const editServerProfile: RequestHandler[] = [
 
 const leaveServer: RequestHandler[] = [
   authenticate,
+  authorize.server('kickMembers'),
   tryCatch(
     async (req, res) => {
-      const { serverId, memberId } = req.params;
-      const userId = req.user?._id;
-      
-      const authorized = await serverService.checkPermissions(serverId, userId, ['kickMembers'], memberId);
-
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
-
-      const { member } = authorized;
-
-      await serverMemberService.remove(memberId);
+      await serverMemberService.remove(req.params.memberId);
 
       res.json({
-        data: member,
-        message: 'User left server successfully.',
+        data: req.member,
+        message: 'User removed from server successfully.',
       });
     }
   )

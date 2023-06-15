@@ -5,8 +5,6 @@ import authenticate from '../middleware/authenticate';
 
 import CustomError from '../helpers/CustomError';
 
-import { IReaction } from '../models/Reaction.model';
-
 import messageService from '../services/message.service';
 import reactionService from '../services/reaction.service';
 
@@ -39,7 +37,7 @@ const reactToMessage: RequestHandler[] = [
           name: req.body.name,
           url: req.body.url,
         } : req.body.emoji),
-        reactionService.create(createQuery)
+        reactionService.create(createQuery),
       ]);
 
       res.json({
@@ -56,7 +54,7 @@ const unreactToMessage: RequestHandler[] = [
     async (req, res) => {
       const { messageId, reactionId } = req.params;
 
-      const reaction = await reactionService.getById(reactionId) as IReaction;
+      const reaction = await reactionService.getById(reactionId);
 
       if (!reaction) throw new CustomError(400, 'Reaction not found.');
 
