@@ -6,9 +6,9 @@ import formatDataUri from '../helpers/formatDataUri';
 import Server from '../models/Server.model';
 
 const getMany = async (serverId: Types.ObjectId | string) => {
-  const server = await Server.findById(serverId);
+  const data = await Server.findById(serverId, 'customEmojis');
 
-  return server?.customEmojis;
+  return data?.customEmojis;
 };
 
 const create = async (

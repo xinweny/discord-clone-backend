@@ -39,6 +39,8 @@ serverSchema.pre('save', function (next) {
   for (const subdocs of [this.roles, this.categories, this.channels, this.customEmojis]) {
     const names = subdocs.map(subdoc => subdoc.name);
     if ((new Set(names)).size !== names.length) throw new CustomError(400, 'Duplicate values not allowed.');
+
+    if (this.customEmojis.length > 100) throw new CustomError(400, 'Custom emoji limit (100) exceeded.');
   }
 
   next();
