@@ -11,34 +11,28 @@ import reactionService from '../services/reaction.service';
 
 const reactToMessage: RequestHandler[] = [
   authenticate,
-  authorize.message,
+  authorize.message('react'),
   tryCatch(
     async (req, res) => {
       const { messageId } = req.params;
 
       const custom = !!req.body.emojiId;
 
-      const userHasReacted = await reactionService.getOne({
-        reactorId: req.user?._id,
-        messageId,
-        ...(custom && { emojiId: req.body.emojiId }),
-        ...(!!custom && { emoji: req.body.emoji }),
-      });
-
-      if (userHasReacted) throw new CustomError(400, 'Reaction already exists.');
-
       const createQuery = {
         messageId,
         reactorId: req.user?._id,
         ...(custom ? { emojiId: req.body.emojiId }  : { emoji: req.body.emoji }),
       };
+
+      const userHasReacted = await reactionService.getOne(createQuery);
+
+      if (userHasReacted) throw new CustomError(400, 'Reaction already exists.');
   
       const [, reaction] = await Promise.all([
-        messageService.react(messageId, custom ? {
-          id: req.body.emojiId,
-          name: req.body.name,
-          url: req.body.url,
-        } : req.body.emoji),
+        messageService.react(
+          messageId,
+          custom ? { ...req.body } : req.body.emoji
+        ),
         reactionService.create(createQuery),
       ]);
 
@@ -52,7 +46,7 @@ const reactToMessage: RequestHandler[] = [
 
 const unreactToMessage: RequestHandler[] = [
   authenticate,
-  authorize.message,
+  authorize.unreact,
   tryCatch(
     async (req, res) => {
       const { messageId, reactionId } = req.params;

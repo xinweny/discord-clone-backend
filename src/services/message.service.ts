@@ -2,12 +2,12 @@ import { Types } from 'mongoose';
 import emojilib from 'emojilib';
 
 import cloudHelper from '../helpers/cloudHelper';
+import CustomError from '../helpers/CustomError';
 
 import Message from '../models/Message.model';
 import MessageDirect from '../models/MessageDirect.model';
 import MessageChannel from '../models/MessageChannel.model';
-
-import { IReaction } from '../models/Reaction.model';
+import Reaction, { IReaction } from '../models/Reaction.model';
 
 const getOne = async (id: string) => {
   const message = await Message.findById(id);
@@ -38,7 +38,7 @@ const create = async (
     ? new MessageChannel({ ...fields, serverId })
     : new MessageDirect(fields);
 
-  const folderPath = `attachments${serverId ? `/${serverId}` : ''}/${fields.roomId}`;
+  const folderPath = `attachments/${serverId ? `${serverId}/` : ''}${fields.roomId}`;
 
   if (files && files.length > 0) {
     const attachments = await Promise.all(
@@ -71,7 +71,22 @@ const update = async (
 };
 
 const remove = async (id: string) => {
-  await Message.findByIdAndDelete(id);
+  const message = await Message.findById(id);
+
+  if (!message) throw new CustomError(400, 'Message not found.');
+
+  const { serverId, roomId, attachments } = message;
+
+  if (attachments.length > 0) {
+    const folderPath = `attachments/${serverId ? `${serverId}/`: ''}${roomId}`;
+
+    await cloudHelper.deleteByPrefix(folderPath);
+  }
+
+  await Promise.all([
+    message.deleteOne(),
+    Reaction.deleteMany({ messageId: id }),
+  ]);
 };
 
 const react = async (
@@ -100,7 +115,7 @@ const react = async (
       name: emoji.name,
     };
 
-    emojiExists = message.reactionCounts.some(reaction => reaction.emojiId?.toString() === emoji.id);
+    emojiExists = message.reactionCounts.some(reaction => reaction.emojiId?.equals(emoji.id));
   } else {
     identifier = emoji;
     updateField = 'reactions.emoji';
