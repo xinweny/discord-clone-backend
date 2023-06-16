@@ -66,45 +66,59 @@ const memberSelf: RequestHandler = async (req, res, next) => {
   next();
 };
 
-const message: RequestHandler = async (req, res, next) => {
-  const { roomId, serverId } = req.params;
-  const userId = req.user?._id;
-
-  if (serverId) {
-    const data = await serverService.checkPermissions(serverId, userId, ['sendMessages']);
-
-    if (!data) throw new CustomError(401, 'Unauthorized');
+const message = (action: 'view' | 'send') => {
+  const authorizeMiddleware: RequestHandler = async (req, res, next) => {
+    const { roomId, serverId } = req.params;
+    const userId = req.user?._id;
   
-    const { server, member } = data;
+    if (serverId) {
+      const data = await serverService.checkPermissions(
+        serverId,
+        userId,
+        (action === 'view') ? ['viewChannels'] : ['sendMessages']);
   
-    const authorized = channelService.checkPermissions(roomId, server, member);
+      if (!data) throw new CustomError(401, 'Unauthorized');
+    
+      const { server, member } = data;
+    
+      const authorized = channelService.checkPermissions(
+        roomId,
+        server,
+        member,
+        (action === 'view') ? 'view' : 'message');
+    
+      if (!authorized) throw new CustomError(401, 'Unauthorized');
   
-    if (!authorized) throw new CustomError(401, 'Unauthorized');
+      req.server = data.server;
+      req.member = data.member;
+    } else {
+      const directMessage = await directMessageService.checkMembership(userId, roomId);
+    
+      if (!directMessage) throw new CustomError(401, 'Unauthorized');
+  
+      req.dm = directMessage;
+    }
+  
+    next();
+  };
 
-    req.server = data.server;
-    req.member = data.member;
-  
-  } else {
-    const directMessage = await directMessageService.checkMembership(userId, roomId);
-  
-    if (!directMessage) throw new CustomError(401, 'Unauthorized');
-
-    req.dm = directMessage;
-  }
-
-  next();
-};
+  return authorizeMiddleware;
+}
 
 const messageSelf: RequestHandler = async (req, res, next) => {
   const { serverId } = req.params;
-  
+
   const message = await messageService.getOne(req.params.messageId);
 
   if (!message) throw new CustomError(400, 'Message not found.');
 
-  if (!serverId && message._id !== req.user?._id
-    || serverId 
-  ) throw new CustomError(401, 'Unauthorized');
+  if (serverId) {
+    const member = await serverMemberService.getOne(req.user?._id, serverId);
+
+    if (!member || !message.senderId.equals(member._id)) throw new CustomError(401, 'Unauthorized');
+  } else if (message._id !== req.user?._id) {
+    throw new CustomError(401, 'Unauthorized');
+  }
 
   next();
 };

@@ -5,6 +5,7 @@ import formatSetQuery from '../helpers/formatSetQuery';
 import Server, { IServer } from '../models/Server.model';
 import { IServerMember } from '../models/ServerMember.model';
 import Message from '../models/Message.model';
+import { IPermissions } from '../models/Channel.schema';
 
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
@@ -67,16 +68,18 @@ const remove = async (serverId: Types.ObjectId | string, channelId: Types.Object
   return channel;
 };
 
-const checkPermissions = (channelId: string, server: IServer, member: IServerMember) => {
+const checkPermissions = (channelId: string, server: IServer, member: IServerMember, permissionKey: keyof IPermissions) => {
   const channel = server.channels.id(channelId);
 
   if (!channel) return false;
 
   if (!channel.permissions.private) return true;
 
-  const messagePermission = channel.permissions.message;
+  if (permissionKey !== 'private') {
+    const messagePermission = channel.permissions[permissionKey];
 
-  if (messagePermission.some(id => member.roleIds.map(i => i.toString()).includes(id.toString()))) return true; 
+    if (messagePermission.some(id => member.roleIds.map(i => i.toString()).includes(id.toString()))) return true; 
+  }
   
   return false;
 };

@@ -12,6 +12,7 @@ import messageService from '../services/message.service';
 
 const getMessage: RequestHandler[] = [
   authenticate,
+  authorize.message('view'),
   tryCatch(
     async (req, res) => {
       const message = await messageService.getOne(req.params.messageId);
@@ -44,7 +45,7 @@ const getMessages: RequestHandler[] = [
 const createMessage: RequestHandler[] = [
   ...validateFields(['body']),
   authenticate,
-  authorize.message,
+  authorize.message('send'),
   tryCatch(
     async (req, res) => {
       const { roomId, serverId } = req.params;

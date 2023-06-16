@@ -13,6 +13,7 @@ const roleSchema = new Schema({
   color: { type: String, required: true },
   permissions: {
     administrator: { type: Boolean, default: false },
+    viewChannels: { type: Boolean, default: true },
     manageChannels: { type: Boolean, default: false },
     manageRoles: { type: Boolean, default: false },
     manageExpressions: { type: Boolean, default: false },
