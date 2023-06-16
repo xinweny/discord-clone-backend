@@ -30,7 +30,6 @@ const updateServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   authenticate,
   authorize.server('manageServer'),
-  authorize.server('manageServer'),
   tryCatch(
     async (req, res) => {
       const updatedServer = await serverService.update(req.server?._id, { ...req.body });

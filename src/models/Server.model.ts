@@ -9,7 +9,7 @@ import channelSchema, { IChannel } from './Channel.schema';
 import { IServerMember } from './ServerMember.model';
 
 interface IServer extends Document {
-  creatorId: Types.ObjectId;
+  ownerId: Types.ObjectId;
   name: string;
   roles: Types.DocumentArray<IRole>;
   categories: Types.DocumentArray<ICategory>;
@@ -23,7 +23,7 @@ interface IServer extends Document {
 export { IServer };
 
 const serverSchema = new Schema({
-  creatorId: { type: Types.ObjectId, ref: 'ServerMember', required: true },
+  ownerId: { type: Types.ObjectId, ref: 'ServerMember', required: true },
   name: { type: String, required: true, unique: true },
   roles: { type: [roleSchema], default: () => ([]) },
   categories: { type: [categorySchema], default: () => ([]) },
@@ -47,7 +47,7 @@ serverSchema.pre('save', function (next) {
 serverSchema.method(
   'checkPermissions',
   function (member: IServerMember, permissionKeys: string[] = []) {
-    if (this.creatorId.equals(member._id)) return true;
+    if (this.ownerId.equals(member._id)) return true;
 
     const roles = this.roles;
 

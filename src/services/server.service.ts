@@ -31,7 +31,7 @@ const create = async (
   });
   const server = new Server({
     _id: serverId,
-    creatorId: creator._id,
+    ownerId: creator._id,
     ...fields,
   });
 

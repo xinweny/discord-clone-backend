@@ -60,7 +60,11 @@ const leaveServer: RequestHandler[] = [
   authorize.server('kickMembers'),
   tryCatch(
     async (req, res) => {
-      await serverMemberService.remove(req.params.memberId);
+      const { memberId } = req.params;
+
+      if (req.server?.ownerId.equals(memberId)) throw new CustomError(400, 'Server creator cannot leave server. Please transfer server ownership first.');
+
+      await serverMemberService.remove(memberId);
 
       res.json({
         data: req.member,

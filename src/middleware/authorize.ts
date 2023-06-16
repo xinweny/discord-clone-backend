@@ -27,6 +27,23 @@ const server = (permissionNames: string | string[] = []) => {
   return authorizeMiddleware;
 };
 
+const serverOwner: RequestHandler = async (req, res, next) => {
+  const { serverId } = req.params;
+
+  const member = await serverMemberService.getOne(req.user?._id, serverId);
+
+  if (!member) throw new CustomError (401, 'Unauthorized');
+
+  const server = await serverService.getById(serverId);
+
+  if (!server?.ownerId.equals(member._id)) throw new CustomError (401, 'Unauthorized');
+
+  req.server = server;
+  req.member = member;
+
+  next();
+};
+
 const memberSelf: RequestHandler = async (req, res, next) => {
   const { memberId } = req.params;
 
@@ -92,6 +109,7 @@ const user: RequestHandler = (req, res, next) => {
 
 export default {
   server,
+  serverOwner,
   memberSelf,
   message,
   messageSelf,
