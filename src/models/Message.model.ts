@@ -1,28 +1,23 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
 
-import reactionCountSchema from './ReactionCount.schema';
+import attachmentSchema, { IAttachment } from './Attachment.schema';
+import reactionCountSchema, { IReactionCount } from './ReactionCount.schema';
 
 export interface IMessage extends Document {
   roomId: Types.ObjectId;
   senderId: Types.ObjectId;
   serverId?: Types.ObjectId;
   body: string;
-  attachments: string[];
+  attachments: Types.DocumentArray<IAttachment>;
   createdAt: Date;
   updatedAt?: Date;
-  reactions: {
-    name: string,
-    count: number,
-    emojiId?: Types.ObjectId,
-    url?: string,
-    emoji?: string,
-  }[];
+  reactionCounts: Types.DocumentArray<IReactionCount>;
 }
 
 const messageSchema = new Schema({
   body: { type: String, required: true },
-  attachments: [{ type: String }],
-  reactions: [{ type: reactionCountSchema }],
+  attachments: { type: [attachmentSchema], default: [] },
+  reactionCounts: { type: [reactionCountSchema], default: [] },
 },
 {
   timestamps: true,

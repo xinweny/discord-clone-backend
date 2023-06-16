@@ -75,7 +75,8 @@ const message = (action: 'view' | 'send') => {
       const data = await serverService.checkPermissions(
         serverId,
         userId,
-        (action === 'view') ? ['viewChannels'] : ['sendMessages']);
+        (action === 'view') ? ['viewChannels'] : ['sendMessages']
+      );
   
       if (!data) throw new CustomError(401, 'Unauthorized');
     
@@ -85,7 +86,8 @@ const message = (action: 'view' | 'send') => {
         roomId,
         server,
         member,
-        (action === 'view') ? 'view' : 'message');
+        (action === 'view') ? 'view' : 'message'
+      );
     
       if (!authorized) throw new CustomError(401, 'Unauthorized');
   

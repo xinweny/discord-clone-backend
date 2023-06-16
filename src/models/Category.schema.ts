@@ -7,7 +7,7 @@ interface ICategory extends Types.Subdocument {
 export { ICategory };
 
 const categorySchema = new Schema({
-  name: { type: String },
+  name: { type: String, required: true },
 });
 
 export default categorySchema;

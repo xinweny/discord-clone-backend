@@ -40,9 +40,16 @@ const create = async (
 
   const folderPath = `attachments${serverId ? `/${serverId}` : ''}/${fields.roomId}`;
 
-  if (files && files.length > 0) await Promise.all(
-    files.map(file => cloudHelper.upload(file, folderPath))
-  );
+  if (files && files.length > 0) {
+    const attachments = await Promise.all(
+      files.map(file => cloudHelper.upload(file, folderPath))
+    );
+
+    attachments.forEach((attachment, index) => message.attachments.push({
+      url: attachment.secure_url,
+      mimetype: files[index].mimetype,
+    }));
+  }
 
   await message.save();
   
@@ -93,7 +100,7 @@ const react = async (
       name: emoji.name,
     };
 
-    emojiExists = message.reactions.some(reaction => reaction.emojiId?.toString() === emoji.id);
+    emojiExists = message.reactionCounts.some(reaction => reaction.emojiId?.toString() === emoji.id);
   } else {
     identifier = emoji;
     updateField = 'reactions.emoji';
@@ -103,7 +110,7 @@ const react = async (
       name: emojilib[emoji][0].replace(' ', '_'),
     };
 
-    emojiExists = message.reactions.some(reaction => reaction.emoji === emoji);
+    emojiExists = message.reactionCounts.some(reaction => reaction.emoji === emoji);
   }
 
   const updateQuery = emojiExists
@@ -144,8 +151,8 @@ const unreact = async (
   const identifierField = `reactions.${fieldName}`;
 
   const messageReaction = custom
-    ? message.reactions.find(reaction => reaction.emojiId?.toString() === emoji)
-    : message.reactions.find(reaction => reaction.emoji === emoji);
+    ? message.reactionCounts.find(reaction => reaction.emojiId?.toString() === emoji)
+    : message.reactionCounts.find(reaction => reaction.emoji === emoji);
 
   if (!messageReaction) return null;
 
