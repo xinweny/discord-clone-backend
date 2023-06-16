@@ -46,19 +46,15 @@ const reactToMessage: RequestHandler[] = [
 
 const unreactToMessage: RequestHandler[] = [
   authenticate,
+  authorize.message('view'),
   authorize.unreact,
   tryCatch(
     async (req, res) => {
       const { messageId, reactionId } = req.params;
-
-      const reaction = await reactionService.getById(reactionId);
-
-      if (!reaction) throw new CustomError(400, 'Reaction not found.');
-
-      if (req.user?._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
+      const { reaction } = req;
 
       const [message] = await Promise.all([
-        messageService.unreact(messageId, reaction),
+        messageService.unreact(messageId, reaction!),
         reactionService.remove(reactionId),
       ]);
 

@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
 import formatSetQuery from '../helpers/formatSetQuery';
+import CustomError from '../helpers/CustomError';
 
 import Server, { IServer } from '../models/Server.model';
 import { IServerMember } from '../models/ServerMember.model';
@@ -72,6 +73,8 @@ const checkPermissions = (channelId: string, server: IServer, member: IServerMem
   const channel = server.channels.id(channelId);
 
   if (!channel) return false;
+
+  if (permissionKey === 'message' && channel.type === 'voice') throw new CustomError(400, 'Cannot message in voice channels.');
 
   if (!channel.permissions.private) return true;
 

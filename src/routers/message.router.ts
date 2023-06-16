@@ -16,4 +16,6 @@ messageRouter.get('/:messageId', messageController.getMessage);
 
 messageRouter.put('/:messageId', messageController.updateMessage);
 
+messageRouter.delete('/:messageId', messageController.deleteMessage);
+
 export default messageRouter;

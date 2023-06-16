@@ -21,6 +21,8 @@ const roleSchema = new Schema({
     manageServer: { type: Boolean, default: false },
     createInvite: { type: Boolean, default: true },
     sendMessages: { type: Boolean, default: true },
+    manageMessages: { type: Boolean, default: false },
+    addReactions: { type: Boolean, default: true },
     joinCall: { type: Boolean, default: true },
     speak: { type: Boolean, default: true },
     video: { type: Boolean, default: true },

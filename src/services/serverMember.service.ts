@@ -64,6 +64,14 @@ const remove = async (id: Types.ObjectId | string) => {
   return deletedMember;
 };
 
+const checkMembership = async (userId: Types.ObjectId | string, memberId: Types.ObjectId | string) => {
+  const member = await ServerMember.findById(memberId);
+
+  if (member && member.userId.equals(userId)) return member;
+
+  return null;
+}
+
 export default {
   getById,
   getOne,
@@ -71,4 +79,5 @@ export default {
   create,
   update,
   remove,
+  checkMembership,
 }

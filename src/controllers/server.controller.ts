@@ -9,6 +9,18 @@ import CustomError from '../helpers/CustomError';
 
 import serverService from '../services/server.service';
 
+const getServer: RequestHandler[] = [
+  authenticate,
+  authorize.serverMember,
+  tryCatch(
+    async (req, res) => {
+      const server = await serverService.getById(req.params.serverId);
+
+      res.json({ data: server });
+    }
+  )
+];
+
 const createServer: RequestHandler[] = [
   ...validateFields(['serverName']),
   authenticate,
@@ -63,6 +75,7 @@ const deleteServer: RequestHandler[] = [
 ];
 
 export default {
+  getServer,
   createServer,
   updateServer,
   deleteServer,

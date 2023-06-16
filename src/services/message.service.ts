@@ -48,6 +48,7 @@ const create = async (
     attachments.forEach((attachment, index) => message.attachments.push({
       url: attachment.secure_url,
       mimetype: files[index].mimetype,
+      filename: files[index].originalname,
     }));
   }
 

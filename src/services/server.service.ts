@@ -72,7 +72,7 @@ const update = async (id: Types.ObjectId | string, fields: {
 const checkPermissions = async (
   serverId: Types.ObjectId | string,
   userId: Types.ObjectId | string,
-  permissionKeys: string[] = [],
+  permissionKeys: string | string[] = [],
   memberId?: Types.ObjectId | string,
 ) => {
   const [server, member] = await Promise.all([
@@ -84,7 +84,9 @@ const checkPermissions = async (
 
   if (memberId && member._id.equals(memberId)) return { server, member };
 
-  if (server.checkPermissions(member, permissionKeys)) return { server, member };
+  const permissions = (typeof permissionKeys === 'string') ? [permissionKeys] : permissionKeys;
+
+  if (server.checkPermissions(member, permissions)) return { server, member };
 
   return false;
 };

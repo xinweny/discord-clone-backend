@@ -5,15 +5,16 @@ import formatDataUri from '../helpers/formatDataUri';
 import getPublicId from './getPublicId';
 
 const upload = async (file: Express.Multer.File, folderPath: string, url?: string) => {
-  const options = {
-    folder: `discord_clone/${folderPath}`,
-    use_filename: true,
-    ...(url && { public_id: getPublicId(url) }),
-  };
-
   const dataUri = formatDataUri(file.buffer, file.mimetype);
 
-  const res = await cloudinary.uploader.upload(dataUri, options);
+  const extension = file.originalname.split('.').slice(-1)[0];
+
+  const res = await cloudinary.uploader.upload(dataUri, {
+    folder: `discord_clone/${folderPath}`,
+    use_filename: true,
+    resource_type: (extension === 'pdf') ? 'raw' : 'auto',
+    ...(url && { public_id: getPublicId(url) }),
+  });
 
   return res;
 };

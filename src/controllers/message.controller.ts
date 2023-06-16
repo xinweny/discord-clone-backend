@@ -54,7 +54,7 @@ const createMessage: RequestHandler[] = [
       const message = await messageService.create({
         senderId: (serverId) ? req.member?._id : userId,
         roomId,
-        body: req.body.name,
+        body: req.body.body,
       }, req.files, serverId);
 
       res.json({
@@ -68,7 +68,7 @@ const createMessage: RequestHandler[] = [
 const updateMessage: RequestHandler[] = [
   ...validateFields(['body']),
   authenticate,
-  authorize.messageSelf,
+  authorize.messageSelf('update'),
   tryCatch(
     async (req, res) => {
       const updateQuery = keepKeys(req.body, ['body', 'attachments']);
@@ -85,7 +85,7 @@ const updateMessage: RequestHandler[] = [
 
 const deleteMessage: RequestHandler[] = [
   authenticate,
-  authorize.messageSelf,
+  authorize.messageSelf('delete'),
   tryCatch(
     async (req, res) => {  
       await messageService.remove(req.params.messageId);

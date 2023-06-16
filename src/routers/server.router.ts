@@ -25,6 +25,8 @@ serverRouter.use('/:serverId/emojis', customEmojiRouter);
 
 serverRouter.use('/:serverId/owner', serverOwnerRouter);
 
+serverRouter.get('/:serverId', serverController.getServer);
+
 serverRouter.put('/:serverId', serverController.updateServer);
 
 serverRouter.delete('/:serverId', serverController.deleteServer);
