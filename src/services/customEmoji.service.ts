@@ -5,6 +5,12 @@ import formatDataUri from '../helpers/formatDataUri';
 
 import Server from '../models/Server.model';
 
+const getMany = async (serverId: Types.ObjectId | string) => {
+  const server = await Server.findById(serverId);
+
+  return server?.customEmojis;
+};
+
 const create = async (
   serverId: Types.ObjectId | string,
   file: Express.Multer.File,
@@ -32,6 +38,14 @@ const create = async (
   return emoji;
 };
 
+const remove = async (serverId: Types.ObjectId | string, emojiId: Types.ObjectId | string) => {
+  await Server.updateOne({ _id: serverId }, {
+    $pull: { customEmojis: { _id: emojiId } },
+  });
+};
+
 export default {
+  getMany,
   create,
+  remove,
 };

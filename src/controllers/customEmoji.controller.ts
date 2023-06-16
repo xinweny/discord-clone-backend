@@ -10,6 +10,17 @@ import CustomError from '../helpers/CustomError';
 
 import customEmojiService from '../services/customEmoji.service';
 
+const getEmojis: RequestHandler[] = [
+  authenticate,
+  authorize.serverMember,
+  tryCatch(
+    async (req, res) => {
+      const emojis = await customEmojiService.getMany(req.params.serverId);
+
+      res.json({ data: emojis });
+    }
+  )
+];
 
 const createEmoji: RequestHandler[] = [
   uploadEmoji,
@@ -33,6 +44,25 @@ const createEmoji: RequestHandler[] = [
   )
 ];
 
+const deleteEmoji: RequestHandler[] = [
+  ...validateFields(['emojiName']),
+  authenticate,
+  authorize.server('manageExpressions'),
+  tryCatch(
+    async (req, res) => {
+      const { serverId, emojiId } = req.params;
+
+      await customEmojiService.remove(serverId, emojiId);
+
+      res.json({
+        message: 'Emoji successfully removed from server.',
+      });
+    }
+  )
+];
+
 export default {
+  getEmojis,
   createEmoji,
+  deleteEmoji,
 }
