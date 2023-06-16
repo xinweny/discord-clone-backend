@@ -2,7 +2,7 @@ import multer from 'multer';
 
 import fileTypeFilter from '../helpers/fileTypeFilter';
 
-const uploadEmoji = multer({
+const emoji = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 256000,
@@ -11,6 +11,15 @@ const uploadEmoji = multer({
   fileFilter: fileTypeFilter(/jpeg|jpg|png|gif/),
 }).single('file');
 
-export {
-  uploadEmoji,
+const attachments = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 8000000,
+    files: 10,
+  }
+}).array('files');
+
+export default {
+  emoji,
+  attachments,
 };

@@ -1,6 +1,8 @@
 import { Types } from 'mongoose';
 import emojilib from 'emojilib';
 
+import cloudHelper from '../helpers/cloudHelper';
+
 import Message from '../models/Message.model';
 import MessageDirect from '../models/MessageDirect.model';
 import MessageChannel from '../models/MessageChannel.model';
@@ -24,13 +26,23 @@ const getMany = async (fields: {
   return messages;
 }
 
-const create = async (fields: {
+const create = async (
+  fields: {
   senderId: Types.ObjectId | string,
   roomId: Types.ObjectId | string,
   body: string,
-  attachments?: string[],
-}, messageType: 'DIRECT' | 'CHANNEL') => {
-  const message = (messageType === 'DIRECT') ? new MessageDirect(fields) : new MessageChannel(fields);
+  },
+  files: Express.Multer.File[] | undefined | null,
+  serverId?: Types.ObjectId | string) => {
+  const message = (serverId)
+    ? new MessageChannel({ ...fields, serverId })
+    : new MessageDirect(fields);
+
+  const folderPath = `attachments${serverId ? `/${serverId}` : ''}/${fields.roomId}`;
+
+  if (files && files.length > 0) await Promise.all(
+    files.map(file => cloudHelper.upload(file, folderPath))
+  );
 
   await message.save();
   

@@ -1,15 +1,19 @@
 import cloudinary from '../config/cloudinary.config';
 
+import formatDataUri from '../helpers/formatDataUri';
+
 import getPublicId from './getPublicId';
 
-const upload = async (file: string, folderPath: string, url?: string) => {
+const upload = async (file: Express.Multer.File, folderPath: string, url?: string) => {
   const options = {
     folder: `discord_clone/${folderPath}`,
     use_filename: true,
     ...(url && { public_id: getPublicId(url) }),
   };
 
-  const res = await cloudinary.uploader.upload(file, options);
+  const dataUri = formatDataUri(file.buffer, file.mimetype);
+
+  const res = await cloudinary.uploader.upload(dataUri, options);
 
   return res;
 };

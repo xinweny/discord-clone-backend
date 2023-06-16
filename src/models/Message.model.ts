@@ -5,6 +5,7 @@ import reactionCountSchema from './ReactionCount.schema';
 export interface IMessage extends Document {
   roomId: Types.ObjectId;
   senderId: Types.ObjectId;
+  serverId?: Types.ObjectId;
   body: string;
   attachments: string[];
   createdAt: Date;

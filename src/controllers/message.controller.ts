@@ -4,6 +4,7 @@ import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
 import tryCatch from '../middleware/tryCatch';
 import validateFields from '../middleware/validateFields';
+import upload from '../middleware/upload';
 
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
@@ -40,9 +41,8 @@ const getMessages: RequestHandler[] = [
   )
 ];
 
-// TODO: add attachments
-
 const createMessage: RequestHandler[] = [
+  upload.attachments,
   ...validateFields(['body']),
   authenticate,
   authorize.message('send'),
@@ -54,8 +54,8 @@ const createMessage: RequestHandler[] = [
       const message = await messageService.create({
         senderId: (serverId) ? req.member?._id : userId,
         roomId,
-        ...req.body,
-      }, (serverId) ? 'CHANNEL' : 'DIRECT');
+        body: req.body.name,
+      }, req.files, serverId);
 
       res.json({
         data: message,

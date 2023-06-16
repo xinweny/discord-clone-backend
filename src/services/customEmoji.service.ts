@@ -1,7 +1,6 @@
 import { Types } from 'mongoose';
 
 import cloudHelper from '../helpers/cloudHelper';
-import formatDataUri from '../helpers/formatDataUri';
 
 import Server from '../models/Server.model';
 
@@ -22,9 +21,7 @@ const create = async (
 
   if (!server) return null;
 
-  const dataUri = formatDataUri(file.buffer, file.mimetype);
-
-  const cloudRes = await cloudHelper.upload(dataUri, `emojis/${serverId.toString()}`);
+  const cloudRes = await cloudHelper.upload(file, `emojis/${serverId.toString()}`);
 
   server.customEmojis.push({
     ...fields,

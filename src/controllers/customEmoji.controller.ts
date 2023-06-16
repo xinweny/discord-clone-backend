@@ -4,7 +4,7 @@ import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
 import tryCatch from '../middleware/tryCatch';
 import validateFields from '../middleware/validateFields';
-import { uploadEmoji } from '../middleware/upload';
+import upload from '../middleware/upload';
 
 import CustomError from '../helpers/CustomError';
 
@@ -23,7 +23,7 @@ const getEmojis: RequestHandler[] = [
 ];
 
 const createEmoji: RequestHandler[] = [
-  uploadEmoji,
+  upload.emoji,
   ...validateFields(['emojiName']),
   authenticate,
   authorize.server('manageExpressions'),

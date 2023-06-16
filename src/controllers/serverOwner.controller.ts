@@ -10,7 +10,7 @@ const changeServerOwnership: RequestHandler[] = [
   authenticate,
   authorize.serverOwner,
   tryCatch(
-    async (req, res, next) => {
+    async (req, res) => {
       const data = await serverOwnerService.update(req.params.serverId, req.body.memberId);
 
       res.json({
