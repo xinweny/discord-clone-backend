@@ -2,7 +2,7 @@ import cloudinary from '../config/cloudinary.config';
 
 import formatDataUri from '../helpers/formatDataUri';
 
-import getPublicId from './getPublicId';
+import getPublicId from '../helpers/getPublicId';
 
 const upload = async (file: Express.Multer.File, folderPath: string, url?: string) => {
   const dataUri = formatDataUri(file.buffer, file.mimetype);

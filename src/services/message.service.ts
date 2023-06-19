@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import emojilib from 'emojilib';
 
-import cloudHelper from '../helpers/cloudHelper';
+import cloudinaryService from './cloudinary.service';
 import CustomError from '../helpers/CustomError';
 
 import Message from '../models/Message.model';
@@ -42,7 +42,7 @@ const create = async (
 
   if (files && files.length > 0) {
     const attachments = await Promise.all(
-      files.map(file => cloudHelper.upload(file, folderPath))
+      files.map(file => cloudinaryService.upload(file, folderPath))
     );
 
     attachments.forEach((attachment, index) => message.attachments.push({
@@ -81,7 +81,7 @@ const remove = async (id: string) => {
   if (attachments.length > 0) {
     const folderPath = `attachments/${serverId ? `${serverId}/`: ''}${roomId}`;
 
-    await cloudHelper.deleteByPrefix(folderPath);
+    await cloudinaryService.deleteByPrefix(folderPath);
   }
 
   await Promise.all([

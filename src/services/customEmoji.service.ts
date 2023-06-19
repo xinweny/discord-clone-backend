@@ -1,6 +1,8 @@
 import { Types } from 'mongoose';
 
-import cloudHelper from '../helpers/cloudHelper';
+import CustomError from '../helpers/CustomError';
+
+import cloudinaryService from './cloudinary.service';
 
 import Server from '../models/Server.model';
 
@@ -21,7 +23,7 @@ const create = async (
 
   if (!server) return null;
 
-  const cloudRes = await cloudHelper.upload(file, `emojis/${serverId.toString()}`);
+  const cloudRes = await cloudinaryService.upload(file, `emojis/${serverId.toString()}`);
 
   server.customEmojis.push({
     ...fields,
@@ -36,9 +38,18 @@ const create = async (
 };
 
 const remove = async (serverId: Types.ObjectId | string, emojiId: Types.ObjectId | string) => {
-  await Server.updateOne({ _id: serverId }, {
-    $pull: { customEmojis: { _id: emojiId } },
-  });
+  const server = await Server.findById(serverId);
+
+  const emoji = server?.customEmojis.id(emojiId);
+
+  if (!emoji) throw new CustomError(400, 'Emoji not found');
+
+  await Promise.all([
+    Server.updateOne({ _id: serverId }, {
+      $pull: { customEmojis: { _id: emojiId } },
+    }),
+    cloudinaryService.deleteById(emoji.url),
+  ])
 };
 
 export default {
