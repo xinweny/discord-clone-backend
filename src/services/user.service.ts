@@ -58,12 +58,16 @@ const update = async (id: Types.ObjectId | string, fields: {
 
   let avatar;
 
-  if (avatarFile) avatar = await cloudinaryService.upload(avatarFile, `avatars/${id}`);
+  if (avatarFile) {
+    const user = await User.findById(id);
+
+    avatar = await cloudinaryService.upload(avatarFile, `avatars/${id}`, user?.avatarUrl);
+  }
 
   const user = await User.findByIdAndUpdate(id, {
     $set: {
       ...updateQuery,
-      ...(avatar && { avatarUrl: avatar?.secure_url }),
+      ...(avatar && { avatarUrl: avatar.secure_url }),
     },
   }, { new: true });
 
