@@ -8,7 +8,7 @@ import customEmojiSchema, { ICustomEmoji } from './CustomEmoji.schema';
 import channelSchema, { IChannel } from './Channel.schema';
 import { IServerMember } from './ServerMember.model';
 
-interface IServer extends Document {
+export interface IServer extends Document {
   ownerId: Types.ObjectId;
   name: string;
   roles: Types.DocumentArray<IRole>;
@@ -19,8 +19,6 @@ interface IServer extends Document {
   private: boolean;
   checkPermissions(member: IServerMember, permissionKeys: string[]): boolean;
 }
-
-export { IServer };
 
 const serverSchema = new Schema({
   ownerId: { type: Types.ObjectId, ref: 'ServerMember', required: true },

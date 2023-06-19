@@ -1,12 +1,10 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
-interface IDirectMessage extends Document {
+export interface IDirectMessage extends Document {
   creatorId: Types.ObjectId;
   participantIds: Types.ObjectId[];
   name: string;
 }
-
-export { IDirectMessage };
 
 const directMessageSchema = new Schema({
   creatorId: { type: Types.ObjectId, ref: 'User', required: true },

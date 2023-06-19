@@ -1,12 +1,10 @@
 import { Schema, Types } from 'mongoose';
 
-interface IAttachment extends Types.Subdocument {
+export interface IAttachment extends Types.Subdocument {
   url: string;
   mimetype: string;
   filename: string;
 }
-
-export { IAttachment };
 
 const attachmentSchema = new Schema({
   url: { type: String, required: true },

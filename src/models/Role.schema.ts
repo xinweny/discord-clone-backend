@@ -1,6 +1,6 @@
 import { Schema, Types } from 'mongoose';
 
-interface IRole extends Types.Subdocument {
+export interface IRole extends Types.Subdocument {
   name: string,
   color: string,
   permissions: {
@@ -29,5 +29,4 @@ const roleSchema = new Schema({
   },
 });
 
-export { IRole };
 export default roleSchema;

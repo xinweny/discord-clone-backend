@@ -1,14 +1,12 @@
 import { Schema, Types } from 'mongoose';
 
-interface IReactionCount extends Types.Subdocument {
+export interface IReactionCount extends Types.Subdocument {
   name: string,
   count: number,
   emojiId?: Types.ObjectId,
   url?: string,
   emoji?: string,
 }
-
-export { IReactionCount };
 
 const reactionCountSchema = new Schema({
   name: { type: String, required: true, unique: true },

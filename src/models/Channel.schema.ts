@@ -1,18 +1,16 @@
 import { Schema, Types } from 'mongoose';
 
-interface IPermissions {
+export interface IPermissions {
   private: boolean;
   view: [Types.ObjectId];
   message: [Types.ObjectId];
 }
-interface IChannel extends Types.Subdocument {
+export interface IChannel extends Types.Subdocument {
   name: string;
   categoryId?: Types.ObjectId;
   type: string;
   permissions: IPermissions;
 }
-
-export { IChannel, IPermissions };
 
 const channelSchema = new Schema({
   name: { type: String, required: true, length: { max: 32 } },
