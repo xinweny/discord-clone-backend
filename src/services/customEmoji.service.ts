@@ -45,9 +45,9 @@ const remove = async (serverId: Types.ObjectId | string, emojiId: Types.ObjectId
   if (!emoji) throw new CustomError(400, 'Emoji not found');
 
   await Promise.all([
-    Server.updateOne({ _id: serverId }, {
-      $pull: { customEmojis: { _id: emojiId } },
-    }),
+    //Server.updateOne({ _id: serverId }, {
+    //  $pull: { customEmojis: { _id: emojiId } },
+    //}),
     cloudinaryService.deleteById(emoji.url),
   ])
 };

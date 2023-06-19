@@ -8,6 +8,8 @@ import { IServerMember } from '../models/ServerMember.model';
 import Message from '../models/Message.model';
 import { IPermissions } from '../models/Channel.schema';
 
+import cloudinaryService from './cloudinary.service';
+
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
   categoryId?: Types.ObjectId | string,
@@ -20,9 +22,11 @@ const create = async (serverId: Types.ObjectId | string, fields: {
 }) => {
   const server = await Server.findById(serverId);
 
-  if (!server) return null;
+  if (!server) throw new CustomError(400, 'Server not found.');
 
-  if (!server.categories.id(fields.categoryId)) return null;
+  const { categoryId } = fields;
+
+  if (categoryId && !server.categories.id(categoryId)) throw new CustomError(400, 'Category does not exist.');
 
   server.channels.push(fields);
 
@@ -64,6 +68,7 @@ const remove = async (serverId: Types.ObjectId | string, channelId: Types.Object
   await Promise.all([
     server.save(),
     Message.deleteMany({ roomId: channelId }),
+    cloudinaryService.deleteFolder(`attachments/${serverId}/${channel?._id.toString()}`)
   ]);
 
   return channel;

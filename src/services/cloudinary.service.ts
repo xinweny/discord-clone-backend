@@ -7,13 +7,13 @@ import getPublicId from '../helpers/getPublicId';
 const upload = async (file: Express.Multer.File, folderPath: string, url?: string) => {
   const dataUri = formatDataUri(file.buffer, file.mimetype);
 
-  const extension = file.originalname.split('.').slice(-1)[0];
+  const ext = file.originalname.split('.').slice(-1)[0];
 
   const res = await cloudinary.uploader.upload(dataUri, {
     folder: `discord_clone/${folderPath}`,
     use_filename: true,
-    resource_type: (extension === 'pdf') ? 'raw' : 'auto',
-    ...(url && { public_id: getPublicId(url) }),
+    resource_type: (ext === 'pdf') ? 'raw' : 'auto',
+    ...(url && { public_id: getPublicId(url, ext === 'pdf') }),
   });
 
   return res;
@@ -26,14 +26,22 @@ const deleteById = async (url: string) => {
   return res;
 };
 
-const deleteByPrefix = async (folderPath: string) => {
-  const res = await cloudinary.api.delete_resources_by_prefix(`discord_clone/${folderPath}`);
+const deleteFolder = async (folderPath: string) => {
+  const path = `discord_clone/${folderPath}/`;
 
-  return res;
+  const prefix = await Promise.all(
+    ['image', 'raw', 'video'].map(
+      resourceType => cloudinary.api.delete_resources_by_prefix(path, { resource_type: resourceType })
+    )
+  );
+
+  const folder = await cloudinary.api.delete_folder(path);
+
+  return { prefix, folder };
 };
 
 export default {
   upload,
   deleteById,
-  deleteByPrefix,
+  deleteFolder,
 };

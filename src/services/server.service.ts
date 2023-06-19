@@ -5,6 +5,8 @@ import Message from '../models/Message.model';
 import ServerMember from '../models/ServerMember.model';
 import Server from '../models/Server.model';
 
+import cloudinaryService from './cloudinary.service';
+
 const getById = async (id: Types.ObjectId | string) => {
   const server = await Server.findById(id);
 
@@ -99,6 +101,7 @@ const remove = async (id: Types.ObjectId | string) => {
     Server.findByIdAndDelete(id),
     ServerMember.deleteMany({ serverId: id }),
     Message.deleteMany({ roomId: { $in: channelIds } }),
+    cloudinaryService.deleteFolder(`attachments/${id.toString()}`),
   ]);
 }
 

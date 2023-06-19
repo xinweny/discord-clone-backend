@@ -45,7 +45,6 @@ const createEmoji: RequestHandler[] = [
 ];
 
 const deleteEmoji: RequestHandler[] = [
-  ...validateFields(['emojiName']),
   authenticate,
   authorize.server('manageExpressions'),
   tryCatch(

@@ -76,12 +76,12 @@ const remove = async (id: string) => {
 
   if (!message) throw new CustomError(400, 'Message not found.');
 
-  const { serverId, roomId, attachments } = message;
+  const { attachments } = message;
 
   if (attachments.length > 0) {
-    const folderPath = `attachments/${serverId ? `${serverId}/`: ''}${roomId}`;
-
-    await cloudinaryService.deleteByPrefix(folderPath);
+    await Promise.all(attachments.map(
+      attachment => cloudinaryService.deleteById(attachment.url))
+    );
   }
 
   await Promise.all([
