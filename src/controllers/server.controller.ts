@@ -4,6 +4,7 @@ import tryCatch from '../middleware/tryCatch';
 import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
 import validateFields from '../middleware/validateFields';
+import upload from '../middleware/upload';
 
 import CustomError from '../helpers/CustomError';
 
@@ -22,6 +23,7 @@ const getServer: RequestHandler[] = [
 ];
 
 const createServer: RequestHandler[] = [
+  upload.avatar,
   ...validateFields(['serverName']),
   authenticate,
   tryCatch(
@@ -39,6 +41,7 @@ const createServer: RequestHandler[] = [
 ];
 
 const updateServer: RequestHandler[] = [
+  upload.avatar,
   ...validateFields(['serverName']),
   authenticate,
   authorize.server('manageServer'),

@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
 
+import CustomError from '../helpers/CustomError';
+
 import User from '../models/User.model';
 import Message from '../models/Message.model';
 import ServerMember from '../models/ServerMember.model';
@@ -18,7 +20,8 @@ const create = async (
     name: string,
     private: boolean,
   },
-  userId: Types.ObjectId | string
+  userId: Types.ObjectId | string,
+  imgFile?: Express.Multer.File
 ) => {
   const user = await User.findById(userId);
 
@@ -31,11 +34,18 @@ const create = async (
     serverId,
     displayName: user.username,
   });
+  
   const server = new Server({
     _id: serverId,
     ownerId: creator._id,
     ...fields,
   });
+
+  if (imgFile) {
+    const image = await cloudinaryService.upload(imgFile, `avatars/${serverId}`);
+
+    server.imageUrl = image.secure_url;
+  }
 
   // Default channels
   server.categories.push({
@@ -63,9 +73,19 @@ const update = async (id: Types.ObjectId | string, fields: {
   name?: string,
   private?: boolean,
   type?: 'text' | 'voice',
-}) => {
+}, imgFile?: Express.Multer.File) => {
+  let image;
+  if (imgFile) {
+    const server = await Server.findById(id);
+
+    image = await cloudinaryService.upload(imgFile, `avatars/${id}`, server?.imageUrl);
+  }
+
   const server = await Server.findByIdAndUpdate(id, {
-    $set: fields,
+    $set: {
+      ...fields,
+      ...(image && { imageUrl: image.secure_url }),
+    },
   }, { new: true });
 
   return server;
@@ -95,6 +115,9 @@ const checkPermissions = async (
 
 const remove = async (id: Types.ObjectId | string) => {
   const server = await Server.findById(id);
+
+  if (!server) throw new CustomError(400, 'Server not found.');
+
   const channelIds = server?.channels.map(channel => channel._id);
 
   await Promise.all([
@@ -102,6 +125,7 @@ const remove = async (id: Types.ObjectId | string) => {
     ServerMember.deleteMany({ serverId: id }),
     Message.deleteMany({ roomId: { $in: channelIds } }),
     cloudinaryService.deleteByFolder(`attachments/${id.toString()}`),
+    (server.imageUrl) ? cloudinaryService.deleteByUrl(server.imageUrl) : Promise.resolve(),
   ]);
 }
 
