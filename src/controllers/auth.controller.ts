@@ -146,9 +146,7 @@ const resetPassword: RequestHandler[] = [
 
       const hashedPassword = await authService.hashPassword(req.body.password);
 
-      const user = await userService.update(uid, {
-        password: hashedPassword,
-      });
+      const user = await userService.updateSensitive(uid, { password: hashedPassword });
 
       if (!user) throw new CustomError(400, 'Bad request');
 
@@ -208,9 +206,7 @@ const verifyEmail: RequestHandler = tryCatch(
 
     if (!hashedToken) throw new CustomError(401, 'Invalid email verification token.');
 
-    await userService.update(uid, {
-      verified: true,
-    });
+    await userService.updateSensitive(uid, { verified: true });
 
     res.json({
       data: user,

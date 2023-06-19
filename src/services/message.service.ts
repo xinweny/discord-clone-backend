@@ -80,7 +80,7 @@ const remove = async (id: string) => {
 
   if (attachments.length > 0) {
     await Promise.all(attachments.map(
-      attachment => cloudinaryService.deleteById(attachment.url))
+      attachment => cloudinaryService.deleteByUrl(attachment.url))
     );
   }
 

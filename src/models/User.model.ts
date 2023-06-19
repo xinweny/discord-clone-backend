@@ -11,7 +11,6 @@ export interface IUser extends Document {
 }
 
 export interface IReqUser extends Document {
-  _id: string;
   email: string;
   username: string;
   verified: boolean;

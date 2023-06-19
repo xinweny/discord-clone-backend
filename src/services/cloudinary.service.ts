@@ -19,14 +19,14 @@ const upload = async (file: Express.Multer.File, folderPath: string, url?: strin
   return res;
 };
 
-const deleteById = async (url: string) => {
+const deleteByUrl = async (url: string) => {
   const publicId = getPublicId(url);
   const res = await cloudinary.uploader.destroy(publicId);
 
   return res;
 };
 
-const deleteFolder = async (folderPath: string) => {
+const deleteByFolder = async (folderPath: string) => {
   const path = `discord_clone/${folderPath}/`;
 
   const prefix = await Promise.all(
@@ -42,6 +42,6 @@ const deleteFolder = async (folderPath: string) => {
 
 export default {
   upload,
-  deleteById,
-  deleteFolder,
+  deleteByUrl,
+  deleteByFolder,
 };

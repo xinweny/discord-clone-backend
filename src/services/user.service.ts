@@ -1,8 +1,11 @@
 import { Types } from 'mongoose';
 
-import User from '../models/User.model';
-
 import keepKeys from '../helpers/keepKeys';
+import CustomError from '../helpers/CustomError';
+
+import cloudinaryService from './cloudinary.service';
+
+import User from '../models/User.model';
 
 const getOne = async (queryObj: {
   _id?: Types.ObjectId | string,
@@ -36,25 +39,54 @@ const create = async (fields: {
   return user;
 };
 
-const update = async (id: Types.ObjectId | string, updateFields: {
-  email?: string,
+const updateSensitive = async (id: Types.ObjectId | string, fields: {
+  verified?: true,
   password?: string,
-  username?: string,
-  avatarUrl?: string,
-  verified?: boolean,
 }) => {
-  const updateQuery = keepKeys(updateFields, ['password', 'username', 'email', 'avatarUrl', 'verified']);
+  const user = await User.findByIdAndUpdate(id, fields, { new: true });
 
-  const updatedUser = await User.findByIdAndUpdate(id, {
-    $set: updateQuery,
+  return user;
+};
+
+const update = async (id: Types.ObjectId | string, fields: {
+  username?: string,
+  avatarFile?: Express.Multer.File,
+}) => {
+  const updateQuery = keepKeys(fields, ['username']);
+
+  const { avatarFile } = fields;
+
+  let avatar;
+
+  if (avatarFile) avatar = await cloudinaryService.upload(avatarFile, `avatars/${id}`);
+
+  const user = await User.findByIdAndUpdate(id, {
+    $set: {
+      ...updateQuery,
+      ...(avatar && { avatarUrl: avatar?.secure_url }),
+    },
   }, { new: true });
 
-  return updatedUser;
-}
+  return user;
+};
+
+const remove = async (id: Types.ObjectId | string) => {
+  const user = await User.findById(id);
+
+  if (!user) throw new CustomError(400, 'User not found.');
+
+  if (user.avatarUrl) await cloudinaryService.deleteByUrl(user.avatarUrl);
+
+  await user.deleteOne();
+
+  return user;
+};
 
 export default {
   getOne,
   getById,
   create,
   update,
+  updateSensitive,
+  remove,
 };

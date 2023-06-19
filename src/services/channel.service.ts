@@ -68,7 +68,7 @@ const remove = async (serverId: Types.ObjectId | string, channelId: Types.Object
   await Promise.all([
     server.save(),
     Message.deleteMany({ roomId: channelId }),
-    cloudinaryService.deleteFolder(`attachments/${serverId}/${channel?._id.toString()}`)
+    cloudinaryService.deleteByFolder(`attachments/${serverId}/${channel?._id.toString()}`)
   ]);
 
   return channel;

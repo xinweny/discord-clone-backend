@@ -48,7 +48,7 @@ const remove = async (serverId: Types.ObjectId | string, emojiId: Types.ObjectId
     //Server.updateOne({ _id: serverId }, {
     //  $pull: { customEmojis: { _id: emojiId } },
     //}),
-    cloudinaryService.deleteById(emoji.url),
+    cloudinaryService.deleteByUrl(emoji.url),
   ])
 };
 

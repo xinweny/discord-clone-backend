@@ -101,7 +101,7 @@ const remove = async (id: Types.ObjectId | string) => {
     Server.findByIdAndDelete(id),
     ServerMember.deleteMany({ serverId: id }),
     Message.deleteMany({ roomId: { $in: channelIds } }),
-    cloudinaryService.deleteFolder(`attachments/${id.toString()}`),
+    cloudinaryService.deleteByFolder(`attachments/${id.toString()}`),
   ]);
 }
 

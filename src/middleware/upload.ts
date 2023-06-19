@@ -19,7 +19,17 @@ const attachments = multer({
   }
 }).array('files');
 
+const avatar = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 1000000,
+    files: 1,
+  },
+  fileFilter: fileTypeFilter(/jpeg|jpg|png|gif/),
+}).single('file');
+
 export default {
   emoji,
   attachments,
+  avatar,
 };
