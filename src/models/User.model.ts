@@ -1,4 +1,7 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Types, Schema, Document } from 'mongoose';
+
+import CustomError from '../helpers/CustomError';
+import relationSchema, { IRelation } from './Relation.schema';
 
 export interface IUser extends Document {
   username: string;
@@ -8,6 +11,9 @@ export interface IUser extends Document {
   joinedAt: Date;
   avatarUrl?: string;
   role: string;
+  relations: Types.DocumentArray<IRelation>;
+  bio: string;
+  bannerColor: string;
 }
 
 export interface IReqUser extends Document {
@@ -30,9 +36,17 @@ const userSchema = new Schema({
     enum: ['user', 'admin', 'super_admin'],
     default: 'user',
   },
-  relationships: { type: [Types.ObjectId], ref: 'Relationship', default: [] },
+  relations: { type: [relationSchema], default: [] },
   bio: { type: String, default: '', length: { max: 190 } },
   bannerColor: { type: String, default: '' },
+});
+
+userSchema.pre('save', function (next) {
+  const userIds = this.relations.map(relation => relation.userId.toString());
+  
+  if ((new Set(userIds)).size !== userIds.length) throw new CustomError(400, 'Duplicate user IDs not allowed.');
+
+  next();
 });
 
 const User = mongoose.model<IUser>('User', userSchema);
