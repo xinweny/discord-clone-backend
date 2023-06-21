@@ -1,13 +1,13 @@
 import { RequestHandler } from 'express';
 
-import authenticate from '../middleware/authenticate';
-import authorize from '../middleware/authorize';
-import tryCatch from '../middleware/tryCatch';
-import validateFields from '../middleware/validateFields';
-import upload from '../middleware/upload';
-
+import tryCatch from '../helpers/tryCatch';
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
+
+import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
+import validateFields from '../middleware/validateFields';
+import upload from '../middleware/upload';
 
 import messageService from '../services/message.service';
 

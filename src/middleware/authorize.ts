@@ -1,7 +1,6 @@
 import { RequestHandler } from 'express';
 
-import tryCatch from './tryCatch';
-
+import tryCatch from '../helpers/tryCatch';
 import CustomError from '../helpers/CustomError';
 
 import serverService from '../services/server.service';
@@ -172,6 +171,8 @@ const unreact: RequestHandler = tryCatch(
 const user: RequestHandler = tryCatch(
   (req, res, next) => {
     const { userId } = req.params;
+
+    console.log('in authorize');
   
     if (!req.user?._id.equals(userId)) throw new CustomError(401, 'Unauthorized');
   

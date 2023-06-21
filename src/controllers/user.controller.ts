@@ -1,8 +1,9 @@
 import { RequestHandler } from 'express';
 
+import tryCatch from '../helpers/tryCatch';
+
 import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
-import tryCatch from '../middleware/tryCatch';
 import upload from '../middleware/upload';
 import validateFields from '../middleware/validateFields';
 

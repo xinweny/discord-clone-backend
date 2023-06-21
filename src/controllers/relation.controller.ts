@@ -1,11 +1,12 @@
 import { RequestHandler } from 'express';
 
+import tryCatch from '../helpers/tryCatch';
+import CustomError from '../helpers/CustomError';
+
 import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
-import tryCatch from '../middleware/tryCatch';
 
 import relationService from '../services/relation.service';
-import CustomError from '../helpers/CustomError';
 
 const getRelations: RequestHandler[] = [
   authenticate,
@@ -30,8 +31,7 @@ const createRelation: RequestHandler[] = [
   tryCatch(
     async (req, res) => {
       const senderId = req.user?._id;
-      const { userId } = req.params;
-      const { status } = req.body;
+      const { status, userId } = req.body;
 
       const relation = (status === 0)
         ? await relationService.sendFriendRequest(senderId, userId)
@@ -51,8 +51,8 @@ const updateRelation: RequestHandler[] = [
   tryCatch(
     async (req, res) => {
       const senderId = req.user?._id;
-      const { userId, relationId } = req.params;
-      const { status } = req.body;
+      const { relationId } = req.params;
+      const { status, userId } = req.body;
 
       if (status !== 1 || status !== 2) throw new CustomError(400, 'Invalid status');
 

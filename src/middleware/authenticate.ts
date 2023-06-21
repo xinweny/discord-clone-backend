@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import env from '../config/env.config';
-import tryCatch from './tryCatch';
+import tryCatch from '../helpers/tryCatch';
 import CustomError from '../helpers/CustomError';
 import UserService from '../services/user.service';
 

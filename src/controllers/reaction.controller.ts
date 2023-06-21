@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
 
-import tryCatch from '../middleware/tryCatch';
+import tryCatch from '../helpers/tryCatch';
+import CustomError from '../helpers/CustomError';
+
 import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
-
-import CustomError from '../helpers/CustomError';
 
 import messageService from '../services/message.service';
 import reactionService from '../services/reaction.service';

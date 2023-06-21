@@ -23,8 +23,8 @@ const getOne = async (queryObj: {
 
 const getById = async (id: Types.ObjectId | string, sensitive = false) => {
   const user = (sensitive)
-    ? await User.findById(id)
-    : await User.findById('+verified');
+    ? await User.findById(id, '+verified')
+    : await User.findById(id);
 
   if (!user) throw new CustomError(400, 'User not found.');
 

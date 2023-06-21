@@ -1,9 +1,9 @@
 import { RequestHandler } from 'express';
 
-import authenticate from '../middleware/authenticate';
-import tryCatch from '../middleware/tryCatch';
-
+import tryCatch from '../helpers/tryCatch';
 import CustomError from '../helpers/CustomError';
+
+import authenticate from '../middleware/authenticate';
 
 import directMessageService from '../services/directMessage.service';
 

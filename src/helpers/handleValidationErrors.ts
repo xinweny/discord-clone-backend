@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { validationResult } from 'express-validator';
 
-import tryCatch from '../middleware/tryCatch';
+import tryCatch from './tryCatch';
 import CustomError from './CustomError';
 
 const handleValidationErrors: RequestHandler = tryCatch(

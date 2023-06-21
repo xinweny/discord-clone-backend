@@ -2,13 +2,13 @@ import { RequestHandler } from 'express';
 
 import env from '../config/env.config';
 
+import tryCatch from '../helpers/tryCatch';
+import CustomError from '../helpers/CustomError';
+
 import validateFields from '../middleware/validateFields';
-import tryCatch from '../middleware/tryCatch';
 
 import passwordResetMail from '../templates/passwordResetMail';
 import emailVerificationMail from '../templates/emailVerificationMail';
-
-import CustomError from '../helpers/CustomError';
 
 import userService from '../services/user.service';
 import mailService from '../services/mail.service';
