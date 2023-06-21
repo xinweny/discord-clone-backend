@@ -61,36 +61,7 @@ const acceptFriendRequest = async (userId: Types.ObjectId | string, relationId: 
 
   await Promise.all([user.save(), recipient.save()]);
 
-  return { senderRelation: relations[0], recipientRelation: relations[1] };
-};
-
-const remove = async (userId: Types.ObjectId | string, relationId: Types.ObjectId | string) => {
-  const user = await User.findById(userId, 'relations');
-
-  if (!user) throw new CustomError(400, 'User not found.');
-
-  const relation = user.relations.id(relationId);
-
-  if (!relation) throw new CustomError(400, 'Relation does not exist');
-
-  const { status } = relation;
-
-  if (status === 0 || status === 1) {
-    const recipient = await User.findById(relation.userId, 'relations');
-      
-    const recipientRelation = recipient?.relations.find(relation => relation.userId.equals(userId));
-
-    user.relations.pull(relation._id);
-    recipient?.relations.pull(recipientRelation?._id);
-
-    await Promise.all([user.save(), recipient?.save()]);
-  } else if (status === 2) {
-    user.relations.pull(relation._id);
-
-    await user.save();
-  }
-
-  return relation;
+  return { sender: relations[0], recipient: relations[1] };
 };
 
 const blockUser = async (senderId: Types.ObjectId | string, recipientId: Types.ObjectId | string) => {
@@ -127,6 +98,35 @@ const blockUser = async (senderId: Types.ObjectId | string, recipientId: Types.O
 
     return user?.relations.id(to._id);
   }
+};
+
+const remove = async (userId: Types.ObjectId | string, relationId: Types.ObjectId | string) => {
+  const user = await User.findById(userId, 'relations');
+
+  if (!user) throw new CustomError(400, 'User not found.');
+
+  const relation = user.relations.id(relationId);
+
+  if (!relation) throw new CustomError(400, 'Relation does not exist');
+
+  const { status } = relation;
+
+  if (status === 0 || status === 1) {
+    const recipient = await User.findById(relation.userId, 'relations');
+      
+    const recipientRelation = recipient?.relations.find(relation => relation.userId.equals(userId));
+
+    user.relations.pull(relation._id);
+    recipient?.relations.pull(recipientRelation?._id);
+
+    await Promise.all([user.save(), recipient?.save()]);
+  } else if (status === 2) {
+    user.relations.pull(relation._id);
+
+    await user.save();
+  }
+
+  return relation;
 };
 
 export default {
