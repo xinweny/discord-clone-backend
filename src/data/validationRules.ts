@@ -11,7 +11,7 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
     .escape(),
   username: body('username')
     .escape().trim().isLength({ min: 2, max: 32 }).withMessage('Username must be between 2 and 32 characters long.')
-    .matches(/^[^@#:`]+$/).withMessage('Username must not contain the following characters: @, #, :, `'),
+    .matches(/^(?!.*__)[a-z0-9._]+$/).withMessage('Username can only contain lowercase alphanumeric characters, underscores (_) and/or non-consecutive periods (.).'),
   password: body('password')
     .isLength({ min: 1 }).withMessage('Password is required.'),
   confirmPassword: body('confirmPassword')
@@ -38,9 +38,9 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
     .matches(/^#[0-9A-F]{6}$/i)
     .withMessage('Invalid HEX code.'),
   emojiName: body('name')
-  .trim()
-  .matches(/^[a-z0-9_]+$/).withMessage('Emoji name can only contain alphanumeric characters and underscores.')
-  .isLength({ min: 2, max: 32 }).withMessage('Emoji name must be between 2 and 32 characters long.')
+    .escape().trim()
+    .matches(/^[a-z0-9_]+$/).withMessage('Emoji name can only contain alphanumeric characters and underscores.')
+    .isLength({ min: 2, max: 32 }).withMessage('Emoji name must be between 2 and 32 characters long.'),
 };
 
 export default VALIDATION_RULES;

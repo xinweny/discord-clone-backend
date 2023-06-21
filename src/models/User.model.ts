@@ -5,10 +5,10 @@ import relationSchema, { IRelation } from './Relation.schema';
 
 export interface IUser extends Document {
   username: string;
+  displayName: string;
   password: string;
   email: string;
   verified: boolean;
-  joinedAt: Date;
   avatarUrl?: string;
   role: string;
   relations: Types.DocumentArray<IRelation>;
@@ -24,11 +24,11 @@ export interface IReqUser extends Document {
 }
 
 const userSchema = new Schema({
-  username: { type: String, required: true, length: { max: 32 } },
+  username: { type: String, required: true, length: { max: 32 }, unique: true },
+  displayName: { type: String, required: true, length: { max: 32 } },
   password: { type: String, required: true, select: false },
   email: { type: String, required: true, select: false, unique: true },
   verified: { type: Boolean, default: false },
-  joinedAt: { type: Date, default: Date.now },
   avatarUrl: { type: String },
   role: {
     type: String,
@@ -39,7 +39,7 @@ const userSchema = new Schema({
   relations: { type: [relationSchema], default: [] },
   bio: { type: String, default: '', length: { max: 190 } },
   bannerColor: { type: String, default: '' },
-});
+}, { timestamps: true });
 
 userSchema.pre('save', function (next) {
   const userIds = this.relations.map(relation => relation.userId.toString());

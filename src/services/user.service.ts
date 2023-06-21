@@ -24,6 +24,8 @@ const getOne = async (queryObj: {
 const getById = async (id: Types.ObjectId | string) => {
   const user = await User.findById(id);
 
+  if (!user) throw new CustomError(400, 'User not found.');
+
   return user;
 }
 
@@ -32,7 +34,10 @@ const create = async (fields: {
   username: string,
   password: string,
 }) => {
-  const user = new User(fields);
+  const user = new User({
+    ...fields,
+    displayName: fields.username,
+  });
 
   await user.save();
 
@@ -50,11 +55,11 @@ const updateSensitive = async (id: Types.ObjectId | string, fields: {
 
 const update = async (id: Types.ObjectId | string, fields: {
   username?: string,
-  avatarFile?: Express.Multer.File,
-}) => {
-  const updateQuery = keepKeys(fields, ['username']);
-
-  const { avatarFile } = fields;
+  displayName?: string,
+  bannerColor?: string,
+  bio?: string,
+}, avatarFile?: Express.Multer.File) => {
+  const updateQuery = keepKeys(fields, ['username', 'displayName', 'bannerColor', 'bio']);
 
   let avatar;
 

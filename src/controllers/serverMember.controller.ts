@@ -27,7 +27,7 @@ const joinServer: RequestHandler[] = [
 
       const member = await serverMemberService.create({
         userId: user._id,
-        displayName: user.username,
+        displayName: user.displayName,
         serverId,
       });
 

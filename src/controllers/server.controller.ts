@@ -64,10 +64,6 @@ const deleteServer: RequestHandler[] = [
     async (req, res) => {
       const { serverId } = req.params;
 
-      const authorized = await serverService.checkPermissions(serverId, req.user?._id);
-
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
-
       await serverService.remove(serverId);
 
       res.json({
