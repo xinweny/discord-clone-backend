@@ -14,6 +14,7 @@ export interface IUser extends Document {
   relations: Types.DocumentArray<IRelation>;
   bio: string;
   bannerColor: string;
+  relationTo(userId: Types.ObjectId | string): IRelation | undefined;
 }
 
 export interface IReqUser extends Document {
@@ -37,7 +38,7 @@ const userSchema = new Schema({
     default: 'user',
     select: false,
   },
-  relations: { type: [relationSchema], default: [] },
+  relations: { type: [relationSchema], default: [], select: false },
   bio: { type: String, default: '', length: { max: 190 } },
   bannerColor: { type: String, default: '' },
 }, { timestamps: true });
@@ -49,6 +50,13 @@ userSchema.pre('save', function (next) {
 
   next();
 });
+
+userSchema.method(
+  'relationTo',
+  function (userId: Types.ObjectId | string) {
+    return this.relations.find((relation: IRelation) => relation.userId.equals(userId));
+  }
+);
 
 const User = mongoose.model<IUser>('User', userSchema);
 

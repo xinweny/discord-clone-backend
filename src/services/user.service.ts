@@ -15,21 +15,21 @@ const getOne = async (queryObj: {
   const query = keepKeys(queryObj, ['_id', 'email', 'password']);
 
   const user = sensitive
-    ? await User.findOne(query).select('+email +password +verified +role')
+    ? await User.findOne(query, '+email +password +verified +relations')
     : await User.findOne(query);
 
   return user;
 };
 
-const getById = async (id: Types.ObjectId | string, sensitive = false) => {
-  const user = (sensitive)
-    ? await User.findById(id, '+verified')
+const getById = async (id: Types.ObjectId | string, select?: string) => {
+  const user = (select)
+    ? await User.findById(id, select)
     : await User.findById(id);
 
   if (!user) throw new CustomError(400, 'User not found.');
 
   return user;
-}
+};
 
 const create = async (fields: {
   email: string,

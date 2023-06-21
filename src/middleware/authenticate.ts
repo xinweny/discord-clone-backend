@@ -13,7 +13,7 @@ const authenticate = tryCatch(
 
     const payload = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
 
-    const user = await UserService.getById(payload._id, true);
+    const user = await UserService.getById(payload._id, '+verified');
 
     if (!user) throw new CustomError(400, 'User not found.');
     if (!user.verified) throw new CustomError(401, 'Unverified user', { user });

@@ -1,7 +1,6 @@
 import { Types } from 'mongoose';
 
 import CustomError from '../helpers/CustomError';
-import formatSetQuery from '../helpers/formatSetQuery';
 
 import User from '../models/User.model';
 
@@ -19,7 +18,7 @@ const getRelations = async (userId: Types.ObjectId | string, status?: 0 | 1 | 2)
 
 const sendFriendRequest = async (senderId: Types.ObjectId | string, recipientId: Types.ObjectId | string) => {
   const [sender, recipient] = await Promise.all(
-    [senderId, recipientId].map(id => User.findById(id))
+    [senderId, recipientId].map(id => User.findById(id, 'relations'))
   );
 
   if (!sender || !recipient) throw new CustomError(400, 'User not found.');
@@ -29,16 +28,20 @@ const sendFriendRequest = async (senderId: Types.ObjectId | string, recipientId:
     recipient.relations.find(relation => relation.userId.equals(senderId)),
   ];
 
-  if (relations.some(relation => !!relation)) throw new CustomError(400, 'Relation already exists.');
+  if (relations.some(relation => !!relation)) {
+    throw new CustomError(400, 'Relation already exists.', {
+      sender: relations[0] || null,
+      recipient: relations[1] || null,
+    });
+  }
 
-  sender.relations.push({ userId: recipientId });
-  recipient.relations.push({ userId: senderId });
+  recipient.relations.push({ userId: senderId, status: 0 });
 
-  await Promise.all([sender.save(), recipient.save()]);
+  await recipient.save();
 
-  const [senderRelation, recipientRelation] = [sender, recipient].map(user => user.relations.slice(-1)[0]);
+  const relation = recipient.relations.slice(-1)[0];
 
-  return { senderRelation, recipientRelation };
+  return relation;
 };
 
 const acceptFriendRequest = async (userId: Types.ObjectId | string, relationId: Types.ObjectId | string) => {
@@ -47,26 +50,36 @@ const acceptFriendRequest = async (userId: Types.ObjectId | string, relationId: 
   if (!user) throw new CustomError(400, 'User not found.');
 
   const toRelation = user.relations.id(relationId);
-  const recipient = await User.findById(toRelation?.userId, 'relations');
+  if (!toRelation || toRelation.status !== 0) throw new CustomError(400, 'Friend request does not exist.');
 
-  if (!recipient) throw new CustomError(400, 'User not found.');
+  const sender = await User.findById(toRelation.userId, 'relations');
 
-  const fromRelation = recipient.relations.find(relation => relation.userId.equals(userId));
+  if (!sender) throw new CustomError(400, 'User not found.');
 
-  const relations = [toRelation, fromRelation];
+  const fromRelation = sender.relations.find(relation => relation.userId.equals(userId));
 
-  if (relations.some(relation => !relation || relation.status !== 0)) throw new CustomError(400, 'Friend request does not exist.');
+  if (fromRelation && fromRelation.status !== 0) {
+    user.relations.pull(toRelation._id);
 
-  relations.forEach(relation => relation?.set({ status: 1 }));
+    await user.save();
 
-  await Promise.all([user.save(), recipient.save()]);
+    throw new CustomError(400, 'Unable to accept friend request.');
+  }
 
-  return { sender: relations[0], recipient: relations[1] };
+  (fromRelation)
+    ? fromRelation.set({ status: 1 })
+    : sender.relations.push({ userId, status: 1 })
+
+  toRelation.set({ status: 1 });
+
+  await Promise.all([user.save(), sender.save()]);
+
+  return { sender: fromRelation, recipient: toRelation };
 };
 
 const blockUser = async (senderId: Types.ObjectId | string, recipientId: Types.ObjectId | string) => {
   const [sender, recipient] = await Promise.all(
-    [senderId, recipientId].map(id => User.findById(id))
+    [senderId, recipientId].map(id => User.findById(id, 'relations'))
   );
 
   if (!sender || !recipient) throw new CustomError(400, 'User not found.');
@@ -90,13 +103,11 @@ const blockUser = async (senderId: Types.ObjectId | string, recipientId: Types.O
 
     return sender.relations.slice(-1)[0];
   } else {
-    const user = await User.findOneAndUpdate(
-      { _id: senderId, 'relations.userId': recipientId },
-      { $set: formatSetQuery({ status: 2 }, 'relations') },
-      { new: true }
-    );
+    to.set({ status: 2 });
 
-    return user?.relations.id(to._id);
+    await sender.save();
+
+    return to;
   }
 };
 

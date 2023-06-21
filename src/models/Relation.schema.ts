@@ -2,7 +2,7 @@ import { Schema, Types } from 'mongoose';
 
 export interface IRelation extends Types.Subdocument {
   userId: Types.ObjectId;
-  status: number;
+  status: 0 | 1 | 2;
 }
 
 const relationSchema = new Schema({
@@ -14,8 +14,8 @@ const relationSchema = new Schema({
       1, // friends
       2, // blocked
     ],
-    default: 0,
+    required: true,
   },
-}, { timestamps: { createdAt: true } });
+}, { timestamps: { createdAt: false, updatedAt: true } });
 
 export default relationSchema;

@@ -7,15 +7,40 @@ import authorize from '../middleware/authorize';
 import upload from '../middleware/upload';
 import validateFields from '../middleware/validateFields';
 
+import { IUser } from '../models/User.model';
 import userService from '../services/user.service';
 
 const getUser: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const user = await userService.getById(req.params.userId);
+      const selfId = req.user?._id;
+      const { userId } = req.params;
 
-      res.json({ data: user });
+      const self = selfId.equals(userId);
+      
+      if (self) {
+        const user = await userService.getById(
+          userId, 
+          '+email +password +verified +relations'
+        );
+
+          res.json({ data: { user } });
+      } else {
+        const user: Partial<IUser> = await userService.getById(
+          userId, '+relations'
+        );
+  
+        const relation = user.relationTo!(selfId);
+        user.relations = undefined;
+  
+        res.json({
+          data: {
+            user,
+            relation: relation || null,
+          }
+        });
+      }
     }
   )
 ];

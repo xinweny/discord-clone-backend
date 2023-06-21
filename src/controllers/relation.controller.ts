@@ -33,13 +33,15 @@ const createRelation: RequestHandler[] = [
       const senderId = req.user?._id;
       const { status, userId } = req.body;
 
-      const relation = (status === 0)
+      if (!(status === '0' || status === '2')) throw new CustomError(400, 'Invalid status');
+
+      const relation = (status === '0')
         ? await relationService.sendFriendRequest(senderId, userId)
         : await relationService.blockUser(senderId, userId);
 
       res.json({
         data: relation,
-        message: `User successfully ${(status === 0) ? 'friend requested' : 'blocked'}.`,
+        message: `User successfully ${(status === '0') ? 'friend requested' : 'blocked'}.`,
       });
     }
   )
@@ -54,15 +56,15 @@ const updateRelation: RequestHandler[] = [
       const { relationId } = req.params;
       const { status, userId } = req.body;
 
-      if (status !== 1 || status !== 2) throw new CustomError(400, 'Invalid status');
+      if (!(status === '1' || status === '2')) throw new CustomError(400, 'Invalid status');
 
-      const relation = (status === 1)
+      const relation = (status === '1')
         ? await relationService.acceptFriendRequest(senderId, relationId)
         : await relationService.blockUser(senderId, userId);
 
       res.json({
         data: relation,
-        message: `User successfully ${(status === 1) ? 'friended' : 'blocked'}.`,
+        message: `User successfully ${(status === '1') ? 'friended' : 'blocked'}.`,
       });
     }
   )

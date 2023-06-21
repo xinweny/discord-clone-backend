@@ -9,6 +9,7 @@ import channelService from '../services/channel.service';
 import directMessageService from '../services/directMessage.service';
 import messageService from '../services/message.service';
 import reactionService from '../services/reaction.service';
+import userService from '../services/user.service';
 
 const server = (permissionKeys: string | string[] = []) => {
   const authorizeMiddleware: RequestHandler = async (req, res, next) => {
@@ -109,6 +110,14 @@ const message = (action: 'view' | 'send' | 'react') => {
       const directMessage = await directMessageService.checkMembership(userId, roomId);
     
       if (!directMessage) throw new CustomError(401, 'Unauthorized');
+
+      if (directMessage.participantIds.length === 1) {
+        const participant = await userService.getById(directMessage.participantIds[0], '+relations');
+
+        if (participant.relations.find(
+          relation => relation.userId.equals(userId) && relation.status === 2
+        )) throw new CustomError(401, 'Unauthorized');
+      }
   
       req.dm = directMessage;
     }
