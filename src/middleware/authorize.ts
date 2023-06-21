@@ -171,8 +171,6 @@ const unreact: RequestHandler = tryCatch(
 const user: RequestHandler = tryCatch(
   (req, res, next) => {
     const { userId } = req.params;
-
-    console.log('in authorize');
   
     if (!req.user?._id.equals(userId)) throw new CustomError(401, 'Unauthorized');
   
