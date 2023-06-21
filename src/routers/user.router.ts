@@ -6,7 +6,7 @@ import userController from '../controllers/user.controller';
 
 const userRouter = Router();
 
-userRouter.use('/relations', relationRouter);
+userRouter.use('/:userId/relations', relationRouter);
 
 userRouter.get('/:userId', userController.getUser);
 

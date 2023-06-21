@@ -1,7 +1,7 @@
 import { ValidationError } from 'express-validator';
 
 interface ErrorData {
-  [key: string]: string | number;
+  [key: string]: any;
 }
 
 class CustomError extends Error {

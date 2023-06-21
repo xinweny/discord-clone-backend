@@ -2,15 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 
+import './utils/reqInterface';
+
 import env from './config/env.config';
 import apiRateLimiter from './config/rateLimit.config';
 import './config/db.config';
 
-import './utils/reqInterface';
+import errorHandler from './middleware/errorHandler';
 
 import router from './routers/index.router';
-import CustomError from './helpers/CustomError';
-import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
@@ -26,7 +26,7 @@ app.use(apiRateLimiter);
 app.use('/api/v1', router);
 
 // ERROR HANDLING
-app.use('*', (req, res) => { throw new CustomError(404, 'Resource not found.'); });
+app.use('*', (req, res) => res.status(404).json({ message: 'Resource not found.' }));
 app.use(errorHandler);
 
 export default app; 
