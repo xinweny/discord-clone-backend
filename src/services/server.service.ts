@@ -42,7 +42,7 @@ const create = async (
   });
 
   if (imgFile) {
-    const image = await cloudinaryService.upload(imgFile, `avatars/${serverId}`);
+    const image = await cloudinaryService.upload(imgFile, `avatars/servers/${serverId}`);
 
     server.imageUrl = image.secure_url;
   }
@@ -75,10 +75,11 @@ const update = async (id: Types.ObjectId | string, fields: {
   type?: 'text' | 'voice',
 }, imgFile?: Express.Multer.File) => {
   let image;
+  
   if (imgFile) {
     const server = await Server.findById(id);
 
-    image = await cloudinaryService.upload(imgFile, `avatars/${id}`, server?.imageUrl);
+    image = await cloudinaryService.upload(imgFile, `avatars/servers/${id}`, server?.imageUrl);
   }
 
   const server = await Server.findByIdAndUpdate(id, {

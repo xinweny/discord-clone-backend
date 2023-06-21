@@ -66,7 +66,7 @@ const update = async (id: Types.ObjectId | string, fields: {
   if (avatarFile) {
     const user = await User.findById(id);
 
-    avatar = await cloudinaryService.upload(avatarFile, `avatars/${id}`, user?.avatarUrl);
+    avatar = await cloudinaryService.upload(avatarFile, `avatars/users/${id}`, user?.avatarUrl);
   }
 
   const user = await User.findByIdAndUpdate(id, {
