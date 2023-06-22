@@ -28,6 +28,9 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
   categoryName: body('name')
     .escape().trim()
     .isLength({ min: 2, max: 32 }).withMessage('Category name must be between 2 and 32 characters long.'),
+  roleName: body('name')
+    .escape().trim()
+    .notEmpty().isLength({ max: 100 }).withMessage('Display name must be between 1 and 100 characters long.'),
   displayName: body('displayName')
     .escape().trim()
     .isLength({ min: 2, max: 32 }).withMessage('Display name must be between 2 and 32 characters long.'),
@@ -41,6 +44,9 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
     .escape().trim()
     .matches(/^[a-z0-9_]+$/).withMessage('Emoji name can only contain alphanumeric characters and underscores.')
     .isLength({ min: 2, max: 32 }).withMessage('Emoji name must be between 2 and 32 characters long.'),
+  color: body('color')
+    .matches(/^#[0-9A-F]{6}$/i)
+    .withMessage('Invalid HEX code.'),
 };
 
 export default VALIDATION_RULES;
