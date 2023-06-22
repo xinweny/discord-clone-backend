@@ -8,6 +8,32 @@ import validateFields from '../middleware/validateFields';
 
 import channelService from '../services/channel.service';
 
+const getChannel: RequestHandler[] = [
+  authenticate,
+  authorize.server('manageChannels'),
+  tryCatch(
+    async (req, res) => {
+      const { serverId, channelId } = req.params
+
+      const channel = await channelService.get(serverId, channelId);
+
+      res.json({ data: channel });
+    }
+  )
+];
+
+const getChannels: RequestHandler[] = [
+  authenticate,
+  authorize.server('manageChannels'),
+  tryCatch(
+    async (req, res) => {
+      const channels = await channelService.get(req.params.serverId);
+
+      res.json({ data: channels });
+    }
+  )
+];
+
 const createChannel: RequestHandler[] = [
   ...validateFields(['channelName']),
   authenticate,
@@ -59,6 +85,8 @@ const deleteChannel: RequestHandler[] = [
 ]
 
 export default {
+  getChannel,
+  getChannels,
   createChannel,
   updateChannel,
   deleteChannel,

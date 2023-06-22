@@ -1,8 +1,20 @@
 import { Types } from 'mongoose';
 
+import CustomError from '../helpers/CustomError';
 import formatSetQuery from '../helpers/formatSetQuery';
 
 import Server from '../models/Server.model';
+
+const get = async (serverId: Types.ObjectId | string, categoryId?: Types.ObjectId | string) => {
+  const server = await Server.findById(
+    serverId,
+    categoryId ? { roles: { $elemMatch: { _id: categoryId } } } : 'categories'
+  );
+
+  if (!server) throw new CustomError(400, 'Server not found.');
+
+  return (categoryId) ? server.categories[0] : server.categories;
+};
 
 const create = async (serverId: Types.ObjectId | string, name: string) => {
   const server = await Server.findById(serverId);
@@ -47,6 +59,7 @@ const remove = async (serverId: Types.ObjectId | string, categoryId: Types.Objec
 };
 
 export default {
+  get,
   create,
   update,
   remove,

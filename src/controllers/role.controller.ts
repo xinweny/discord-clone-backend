@@ -17,7 +17,7 @@ const getRole: RequestHandler[] = [
 
       const role = await roleService.get(serverId, roleId);
 
-      res.json({ role });
+      res.json({ data: role });
     }
   )
 ];

@@ -10,6 +10,17 @@ import { IPermissions } from '../models/Channel.schema';
 
 import cloudinaryService from './cloudinary.service';
 
+const get = async (serverId: Types.ObjectId | string, channelId?: Types.ObjectId | string) => {
+  const server = await Server.findById(
+    serverId,
+    channelId ? { roles: { $elemMatch: { _id: channelId } } } : 'channels'
+  );
+
+  if (!server) throw new CustomError(400, 'Server not found.');
+
+  return (channelId) ? server.channels[0] : server.channels;
+};
+
 const create = async (serverId: Types.ObjectId | string, fields: {
   name: string,
   categoryId?: Types.ObjectId | string,
@@ -93,6 +104,7 @@ const checkPermissions = (channelId: string, server: IServer, member: IServerMem
 };
 
 export default {
+  get,
   create,
   update,
   remove,
