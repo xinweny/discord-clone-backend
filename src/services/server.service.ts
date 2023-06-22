@@ -7,6 +7,7 @@ import Message from '../models/Message.model';
 import ServerMember from '../models/ServerMember.model';
 import Server from '../models/Server.model';
 
+import serverInviteService from './serverInvite.service';
 import cloudinaryService from './cloudinary.service';
 
 const getById = async (id: Types.ObjectId | string) => {
@@ -64,7 +65,10 @@ const create = async (
   creator.roleIds.push(server.roles[0]._id);
 
   await server.save();
-  await creator.save();
+  await Promise.all([
+    creator.save(),
+    serverInviteService.create(serverId),
+  ]);
 
   return { server, creator };
 };
@@ -127,6 +131,7 @@ const remove = async (id: Types.ObjectId | string) => {
     Message.deleteMany({ roomId: { $in: channelIds } }),
     cloudinaryService.deleteByFolder(`attachments/${id.toString()}`),
     (server.imageUrl) ? cloudinaryService.deleteByUrl(server.imageUrl) : Promise.resolve(),
+    serverInviteService.remove(server._id),
   ]);
 }
 

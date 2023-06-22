@@ -6,6 +6,7 @@ import categoryRouter from './category.router';
 import customEmojiRouter from './customEmoji.router';
 import roleRouter from './role.router';
 import serverOwnerRouter from './serverOwner.router';
+import serverInviteRouter from './serverInvite.router';
 
 import serverController from '../controllers/server.controller';
 
@@ -24,6 +25,8 @@ serverRouter.use('/:serverId/roles', roleRouter);
 serverRouter.use('/:serverId/emojis', customEmojiRouter);
 
 serverRouter.use('/:serverId/owner', serverOwnerRouter);
+
+serverRouter.use('/:serverId/invite', serverInviteRouter);
 
 serverRouter.get('/:serverId', serverController.getServer);
 

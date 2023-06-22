@@ -15,6 +15,7 @@ export interface IServer extends Document {
   categories: Types.DocumentArray<ICategory>;
   channels: Types.DocumentArray<IChannel>;
   customEmojis: Types.DocumentArray<ICustomEmoji>;
+  memberCount: number;
   imageUrl?: string;
   private: boolean;
   checkPermissions(member: IServerMember, permissionKeys: string[]): boolean;
@@ -28,6 +29,7 @@ const serverSchema = new Schema({
   channels: { type: [channelSchema], default: () => ([]) },
   customEmojis: { type: [customEmojiSchema], default: () => ([]) },
   imageUrl: { type: String },
+  memberCount: { type: Number, required: true, default: 1 },
   private: { type: Boolean, default: false },
 }, {
   timestamps: { createdAt: true, updatedAt: false },

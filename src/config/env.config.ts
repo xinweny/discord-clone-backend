@@ -19,13 +19,12 @@ const ENVIRONMENT_VARIABLES: string[] = [
   'CLOUD_NAME',
   'CLOUDINARY_API_KEY',
   'CLOUDINARY_API_SECRET',
+  'BASE_SHORT_URL',
 ];
 
 checkEmptyEnv(ENVIRONMENT_VARIABLES);
 
-interface ProcessEnv { [key: string]: string }
-
-const env: ProcessEnv = ENVIRONMENT_VARIABLES.reduce(
+const env: { [key: string]: string } = ENVIRONMENT_VARIABLES.reduce(
   (acc, envVar) =>  ({ ...acc, [envVar]: process.env[envVar] }),
   {},
 );

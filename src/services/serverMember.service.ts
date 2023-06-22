@@ -38,7 +38,12 @@ const create = async (fields: {
   const member = new ServerMember(fields);
   member.roleIds.push(server.roles[0]._id);
 
-  await member.save();
+  await Promise.all([
+    member.save(),
+    Server.findByIdAndUpdate(fields.serverId, {
+      $inc: { memberCount: 1 },
+    })
+  ]);
 
   return member;
 };
