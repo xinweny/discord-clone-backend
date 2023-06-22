@@ -1,5 +1,7 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
 
+import env from '../config/env.config';
+
 import CustomError from '../helpers/CustomError';
 
 import roleSchema, { IRole } from './Role.schema';
@@ -68,6 +70,22 @@ serverSchema.method(
     return false;
   }
 );
+
+if (env.NODE_ENV === 'development') {
+  serverSchema.index(
+    {
+      name: 'text',
+      description: 'text',
+    },
+    {
+      weights: {
+        name: 5,
+        description: 1,
+        memberCount: 3,
+      }
+    }
+  );
+}
 
 const Server = mongoose.model<IServer>('Server', serverSchema);
 

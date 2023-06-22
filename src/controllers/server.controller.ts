@@ -15,7 +15,9 @@ const getPublicServers: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const servers = await serverService.getPublic();
+      const query = req.query.query?.toString();
+
+      const servers = await serverService.getPublic(query);
 
       res.json({ data: servers });
     }

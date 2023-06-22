@@ -12,10 +12,15 @@ import serverInviteService from './serverInvite.service';
 import cloudinaryService from './cloudinary.service';
 
 const getPublic = async (query?: string) => {
-  const servers = await Server.find({
-    private: false,
-    ...(query && { name: { $regex: query } }),
-  });
+  const servers = (query)
+    ? await Server
+      .find(
+        { private: false, $text: { $search: query } },
+        { score: { $meta: 'textScore' } }
+      )
+      .sort({ score: { $meta: 'textScore' } })
+    : await Server.find({ private: false })
+      .sort({ memberCount: 1 })
 
   return servers;
 }
