@@ -29,6 +29,7 @@ const serverSchema = new Schema({
   channels: { type: [channelSchema], default: () => ([]) },
   customEmojis: { type: [customEmojiSchema], default: () => ([]) },
   imageUrl: { type: String },
+  description: { type: String, default: '' },
   memberCount: { type: Number, required: true, default: 1 },
   private: { type: Boolean, default: false },
 }, {

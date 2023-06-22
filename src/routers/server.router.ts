@@ -12,6 +12,8 @@ import serverController from '../controllers/server.controller';
 
 const serverRouter = Router();
 
+serverRouter.get('/', serverController.getPublicServers);
+
 serverRouter.post('/', serverController.createServer);
 
 serverRouter.use('/:serverId/channels', channelRouter);

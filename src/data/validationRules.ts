@@ -47,6 +47,9 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
   color: body('color')
     .matches(/^#[0-9A-F]{6}$/i)
     .withMessage('Invalid HEX code.'),
+  description: body('description')
+    .escape().trim()
+    .isLength({ max: 120 }).withMessage('Server description must be 120 characters or under.'),
 };
 
 export default VALIDATION_RULES;

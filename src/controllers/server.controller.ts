@@ -11,6 +11,17 @@ import CustomError from '../helpers/CustomError';
 
 import serverService from '../services/server.service';
 
+const getPublicServers: RequestHandler[] = [
+  authenticate,
+  tryCatch(
+    async (req, res) => {
+      const servers = await serverService.getPublic();
+
+      res.json({ data: servers });
+    }
+  )
+]
+
 const getServer: RequestHandler[] = [
   authenticate,
   authorize.serverMember,
@@ -43,7 +54,7 @@ const createServer: RequestHandler[] = [
 
 const updateServer: RequestHandler[] = [
   upload.avatar,
-  ...validateFields(['serverName']),
+  ...validateFields(['serverName', 'description']),
   authenticate,
   authorize.server('manageServer'),
   tryCatch(
@@ -75,6 +86,7 @@ const deleteServer: RequestHandler[] = [
 ];
 
 export default {
+  getPublicServers,
   getServer,
   createServer,
   updateServer,

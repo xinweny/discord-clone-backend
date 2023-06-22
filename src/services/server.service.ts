@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
 import CustomError from '../helpers/CustomError';
+import keepKeys from '../helpers/keepKeys';
 
 import User from '../models/User.model';
 import Message from '../models/Message.model';
@@ -9,6 +10,15 @@ import Server from '../models/Server.model';
 
 import serverInviteService from './serverInvite.service';
 import cloudinaryService from './cloudinary.service';
+
+const getPublic = async (query?: string) => {
+  const servers = await Server.find({
+    private: false,
+    ...(query && { name: { $regex: query } }),
+  });
+
+  return servers;
+}
 
 const getById = async (id: Types.ObjectId | string) => {
   const server = await Server.findById(id);
@@ -35,11 +45,13 @@ const create = async (
     serverId,
     displayName: user.username,
   });
+
+  const query = keepKeys(fields, ['name', 'private']);
   
   const server = new Server({
     _id: serverId,
     ownerId: creator._id,
-    ...fields,
+    ...query,
   });
 
   if (imgFile) {
@@ -77,6 +89,7 @@ const update = async (id: Types.ObjectId | string, fields: {
   name?: string,
   private?: boolean,
   type?: 'text' | 'voice',
+  description?: string,
 }, imgFile?: Express.Multer.File) => {
   let image;
   
@@ -86,9 +99,11 @@ const update = async (id: Types.ObjectId | string, fields: {
     image = await cloudinaryService.upload(imgFile, `avatars/servers/${id}`, server?.imageUrl);
   }
 
+  const query = keepKeys(fields, ['name', 'private', 'description']);
+
   const server = await Server.findByIdAndUpdate(id, {
     $set: {
-      ...fields,
+      ...query,
       ...(image && { imageUrl: image.secure_url }),
     },
   }, { new: true });
@@ -136,6 +151,7 @@ const remove = async (id: Types.ObjectId | string) => {
 }
 
 export default {
+  getPublic,
   getById,
   create,
   update,
