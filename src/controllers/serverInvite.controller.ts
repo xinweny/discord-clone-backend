@@ -35,7 +35,21 @@ const updateInviteUrlId: RequestHandler[] = [
   )
 ];
 
+const createInvite: RequestHandler[] = [
+  authenticate,
+  authorize.server('manageServer'),
+  tryCatch(
+    async (req, res) => {
+      console.log('hello');
+      const invite = await serverInviteService.create(req.params.serverId);
+
+      res.json({ data: invite, message: 'Invite successfully created.' });
+    }
+  )
+];
+
 export default {
   getInvite,
   updateInviteUrlId,
+  createInvite,
 };

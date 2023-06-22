@@ -45,13 +45,13 @@ const updateUrlId = async (serverId: Types.ObjectId | string) => {
   );
 
   return invite;
-}
+};
 
 const remove = async (serverId: Types.ObjectId | string) => {
   const invite = await ServerInvite.findOneAndDelete({ serverId });
 
   return invite;
-}
+};
 
 export default {
   getOne,
