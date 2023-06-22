@@ -23,15 +23,15 @@ const sendFriendRequest = async (senderId: Types.ObjectId | string, recipientId:
 
   if (!sender || !recipient) throw new CustomError(400, 'User not found.');
 
-  const relations = [
-    sender.relations.find(relation => relation.userId.equals(recipientId)),
-    recipient.relations.find(relation => relation.userId.equals(senderId)),
-  ];
+  const relations = {
+    sender: sender.relations.find(relation => relation.userId.equals(recipientId)),
+    recipient: recipient.relations.find(relation => relation.userId.equals(senderId)),
+  };
 
-  if (relations.some(relation => !!relation)) {
+  if (relations.recipient || (relations.sender && relations.sender.status !== 0)) {
     throw new CustomError(400, 'Relation already exists.', {
-      sender: relations[0] || null,
-      recipient: relations[1] || null,
+      sender: relations.sender || null,
+      recipient: relations.recipient || null,
     });
   }
 
