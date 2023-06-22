@@ -1,13 +1,14 @@
 import { Types } from 'mongoose';
 import emojilib from 'emojilib';
 
-import cloudinaryService from './cloudinary.service';
 import CustomError from '../helpers/CustomError';
 
 import Message from '../models/Message.model';
 import MessageDirect from '../models/MessageDirect.model';
 import MessageChannel from '../models/MessageChannel.model';
 import Reaction, { IReaction } from '../models/Reaction.model';
+
+import cloudinaryService from './cloudinary.service';
 
 const getOne = async (id: string) => {
   const message = await Message.findById(id);
@@ -18,19 +19,22 @@ const getOne = async (id: string) => {
 const getMany = async (fields: {
   senderId?: Types.ObjectId | string,
   roomId?: Types.ObjectId | string,
-}) => {
+}, query?: string) => {
   const messages = await Message
-    .find(fields)
-    .sort({ createdAt: -1 });
+      .find({
+        ...fields,
+        ...(query && { body: { $regex: query, $options: 'i' } }),
+      })
+      .sort({ createdAt: -1 });
 
   return messages;
 }
 
 const create = async (
   fields: {
-  senderId: Types.ObjectId | string,
-  roomId: Types.ObjectId | string,
-  body: string,
+    senderId: Types.ObjectId | string,
+    roomId: Types.ObjectId | string,
+    body: string,
   },
   files: Express.Multer.File[] | undefined | null,
   serverId?: Types.ObjectId | string) => {
@@ -59,13 +63,10 @@ const create = async (
 
 const update = async (
   id: string,
-  fields: {
-    body?: string,
-    attachments?: string[],
-  },
+  body: string,
 ) => {
   const updatedMessage = await Message.findByIdAndUpdate(id, {
-    $set: fields,
+    $set: { body },
   }, { new: true });
 
   return updatedMessage;

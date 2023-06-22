@@ -2,7 +2,6 @@ import { RequestHandler } from 'express';
 
 import tryCatch from '../helpers/tryCatch';
 import CustomError from '../helpers/CustomError';
-import keepKeys from '../helpers/keepKeys';
 
 import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
@@ -28,13 +27,13 @@ const getMessage: RequestHandler[] = [
 const getMessages: RequestHandler[] = [
   authenticate,
   tryCatch(
-    async (req, res) => {
-      const findQuery = keepKeys(req.query, ['senderId']);
-  
+    async (req, res) => {  
+      const { senderId, query } = req.query;
+
       const messages = await messageService.getMany({
         roomId: req.params.roomId,
-        ...findQuery,
-      });
+        senderId: senderId?.toString(),
+      }, query?.toString());
   
       res.json({ data: messages });
     }
@@ -71,9 +70,7 @@ const updateMessage: RequestHandler[] = [
   authorize.messageSelf('update'),
   tryCatch(
     async (req, res) => {
-      const updateQuery = keepKeys(req.body, ['body', 'attachments']);
-
-      const message = await messageService.update(req.params.messageId, updateQuery);
+      const message = await messageService.update(req.params.messageId, req.body.body);
 
       res.json({
         data: message,
