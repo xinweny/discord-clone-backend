@@ -98,6 +98,7 @@ const create = async (
   await Promise.all([
     creator.save(),
     serverInviteService.create(serverId),
+    User.findByIdAndUpdate(userId, { $push: { serverIds: serverId } }),
   ]);
 
   return { server, creator };

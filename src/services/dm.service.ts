@@ -6,6 +6,7 @@ import CustomError from '../helpers/CustomError';
 import cloudinaryService from './cloudinary.service';
 
 import Message from '../models/Message.model';
+import User from '../models/User.model';
 import DM from '../models/DM.model';
 
 const getById = async (dmId: Types.ObjectId | string) => {
@@ -23,7 +24,12 @@ const create = async (participantIds: Types.ObjectId[] | string[]) => {
     isGroup,
   });
 
-  await dm.save();
+  await Promise.all([
+    dm.save(),
+    User.updateMany({ _id: { $in: participantIds } }, {
+      $push: { dmIds: dm._id },
+    }),
+  ]);
 
   return dm;
 };

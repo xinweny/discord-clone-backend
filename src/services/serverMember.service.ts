@@ -1,7 +1,9 @@
 import { Types } from 'mongoose';
 
+import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
 
+import User from '../models/User.model';
 import Server from '../models/Server.model';
 import ServerMember from '../models/ServerMember.model';
 
@@ -38,11 +40,14 @@ const create = async (fields: {
   const member = new ServerMember(fields);
   member.roleIds.push(server.roles[0]._id);
 
+  const { userId, serverId } = fields;
+
   await Promise.all([
     member.save(),
     Server.findByIdAndUpdate(fields.serverId, {
       $inc: { memberCount: 1 },
-    })
+    }),
+    User.findByIdAndUpdate(userId, { $push: { serverIds: serverId } }),
   ]);
 
   return member;
@@ -64,9 +69,16 @@ const update = async (id: Types.ObjectId | string, fields: {
 };
 
 const remove = async (id: Types.ObjectId | string) => {
-  const deletedMember = await ServerMember.findByIdAndDelete(id);
+  const serverMember = await ServerMember.findById(id);
 
-  return deletedMember;
+  if (!serverMember) throw new CustomError(400, 'Server member not found.');
+
+  await Promise.all([
+    ServerMember.findByIdAndDelete(id),
+    User.findByIdAndUpdate(serverMember.userId, { $pull: { serverIds: serverMember.serverId } }),
+  ]);
+
+  return serverMember;
 };
 
 const checkMembership = async (userId: Types.ObjectId | string, memberId: Types.ObjectId | string) => {
