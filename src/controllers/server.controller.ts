@@ -17,9 +17,19 @@ const getPublicServers: RequestHandler[] = [
     async (req, res) => {
       const query = req.query.query?.toString();
 
-      const servers = await serverService.getPublic(query);
+      const page = req.query.page ? +req.query.page : 1;
+      const limit = req.query.limit ? +req.query.limit : 10;
 
-      res.json({ data: servers });
+      const { servers, count } = await serverService.getPublic({ page, limit }, query);
+
+      res.json({
+        data: {
+          servers,
+          totalDocs: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+        }
+      });
     }
   )
 ]

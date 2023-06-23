@@ -11,18 +11,31 @@ import Server from '../models/Server.model';
 import serverInviteService from './serverInvite.service';
 import cloudinaryService from './cloudinary.service';
 
-const getPublic = async (query?: string) => {
-  const servers = (query)
-    ? await Server
-      .find(
-        { private: false, $text: { $search: query } },
-        { score: { $meta: 'textScore' } }
-      )
-      .sort({ score: { $meta: 'textScore' } })
-    : await Server.find({ private: false })
-      .sort({ memberCount: 1 })
+const getPublic = async (
+  pagination: { page: number, limit: number },
+  query?: string,
+) => {
+  const { page, limit } = pagination;
 
-  return servers;
+  const queryObj = {
+    private: false,
+    ...(query && { $text: { $search: query } }),
+  };
+
+  const [servers, count] = await Promise.all([
+    Server
+      .find(
+        queryObj,
+        query ? { score: { $meta: 'textScore' } } : undefined
+      )
+      .select('name createdAt memberCount description imageUrl')
+      .sort(query ? { score: { $meta: 'textScore' } } : { memberCount: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Server.countDocuments(queryObj)
+  ]);
+
+  return { servers, count };
 }
 
 const getById = async (id: Types.ObjectId | string) => {
