@@ -47,12 +47,10 @@ const getMessages: RequestHandler[] = [
       );
   
       res.json({
-        data: {
-          messages,
-          totalDocs: count,
-          totalPages: Math.ceil(count / limit),
-          currentPage: page,
-        }
+        data: messages,
+        totalDocs: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
       });
     }
   )

@@ -23,12 +23,10 @@ const getPublicServers: RequestHandler[] = [
       const { servers, count } = await serverService.getPublic({ page, limit }, query);
 
       res.json({
-        data: {
-          servers,
-          totalDocs: count,
-          totalPages: Math.ceil(count / limit),
-          currentPage: page,
-        }
+        data: servers,
+        totalDocs: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
       });
     }
   )
