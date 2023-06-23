@@ -40,6 +40,9 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
   bannerColor: body('bannerColor')
     .matches(/^#[0-9A-F]{6}$/i)
     .withMessage('Invalid HEX code.'),
+  customStatus: body('customStatus')
+    .escape().trim()
+    .isLength({ max: 128 }).withMessage('Status message cannot exceed 128 characters.'),
   emojiName: body('name')
     .escape().trim()
     .matches(/^[a-z0-9_]+$/).withMessage('Emoji name can only contain alphanumeric characters and underscores.')
@@ -49,7 +52,7 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
     .withMessage('Invalid HEX code.'),
   description: body('description')
     .escape().trim()
-    .isLength({ max: 120 }).withMessage('Server description must be 120 characters or under.'),
+    .isLength({ max: 120 }).withMessage('Server description cannot exceed 120 characters.'),
 };
 
 export default VALIDATION_RULES;

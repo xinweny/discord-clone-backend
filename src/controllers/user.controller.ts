@@ -47,7 +47,7 @@ const getUser: RequestHandler[] = [
 
 const updateUser: RequestHandler[] = [
   upload.avatar,
-  ...validateFields(['username', 'displayName', 'bio', 'bannerColor']),
+  ...validateFields(['username', 'displayName', 'bio', 'bannerColor', 'customStatus']),
   authenticate,
   authorize.user,
   tryCatch(

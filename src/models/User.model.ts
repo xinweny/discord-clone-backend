@@ -10,6 +10,7 @@ export interface IUser extends Document {
   email: string;
   verified: boolean;
   avatarUrl?: string;
+  customStatus?: string;
   role: string;
   relations: Types.DocumentArray<IRelation>;
   bio: string;
@@ -40,6 +41,7 @@ const userSchema = new Schema({
   },
   relations: { type: [relationSchema], default: [], select: false },
   bio: { type: String, default: '', length: { max: 190 } },
+  customStatus: { type: String, length: { max: 128 } },
   bannerColor: { type: String, default: '' },
 }, { timestamps: true });
 

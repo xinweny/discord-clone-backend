@@ -60,8 +60,9 @@ const update = async (id: Types.ObjectId | string, fields: {
   displayName?: string,
   bannerColor?: string,
   bio?: string,
+  customStatus?: string,
 }, avatarFile?: Express.Multer.File) => {
-  const updateQuery = keepKeys(fields, ['username', 'displayName', 'bannerColor', 'bio']);
+  const updateQuery = keepKeys(fields, ['username', 'displayName', 'bannerColor', 'bio', 'customStatus']);
 
   let avatar;
 
