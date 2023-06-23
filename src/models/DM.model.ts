@@ -1,5 +1,7 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
+import env from '../config/env.config';
+
 import CustomError from '../helpers/CustomError';
 
 export interface IDM extends Document {
@@ -18,13 +20,19 @@ const dmSchema = new Schema({
   isGroup: { type: Boolean, required: true },
 });
 
-dmSchema.pre('save', function (next) {
+const DM = mongoose.model<IDM>('DM', dmSchema, 'dms');
+
+if (env.NODE_ENV === 'development') {
+  dmSchema.index(
+    { participantIds: 1 },
+    { unique: true, partialFilterExpression: { isGroup: { $eq: false } } },
+  );
+}
+
+dmSchema.pre('save', async function (next) {
   if (this.participantIds.length > 10) throw new CustomError(400, 'Number of group members cannot exceed 10.');
-  if (this.isGroup )
 
   next();
 });
-
-const DM = mongoose.model<IDM>('DM', dmSchema, 'dms');
 
 export default DM;

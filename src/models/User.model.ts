@@ -13,6 +13,8 @@ export interface IUser extends Document {
   customStatus?: string;
   role: string;
   relations: Types.DocumentArray<IRelation>;
+  dmIds: Types.ObjectId[];
+  serverIds: Types.ObjectId[];
   bio: string;
   bannerColor: string;
   relationTo(userId: Types.ObjectId | string): IRelation | undefined;
@@ -40,7 +42,8 @@ const userSchema = new Schema({
     select: false,
   },
   relations: { type: [relationSchema], default: [], select: false },
-  // TODO: Update to include [Types.ObjectId] of dms, servers
+  dmIds: { type: [Types.ObjectId], ref: 'DM', default: [] },
+  serverIds: { type: [Types.ObjectId], ref: 'Server', default: [] },
   bio: { type: String, default: '', length: { max: 190 } },
   customStatus: { type: String, length: { max: 128 } },
   bannerColor: { type: String, default: '' },
@@ -53,6 +56,23 @@ userSchema.pre('save', function (next) {
 
   next();
 });
+
+userSchema.virtual('dms', {
+  ref: 'Server',
+  localField: 'dmIds',
+  foreignField: '_id',
+  justOne: true,
+});
+
+userSchema.virtual('servers', {
+  ref: 'Server',
+  localField: 'serverIds',
+  foreignField: '_id',
+  justOne: true,
+});
+
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
 
 userSchema.method(
   'relationTo',
