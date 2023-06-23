@@ -60,7 +60,7 @@ const update = async (
     'channels._id': channelId,
   }, {
     $set: formatSetQuery(fields, 'channels'),
-  }, { new: true });
+  }, { new: true, runValidators: true });
 
   const channel = server?.channels.id(channelId);
 
