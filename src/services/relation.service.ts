@@ -5,7 +5,9 @@ import CustomError from '../helpers/CustomError';
 import User from '../models/User.model';
 
 const getRelations = async (userId: Types.ObjectId | string, status?: 0 | 1 | 2) => {
-  const user = await User.findById(userId, 'relations');
+  const user = await User
+    .findById(userId, 'relations')
+    .populate('relations.user', 'displayName username avatarUrl -_id');
 
   if (!user) throw new CustomError(400, 'User not found.');
 

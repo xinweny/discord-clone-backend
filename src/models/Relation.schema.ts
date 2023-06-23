@@ -18,4 +18,14 @@ const relationSchema = new Schema({
   },
 }, { timestamps: { createdAt: false, updatedAt: true } });
 
+relationSchema.virtual('user', {
+  ref: 'User',
+  localField: 'userId',
+  foreignField: '_id',
+  justOne: true,
+});
+
+relationSchema.set('toJSON', { virtuals: true });
+relationSchema.set('toObject', { virtuals: true });
+
 export default relationSchema;

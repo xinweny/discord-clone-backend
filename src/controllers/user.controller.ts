@@ -20,10 +20,7 @@ const getUser: RequestHandler[] = [
       const self = selfId.equals(userId);
       
       if (self) {
-        const user = await userService.getById(
-          userId, 
-          '+email +password +verified +relations'
-        );
+        const user = await userService.getById(userId, '+email +relations');
 
           res.json({ data: { user } });
       } else {

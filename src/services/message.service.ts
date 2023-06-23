@@ -33,7 +33,7 @@ const getMany = async (
   };
 
   const populateOptions = [
-    { path: 'sender', select: 'displayName avatarUrl -_id' }
+    { path: 'sender', select: 'displayName username avatarUrl -_id' }
   ];
 
   if (isFromServer) populateOptions.push({
