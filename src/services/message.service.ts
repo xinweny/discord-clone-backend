@@ -16,18 +16,41 @@ const getOne = async (id: string) => {
   return message;
 }
 
-const getMany = async (fields: {
-  senderId?: Types.ObjectId | string,
-  roomId?: Types.ObjectId | string,
-}, query?: string) => {
-  const messages = await Message
-      .find({
-        ...fields,
-        ...(query && { body: { $regex: query, $options: 'i' } }),
-      })
-      .sort({ createdAt: -1 });
+const getMany = async (
+  fields: {
+    senderId?: Types.ObjectId | string,
+    roomId?: Types.ObjectId | string,
+  },
+  pagination: { page: number, limit: number },
+  isFromServer: boolean,
+  query?: string
+) => {
+  const { page, limit } = pagination;
 
-  return messages;
+  const queryObj = {
+    ...fields,
+    ...(query && { body: { $regex: query, $options: 'i' } }),
+  };
+
+  const populateOptions = [
+    { path: 'sender', select: 'displayName avatarUrl -_id' }
+  ];
+
+  if (isFromServer) populateOptions.push({
+    path: 'serverMember',
+    select: 'displayName -_id -userId',
+  });
+
+  const [messages, count] = await Promise.all([
+    Message.find(queryObj)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .populate(populateOptions),
+    Message.countDocuments(queryObj)
+  ]);
+
+  return { messages, count };
 }
 
 const create = async (

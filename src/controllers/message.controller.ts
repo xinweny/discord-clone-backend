@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { RequestHandler } from 'express';
 
 import tryCatch from '../helpers/tryCatch';
@@ -28,14 +29,31 @@ const getMessages: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {  
-      const { senderId, query } = req.query;
+      const { query } = req.query;
+      const { senderId } = req.body;
+      const { serverId, roomId } = req.params;
 
-      const messages = await messageService.getMany({
-        roomId: req.params.roomId,
-        senderId: senderId?.toString(),
-      }, query?.toString());
+      const page = req.query.page ? +req.query.page : 1;
+      const limit = req.query.limit ? +req.query.limit : 10;
+
+      const { messages, count } = await messageService.getMany(
+        {
+          ...(roomId && { roomId: new Types.ObjectId(roomId) }),
+          ...(senderId && { senderId: new Types.ObjectId(roomId) }),
+        },
+        { page, limit },
+        !!serverId,
+        query ? query.toString() : undefined
+      );
   
-      res.json({ data: messages });
+      res.json({
+        data: {
+          messages,
+          totalDocs: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+        }
+      });
     }
   )
 ];

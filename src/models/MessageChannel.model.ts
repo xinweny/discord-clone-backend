@@ -4,7 +4,6 @@ import Message, { IMessage } from './Message.model';
 
 Message.discriminator('channel', new Schema({
   roomId: { type: Types.ObjectId, required: true, refPath: 'Server.channels' },
-  senderId: { type: Types.ObjectId, required: true, ref: 'User' },
   serverId: { type: Types.ObjectId, required: true, ref: 'Server' }
 }));
 

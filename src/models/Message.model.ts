@@ -15,6 +15,7 @@ export interface IMessage extends Document {
 }
 
 const messageSchema = new Schema({
+  senderId: { type: Types.ObjectId, required: true, ref: 'User' },
   body: { type: String, required: true },
   attachments: { type: [attachmentSchema], default: [] },
   reactionCounts: { type: [reactionCountSchema], default: [] },
@@ -23,6 +24,23 @@ const messageSchema = new Schema({
   timestamps: true,
   discriminatorKey: 'type',
 });
+
+messageSchema.virtual('sender', {
+  ref: 'User',
+  localField: 'senderId',
+  foreignField: '_id',
+  justOne: true,
+});
+
+messageSchema.virtual('serverMember', {
+  ref: 'ServerMember',
+  localField: 'senderId',
+  foreignField: 'userId',
+  justOne: true,
+});
+
+messageSchema.set('toJSON', { virtuals: true });
+messageSchema.set('toObject', { virtuals: true });
 
 const Message = mongoose.model<IMessage>('Message', messageSchema);
 
