@@ -4,35 +4,44 @@ import tryCatch from '../helpers/tryCatch';
 import CustomError from '../helpers/CustomError';
 
 import authenticate from '../middleware/authenticate';
+import authorize from '../middleware/authorize';
+import upload from '../middleware/upload';
 
-import directMessageService from '../services/directMessage.service';
+import dmService from '../services/dm.service';
 
 const createRoom: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const { creatorId, participantIds } = req.body;
+      const { ownerId, participantIds } = req.body;
 
-      const roomExists = await directMessageService.exists({
-        creatorId,
+      const roomExists = await dmService.exists({
+        ownerId,
         participantIds,
       });
 
       if (roomExists) throw new CustomError(400, 'Direct message room already exists.');
 
-      const directMessage = await directMessageService.create({
-        creatorId: req.user!._id,
+      const dm = await dmService.create({
+        ownerId: req.user?._id,
         ...req.body,
       });
 
       res.json({
-        data: directMessage,
+        data: dm,
         message: 'Direct message chat successfully created.',
       });
     }
   )
 ];
 
+const updateRoom: RequestHandler[] = [
+  upload.avatar,
+  authenticate,
+  authorize.dmParticipant
+]
+
 export default {
   createRoom,
+  updateRoom,
 }

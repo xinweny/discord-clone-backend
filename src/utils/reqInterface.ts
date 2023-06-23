@@ -1,7 +1,7 @@
 import { IReqUser } from '../models/User.model';
 import { IServer } from '../models/Server.model';
 import { IServerMember } from '../models/ServerMember.model';
-import { IDirectMessage } from '../models/DirectMessage.model';
+import { IDirectMessage } from '../models/DM.model';
 import { IReaction } from '../models/Reaction.model';
 
 declare module 'express-serve-static-core' {

@@ -6,7 +6,7 @@ import CustomError from '../helpers/CustomError';
 import serverService from '../services/server.service';
 import serverMemberService from '../services/serverMember.service';
 import channelService from '../services/channel.service';
-import directMessageService from '../services/directMessage.service';
+import directMessageService from '../services/dm.service';
 import messageService from '../services/message.service';
 import reactionService from '../services/reaction.service';
 import userService from '../services/user.service';
@@ -186,6 +186,8 @@ const user: RequestHandler = tryCatch(
     next();
   }
 );
+
+const dm 
 
 export default {
   server,

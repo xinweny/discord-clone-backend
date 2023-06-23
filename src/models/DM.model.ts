@@ -1,22 +1,23 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
-export interface IDirectMessage extends Document {
+export interface IDM extends Document {
   creatorId: Types.ObjectId;
   participantIds: Types.ObjectId[];
   name: string;
 }
 
-const directMessageSchema = new Schema({
+const dmSchema = new Schema({
   creatorId: { type: Types.ObjectId, ref: 'User', required: true },
   participantIds: { type: [Types.ObjectId], ref: 'User', required: true },
   name: { type: String, length: { min: 2, max: 32 }, trim: true },
+  imageUrl: { type: String },
 });
 
-directMessageSchema.pre('save', function (next) {
+dmSchema.pre('save', function (next) {
   this.participantIds = [this.creatorId, ...this.participantIds];
   next();
 });
 
-const DirectMessage = mongoose.model<IDirectMessage>('DirectMessage', directMessageSchema, 'direct_messages');
+const DM = mongoose.model<IDM>('DM', dmSchema, 'dms');
 
-export default DirectMessage;
+export default DM;
