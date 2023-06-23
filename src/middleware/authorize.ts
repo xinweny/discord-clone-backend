@@ -6,7 +6,7 @@ import CustomError from '../helpers/CustomError';
 import serverService from '../services/server.service';
 import serverMemberService from '../services/serverMember.service';
 import channelService from '../services/channel.service';
-import directMessageService from '../services/dm.service';
+import dmService from '../services/dm.service';
 import messageService from '../services/message.service';
 import reactionService from '../services/reaction.service';
 import userService from '../services/user.service';
@@ -107,19 +107,19 @@ const message = (action: 'view' | 'send' | 'react') => {
       req.server = data.server;
       req.member = data.member;
     } else {
-      const directMessage = await directMessageService.checkMembership(userId, roomId);
+      const dm = await dmService.checkMembership(userId, roomId);
     
-      if (!directMessage) throw new CustomError(401, 'Unauthorized');
+      if (!dm) throw new CustomError(401, 'Unauthorized');
 
-      if (directMessage.participantIds.length === 1) {
-        const participant = await userService.getById(directMessage.participantIds[0], '+relations');
+      if (dm.participantIds.length === 1) {
+        const participant = await userService.getById(dm.participantIds[0], '+relations');
 
         if (participant.relations.find(
           relation => relation.userId.equals(userId) && relation.status === 2
         )) throw new CustomError(401, 'Unauthorized');
       }
   
-      req.dm = directMessage;
+      req.dm = dm;
     }
   
     next();
@@ -187,7 +187,37 @@ const user: RequestHandler = tryCatch(
   }
 );
 
-const dm 
+const dmMember: RequestHandler = tryCatch(
+  async (req, res, next) => {
+    const { dmId } = req.params;
+
+    const dm = await dmService.getById(dmId);
+
+    if (!dm) throw new CustomError(400, 'DM not found.');
+
+    if (!dm.participantIds.find(id => id.equals(req.user?._id))) throw new CustomError(401, 'Unauthorized');
+
+    req.dm = dm;
+
+    next();
+  }
+);
+
+const dmOwner: RequestHandler = tryCatch(
+  async (req, res, next) => {
+    const { dmId } = req.params;
+
+    const dm = await dmService.getById(dmId);
+
+    if (!dm) throw new CustomError(400, 'DM not found.');
+
+    if (dm.ownerId && !dm.ownerId.equals(req.user?._id)) throw new CustomError(401, 'Unauthorized');
+
+    req.dm = dm;
+
+    next();
+  }
+);
 
 export default {
   server,
@@ -198,4 +228,6 @@ export default {
   messageSelf,
   user,
   unreact,
+  dmMember,
+  dmOwner,
 };

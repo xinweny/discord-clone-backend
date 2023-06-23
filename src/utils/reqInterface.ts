@@ -1,7 +1,7 @@
 import { IReqUser } from '../models/User.model';
 import { IServer } from '../models/Server.model';
 import { IServerMember } from '../models/ServerMember.model';
-import { IDirectMessage } from '../models/DM.model';
+import { IDM } from '../models/DM.model';
 import { IReaction } from '../models/Reaction.model';
 
 declare module 'express-serve-static-core' {
@@ -11,7 +11,7 @@ declare module 'express-serve-static-core' {
     files?: Express.Multer.File[],
     server?: IServer,
     member?: IServerMember,
-    dm?: IDirectMessage,
+    dm?: IDM,
     reaction?: IReaction,
   }
 }

@@ -49,7 +49,7 @@ const update = async (
     'roles._id': roleId,
   }, {
     $set: formatSetQuery(fields, 'roles'),
-  }, { new: true });
+  }, { new: true, runValidators: true });
 
   const role = server?.roles.id(roleId);
 

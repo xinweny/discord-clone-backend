@@ -40,6 +40,7 @@ const userSchema = new Schema({
     select: false,
   },
   relations: { type: [relationSchema], default: [], select: false },
+  // TODO: Update to include [Types.ObjectId] of dms, servers
   bio: { type: String, default: '', length: { max: 190 } },
   customStatus: { type: String, length: { max: 128 } },
   bannerColor: { type: String, default: '' },

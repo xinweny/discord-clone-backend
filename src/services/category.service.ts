@@ -36,7 +36,7 @@ const update = async (serverId: Types.ObjectId | string, categoryId: Types.Objec
     'categories._id': categoryId,
   }, {
     $set: formatSetQuery({ name }, 'categories'),
-  }, { new: true });
+  }, { new: true, runValidators: true });
 
   const category = server?.categories.id(categoryId);
 

@@ -1,7 +1,6 @@
 import { RequestHandler } from 'express';
 
 import tryCatch from '../helpers/tryCatch';
-import CustomError from '../helpers/CustomError';
 
 import authenticate from '../middleware/authenticate';
 import authorize from '../middleware/authorize';
@@ -9,23 +8,25 @@ import upload from '../middleware/upload';
 
 import dmService from '../services/dm.service';
 
+const getRoom: RequestHandler[] = [
+  authenticate,
+  authorize.dmMember,
+  tryCatch(
+    async (req, res) => {
+      res.json({ data: req.dm });
+    }
+  )
+];
+
 const createRoom: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const { ownerId, participantIds } = req.body;
+      const { participantIds } = req.body;
 
-      const roomExists = await dmService.exists({
-        ownerId,
-        participantIds,
-      });
+      participantIds.unshift(req.user?._id);
 
-      if (roomExists) throw new CustomError(400, 'Direct message room already exists.');
-
-      const dm = await dmService.create({
-        ownerId: req.user?._id,
-        ...req.body,
-      });
+      const dm = await dmService.create(participantIds);
 
       res.json({
         data: dm,
@@ -38,10 +39,11 @@ const createRoom: RequestHandler[] = [
 const updateRoom: RequestHandler[] = [
   upload.avatar,
   authenticate,
-  authorize.dmParticipant
-]
+  authorize.dmMember,
+];
 
 export default {
+  getRoom,
   createRoom,
   updateRoom,
-}
+};

@@ -124,7 +124,7 @@ const update = async (id: Types.ObjectId | string, fields: {
       ...query,
       ...(image && { imageUrl: image.secure_url }),
     },
-  }, { new: true });
+  }, { new: true, runValidators: true });
 
   return server;
 };
