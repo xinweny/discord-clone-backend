@@ -1,9 +1,11 @@
 import { Types } from 'mongoose';
 
 import keepKeys from '../helpers/keepKeys';
+import CustomError from '../helpers/CustomError';
 
 import cloudinaryService from './cloudinary.service';
 
+import Message from '../models/Message.model';
 import DM from '../models/DM.model';
 
 const getById = async (dmId: Types.ObjectId | string) => {
@@ -26,28 +28,19 @@ const create = async (participantIds: Types.ObjectId[] | string[]) => {
   return dm;
 };
 
-const addParticipants = async (
-  id: string,
-  userIds: string[],
-) => {
-  const dm = await DM.findByIdAndUpdate(id, {
-    $push: { participantIds: { $in: userIds }},
-  }, { new: true, runValidators: true });
-
-  return dm;
-};
-
 const update = async (
   dmId: Types.ObjectId | string,
   fields: { name: string },
   imgFile?: Express.Multer.File
 ) => {
   let image;
+
+  const group = await DM.findOne({ _id: dmId, isGroup: true });
+
+  if (!group) throw new CustomError(400, 'Cannot update non-group DM.');
   
   if (imgFile) {
-    const dm = await DM.findById(dmId);
-
-    image = await cloudinaryService.upload(imgFile, `avatars/groups/${dmId}`, dm?.imageUrl);
+    image = await cloudinaryService.upload(imgFile, `avatars/groups/${dmId}`, group?.imageUrl);
   }
 
   const query = keepKeys(fields, ['name']);
@@ -72,19 +65,19 @@ const checkMembership = async (userId: string, roomId: string) => {
   return false;
 };
 
-const removeParticipant = async (dmId: Types.ObjectId | string, participantId: Types.ObjectId | string) => {
-  const dm = await DM.findByIdAndUpdate(dmId, {
-    $pull: { participantIds: participantId },
-  }, { new: true });
+const remove = async (dmId: Types.ObjectId | string) => {
+  const [dm, ] = await Promise.all([
+    DM.findByIdAndDelete(dmId),
+    Message.deleteMany({ roomId: dmId }),
+  ]);
 
   return dm;
-};
+}
 
 export default {
   getById,
   create,
-  addParticipants,
   update,
+  remove,
   checkMembership,
-  removeParticipant,
-}
+};

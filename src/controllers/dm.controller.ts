@@ -40,6 +40,18 @@ const updateRoom: RequestHandler[] = [
   upload.avatar,
   authenticate,
   authorize.dmMember,
+  tryCatch(
+    async (req, res) => {
+      const { dmId } = req.params;
+
+      const dm = await dmService.update(dmId, req.body, req.file);
+
+      res.json({
+        data: dm,
+        message: 'DM successfully updated.',
+      });
+    }
+  )
 ];
 
 export default {

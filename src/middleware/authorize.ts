@@ -203,15 +203,19 @@ const dmMember: RequestHandler = tryCatch(
   }
 );
 
-const dmOwner: RequestHandler = tryCatch(
+const dmOwnerOrParticipantSelf: RequestHandler = tryCatch(
   async (req, res, next) => {
-    const { dmId } = req.params;
+    const { dmId, participantId } = req.params;
 
     const dm = await dmService.getById(dmId);
 
     if (!dm) throw new CustomError(400, 'DM not found.');
+    if (!dm.isGroup) throw new CustomError(400, 'Invalid operation.');
+    if (!dm.participantIds.find(id => id.equals(req.user?._id))) throw new CustomError(401, 'Unauthorized');
 
-    if (dm.ownerId && !dm.ownerId.equals(req.user?._id)) throw new CustomError(401, 'Unauthorized');
+    if (dm.ownerId
+      && (!dm.ownerId.equals(req.user?._id) || !req.user?._id.equals(participantId))
+    ) throw new CustomError(401, 'Unauthorized');
 
     req.dm = dm;
 
@@ -229,5 +233,5 @@ export default {
   user,
   unreact,
   dmMember,
-  dmOwner,
+  dmOwnerOrParticipantSelf,
 };
