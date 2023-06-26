@@ -9,6 +9,7 @@ import validateFields from '../middleware/validateFields';
 
 import { IUser } from '../models/User.model';
 import userService from '../services/user.service';
+import relationService from '../services/relation.service';
 
 const getUser: RequestHandler[] = [
   authenticate,
@@ -59,7 +60,23 @@ const updateUser: RequestHandler[] = [
   )
 ];
 
+const getMutualFriends: RequestHandler[] = [
+  authenticate,
+  authorize.user,
+  tryCatch(
+    async (req, res) => {
+      const userId1 = req.params.userId;
+      const { userId2 } = req.params;
+
+      const mutualFriends = await relationService.getMutualFriends(userId1, userId2);
+
+      res.json({ data: mutualFriends });
+    }
+  )
+];
+
 export default {
   getUser,
+  getMutualFriends,
   updateUser,
 };
