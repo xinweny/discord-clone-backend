@@ -155,7 +155,7 @@ const checkPermissions = async (
 const remove = async (id: Types.ObjectId | string) => {
   const [server, userMembers] = await Promise.all([
     Server.findById(id),
-    ServerMember.find({ serverId: id }, 'userId')
+    ServerMember.find({ serverId: id }, 'userId -_id')
   ]);
 
   if (!server) throw new CustomError(400, 'Server not found.');
