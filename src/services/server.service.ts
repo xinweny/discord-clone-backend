@@ -153,7 +153,7 @@ const checkPermissions = async (
 };
 
 const remove = async (id: Types.ObjectId | string) => {
-  const [server, userMembers] = await Promise.all([
+  const [server, members] = await Promise.all([
     Server.findById(id),
     ServerMember.find({ serverId: id }, 'userId -_id')
   ]);
@@ -166,7 +166,7 @@ const remove = async (id: Types.ObjectId | string) => {
     Server.findByIdAndDelete(id),
     ServerMember.deleteMany({ serverId: id }),
     User.updateMany(
-      { _id: { $in: userMembers } },
+      { _id: { $in: members.map(member => member.userId) } },
       { $pull: { serverIds: id } }
     ),
     Message.deleteMany({ roomId: { $in: channelIds } }),
