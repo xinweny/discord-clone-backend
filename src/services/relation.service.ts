@@ -18,28 +18,6 @@ const getRelations = async (userId: Types.ObjectId | string, status?: 0 | 1 | 2)
   return relations;
 };
 
-const getMutualFriends = async (userId1: Types.ObjectId | string, userId2: Types.ObjectId | string) => {
-  const userIds = [userId1, userId2].map(id => new Types.ObjectId(id.toString()));
-
-  const users = await User.find({ _id: { $in: userIds } });
-  
-  if (users.length < 2) throw new CustomError(400, 'User not found.');
-
-  const friendIds = users.map(user =>
-    user.relations
-      .filter(relation => relation.status === 1)
-      .map(relation => relation.userId.toString())
-  );
-
-  const mutualIds = [...new Set(friendIds[0].filter(id => friendIds[1].includes(id)))];
-
-  const mutualFriends = await User.find({
-    _id: { $in: mutualIds.map(id => new Types.ObjectId(id)) },
-  }, 'displayName username avatarUrl');
-
-  return mutualFriends;
-};
-
 const sendFriendRequest = async (senderId: Types.ObjectId | string, recipientId: Types.ObjectId | string) => {
   const [sender, recipient] = await Promise.all(
     [senderId, recipientId].map(id => User.findById(id, 'relations'))
@@ -166,7 +144,6 @@ const remove = async (userId: Types.ObjectId | string, relationId: Types.ObjectI
 
 export default {
   getRelations,
-  getMutualFriends,
   sendFriendRequest,
   acceptFriendRequest,
   blockUser,
