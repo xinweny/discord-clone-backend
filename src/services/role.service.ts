@@ -68,7 +68,7 @@ const remove = async (serverId: Types.ObjectId | string, roleId: Types.ObjectId 
   await Promise.all([
     server.save(),
     ServerMember.updateMany(
-      { roleIds: roleId },
+      { serverId, roleIds: roleId },
       { $pull: { roleIds: roleId } }
     ),
   ]);

@@ -40,7 +40,10 @@ const createRole: RequestHandler[] = [
   authorize.server('manageRoles'),
   tryCatch(
     async (req, res) => {
+      const role = await roleService.create(req.params.serverId, req.body);
+
       res.json({
+        data: role,
         message: 'Role created successfully.',
       });
     }
@@ -53,7 +56,12 @@ const updateRole: RequestHandler[] = [
   authorize.server('manageRoles'),
   tryCatch(
     async (req, res) => {
+      const { serverId, roleId } = req.params;
+
+      const role = await roleService.update(serverId, roleId, req.body);
+
       res.json({
+        data: role,
         message: 'Role updated successfully.',
       });
     }
@@ -65,7 +73,12 @@ const deleteRole: RequestHandler[] = [
   authorize.server('manageRoles'),
   tryCatch(
     async (req, res) => {
+      const { serverId, roleId } = req.params;
+
+      const role = await roleService.remove(serverId, roleId);
+
       res.json({
+        data: role,
         message: 'Role deleted successfully.',
       });
     }
