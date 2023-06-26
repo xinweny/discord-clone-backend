@@ -8,7 +8,7 @@ import Server from '../models/Server.model';
 const getFriends = async (userId1: Types.ObjectId | string, userId2: Types.ObjectId | string) => {
   const userIds = [userId1, userId2].map(id => new Types.ObjectId(id.toString()));
 
-  const users = await User.find({ _id: { $in: userIds } });
+  const users = await User.find({ _id: { $in: userIds } }, 'relations');
   
   if (users.length < 2) throw new CustomError(400, 'User not found.');
 
@@ -30,7 +30,7 @@ const getFriends = async (userId1: Types.ObjectId | string, userId2: Types.Objec
 const getServers = async (userId1: Types.ObjectId | string, userId2: Types.ObjectId | string) => {
   const userIds = [userId1, userId2].map(id => new Types.ObjectId(id.toString()));
 
-  const users = await User.find({ _id: { $in: userIds } });
+  const users = await User.find({ _id: { $in: userIds } }, 'serverIds');
   
   if (users.length < 2) throw new CustomError(400, 'User not found.');
 

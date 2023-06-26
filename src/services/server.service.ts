@@ -153,7 +153,10 @@ const checkPermissions = async (
 };
 
 const remove = async (id: Types.ObjectId | string) => {
-  const server = await Server.findById(id);
+  const [server, userMembers] = await Promise.all([
+    Server.findById(id),
+    ServerMember.find({ serverId: id }, 'userId')
+  ]);
 
   if (!server) throw new CustomError(400, 'Server not found.');
 
@@ -162,6 +165,10 @@ const remove = async (id: Types.ObjectId | string) => {
   await Promise.all([
     Server.findByIdAndDelete(id),
     ServerMember.deleteMany({ serverId: id }),
+    User.updateMany(
+      { _id: { $in: userMembers } },
+      { $pull: { serverIds: id } }
+    ),
     Message.deleteMany({ roomId: { $in: channelIds } }),
     cloudinaryService.deleteByFolder(`attachments/${id.toString()}`),
     (server.imageUrl) ? cloudinaryService.deleteByUrl(server.imageUrl) : Promise.resolve(),
