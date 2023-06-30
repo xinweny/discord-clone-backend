@@ -58,7 +58,7 @@ userSchema.pre('save', function (next) {
 });
 
 userSchema.virtual('dms', {
-  ref: 'Server',
+  ref: 'DM',
   localField: 'dmIds',
   foreignField: '_id',
   justOne: true,
