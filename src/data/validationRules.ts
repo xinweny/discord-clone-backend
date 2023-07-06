@@ -17,9 +17,6 @@ const VALIDATION_RULES: { [key: string]: RequestHandler } = {
   confirmPassword: body('confirmPassword')
     .custom((value, { req }) => value === req.body.password)
     .withMessage('Passwords do not match.'),
-  refreshToken: body('refreshToken')
-    .escape()
-    .notEmpty().withMessage('Refresh token is required.'),
   serverName: body('name')
     .escape().trim().isLength({ min: 2, max: 32 }).withMessage('Server name must be between 2 and 32 characters long.'),
   channelName: body('name')

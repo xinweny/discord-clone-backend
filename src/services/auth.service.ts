@@ -64,7 +64,7 @@ const issueAccessToken = (user: {
 const deleteRefreshToken = async (refreshToken: string) => {
   const user = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
 
-  if (user) await redisService.del(user._id);
+  if (user) await redisService.del(`${user._id}_REFRESH`);
 };
 
 const issueTempToken = async (userId: string, type: 'RESET' | 'VERIFY', expTime: number) => {
@@ -80,21 +80,15 @@ const issueTempToken = async (userId: string, type: 'RESET' | 'VERIFY', expTime:
 const verifyTempToken = async (token: string, userId: string, type: 'RESET' | 'VERIFY') => {
   const hashedToken = await redisService.get(`${userId}_${type}`);
 
-  if (!hashedToken) return null;
+  if (!hashedToken) return false;
 
   const isValid = await bcrypt.compare(token, hashedToken);
 
-  if (!isValid) return null;
+  if (!isValid) return false;
 
-  if (type === 'RESET') {
-    const refreshToken = await redisService.get(`${userId}_REFRESH`);
+  await redisService.del(`${userId}_${type}`);
 
-    return refreshToken;
-  } else if (type === 'VERIFY') {
-    await redisService.del(`${userId}_${type}`);
-
-    return hashedToken;
-  }
+  return true;
 }
 
 export default {

@@ -54,10 +54,16 @@ const login: RequestHandler[] = [
 
       const { accessToken, refreshToken } = await authService.generateTokens(user);
 
+      res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      });
+
       res.json({
         data: {
+          userId: user._id,
           accessToken,
-          refreshToken,
         },
         message: 'Logged in successfully.',
       });
@@ -66,10 +72,9 @@ const login: RequestHandler[] = [
 ];
 
 const refreshAccessToken: RequestHandler[] = [
-  ...validateFields(['refreshToken']),
   tryCatch(
     async (req, res) => {
-      const decodedToken = await authService.verifyRefreshToken(req.body.refreshToken);
+      const decodedToken = await authService.verifyRefreshToken(req.cookies.jwt);
 
       if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
 
@@ -88,10 +93,9 @@ const refreshAccessToken: RequestHandler[] = [
 ];
 
 const logout: RequestHandler[] = [
-  ...validateFields(['refreshToken']),
   tryCatch(
     async (req, res) => {
-      await authService.deleteRefreshToken(req.body.refreshToken);
+      await authService.deleteRefreshToken(req.cookies.jwt);
 
       res.json({
         data: {},
@@ -140,17 +144,14 @@ const resetPassword: RequestHandler[] = [
       const token = req.query.token.toString();
       const uid = req.query.uid.toString();
 
-      const refreshToken = await authService.verifyTempToken(token, uid, 'RESET');
-
-      if (!refreshToken) throw new CustomError(401, 'Invalid password reset token.');
+      const isValid = await authService.verifyTempToken(token, uid, 'RESET');
+      if (!isValid) throw new CustomError(400, 'Invalid reset token');
 
       const hashedPassword = await authService.hashPassword(req.body.password);
 
       const user = await userService.updateSensitive(uid, { password: hashedPassword });
 
       if (!user) throw new CustomError(400, 'Bad request');
-
-      await authService.deleteRefreshToken(refreshToken);
 
       res.json({
         data: user,
@@ -202,9 +203,8 @@ const verifyEmail: RequestHandler = tryCatch(
     if (!user) throw new CustomError(400, 'User does not exist.');
     if (user.verified) throw new CustomError(400, 'User email has already been verified.');
 
-    const hashedToken = await authService.verifyTempToken(token, uid, 'VERIFY');
-
-    if (!hashedToken) throw new CustomError(401, 'Invalid email verification token.');
+    const isValid = await authService.verifyTempToken(token, uid, 'VERIFY');
+    if (!isValid) throw new CustomError(400, 'Invalid verify token');
 
     await userService.updateSensitive(uid, { verified: true });
 
