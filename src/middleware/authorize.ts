@@ -17,7 +17,7 @@ const server = (permissionKeys: string | string[] = []) => {
 
     const authorized = await serverService.checkPermissions(serverId, req.user?._id, permissionKeys, memberId);
 
-    if (!authorized) throw new CustomError(401, 'Unauthorized');
+    if (!authorized) throw new CustomError(403, 'Unauthorized');
 
     req.server = authorized.server;
     req.member = authorized.member;
@@ -32,7 +32,7 @@ const serverMember: RequestHandler = tryCatch(
   async (req, res, next) => {
     const member = await serverMemberService.getOne(req.user?._id, req.params.serverId);
   
-    if (!member) throw new CustomError (401, 'Unauthorized');
+    if (!member) throw new CustomError (403, 'Unauthorized');
   
     req.member = member;
   
@@ -46,11 +46,11 @@ const serverOwner: RequestHandler = tryCatch(
   
     const member = await serverMemberService.getOne(req.user?._id, serverId);
   
-    if (!member) throw new CustomError (401, 'Unauthorized');
+    if (!member) throw new CustomError (403, 'Unauthorized');
   
     const server = await serverService.getById(serverId);
   
-    if (!server?.ownerId.equals(member._id)) throw new CustomError (401, 'Unauthorized');
+    if (!server?.ownerId.equals(member._id)) throw new CustomError (403, 'Unauthorized');
   
     req.server = server;
     req.member = member;
@@ -65,7 +65,7 @@ const memberSelf: RequestHandler = tryCatch(
   
     const member = await serverMemberService.checkMembership(req.user?._id, memberId);
   
-    if (!member) throw new CustomError(401, 'Unauthorized');
+    if (!member) throw new CustomError(403, 'Unauthorized');
   
     req.member = member;
   
@@ -91,7 +91,7 @@ const message = (action: 'view' | 'send' | 'react') => {
         serverPermission[action],
       );
   
-      if (!data) throw new CustomError(401, 'Unauthorized');
+      if (!data) throw new CustomError(403, 'Unauthorized');
     
       const { server, member } = data;
     
@@ -102,21 +102,21 @@ const message = (action: 'view' | 'send' | 'react') => {
         (action === 'view') ? 'view' : 'message'
       );
     
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
+      if (!authorized) throw new CustomError(403, 'Unauthorized');
   
       req.server = data.server;
       req.member = data.member;
     } else {
       const dm = await dmService.checkMembership(userId, roomId);
     
-      if (!dm) throw new CustomError(401, 'Unauthorized');
+      if (!dm) throw new CustomError(403, 'Unauthorized');
 
       if (dm.participantIds.length === 1) {
         const participant = await userService.getById(dm.participantIds[0], '+relations');
 
         if (participant.relations.find(
           relation => relation.userId.equals(userId) && relation.status === 2
-        )) throw new CustomError(401, 'Unauthorized');
+        )) throw new CustomError(403, 'Unauthorized');
       }
   
       req.dm = dm;
@@ -152,9 +152,9 @@ const messageSelf = (action: 'update' | 'delete') => {
         memberId
       );
   
-      if (!authorized) throw new CustomError(401, 'Unauthorized');
+      if (!authorized) throw new CustomError(403, 'Unauthorized');
     } else if (!message.senderId.equals(req.user?._id)) {
-      throw new CustomError(401, 'Unauthorized');
+      throw new CustomError(403, 'Unauthorized');
     }
   
     next();
@@ -169,7 +169,7 @@ const unreact: RequestHandler = tryCatch(
   
     if (!reaction) throw new CustomError(400, 'Reaction not found.');
   
-    if (req.user?._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(401, 'Unauthorized');
+    if (req.user?._id.toString() !== reaction?.reactorId.toString()) throw new CustomError(403, 'Unauthorized');
   
     req.reaction = reaction;
   
@@ -181,7 +181,7 @@ const user: RequestHandler = tryCatch(
   (req, res, next) => {
     const { userId } = req.params;
   
-    if (!req.user?._id.equals(userId)) throw new CustomError(401, 'Unauthorized');
+    if (!req.user?._id.equals(userId)) throw new CustomError(403, 'Unauthorized');
   
     next();
   }
@@ -195,7 +195,7 @@ const dmMember: RequestHandler = tryCatch(
 
     if (!dm) throw new CustomError(400, 'DM not found.');
 
-    if (!dm.participantIds.find(id => id.equals(req.user?._id))) throw new CustomError(401, 'Unauthorized');
+    if (!dm.participantIds.find(id => id.equals(req.user?._id))) throw new CustomError(403, 'Unauthorized');
 
     req.dm = dm;
 
@@ -211,11 +211,11 @@ const dmOwnerOrParticipantSelf: RequestHandler = tryCatch(
 
     if (!dm) throw new CustomError(400, 'DM not found.');
     if (!dm.isGroup) throw new CustomError(400, 'Invalid operation.');
-    if (!dm.participantIds.find(id => id.equals(req.user?._id))) throw new CustomError(401, 'Unauthorized');
+    if (!dm.participantIds.find(id => id.equals(req.user?._id))) throw new CustomError(403, 'Unauthorized');
 
     if (dm.ownerId
       && (!dm.ownerId.equals(req.user?._id) || !req.user?._id.equals(participantId))
-    ) throw new CustomError(401, 'Unauthorized');
+    ) throw new CustomError(403, 'Unauthorized');
 
     req.dm = dm;
 

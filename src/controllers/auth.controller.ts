@@ -47,10 +47,10 @@ const login: RequestHandler[] = [
       const { email, password } = req.body;
 
       const user = await userService.getOne({ email }, true);
-      if (!user) throw new CustomError(401, 'Invalid email or password.');
+      if (!user) throw new CustomError(400, 'Invalid email or password.');
 
       const verifiedPassword = await authService.verifyPassword(password, user.password);
-      if (!verifiedPassword) throw new CustomError(401, 'Invalid email or password.');
+      if (!verifiedPassword) throw new CustomError(400, 'Invalid email or password.');
 
       const { accessToken, refreshToken } = await authService.generateTokens(user);
 
@@ -76,7 +76,7 @@ const refreshAccessToken: RequestHandler[] = [
     async (req, res) => {
       const decodedToken = await authService.verifyRefreshToken(req.cookies.jwt);
 
-      if (!decodedToken) throw new CustomError(401, 'Invalid refresh token.');
+      if (!decodedToken) throw new CustomError(400, 'Invalid refresh token.');
 
       const { _id } = decodedToken;
 
@@ -85,7 +85,10 @@ const refreshAccessToken: RequestHandler[] = [
       const accessToken = authService.issueAccessToken(user);
 
       res.json({
-        data: accessToken,
+        data: {
+          userId: _id,
+          accessToken,
+        },
         message: 'Access token issued successfully.',
       });
     }

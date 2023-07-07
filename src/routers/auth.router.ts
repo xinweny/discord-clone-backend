@@ -10,7 +10,7 @@ authRouter.post('/signup', authController.signup);
 
 authRouter.post('/refresh', authController.refreshAccessToken);
 
-authRouter.delete('/refresh', authController.logout);
+authRouter.delete('/logout', authController.logout);
 
 authRouter.post('/reqReset', authController.requestPasswordReset);
 

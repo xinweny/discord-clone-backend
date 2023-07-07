@@ -4,18 +4,20 @@ interface ErrorData {
   [key: string]: any;
 }
 
+type ErrorTypes = ErrorData | ErrorData[] | ValidationError | ValidationError[];
+
 class CustomError extends Error {
   statusCode: number;
-  error: ErrorData | ErrorData[] | ValidationError | ValidationError[];
+  error: ErrorTypes | null;
 
   constructor(
     code: number,
     message: string,
-    errorObj?: ErrorData | ErrorData[] | ValidationError | ValidationError[]
+    errorObj?: ErrorTypes
   ) {
     super(message);
     this.statusCode = code;
-    this.error = errorObj || {};
+    this.error = errorObj || null;
 
     Object.setPrototypeOf(this, CustomError.prototype);
   }
