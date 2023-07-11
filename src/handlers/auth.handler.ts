@@ -1,27 +1,27 @@
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 
-import AuthService from '../services/auth.service';
+import authService from '../services/auth.service';
 
 const authenticate = async (
   socket: Socket,
   next: (err?: ExtendedError | undefined) => void,
 ) => {
-    const token = socket.handshake.query.token as string | undefined; // Change to auth later
+    const token = socket.handshake.auth.token as string | undefined;
 
     if (!token) return next(new Error('Authentication failed.'));
   
-    const user = AuthService.verifyAccessToken(token);
+    const user = authService.verifyAccessToken(token);
 
     if (!user) return next(new Error('Authentication failed.'));
 
     socket.user = user;
 
     next(); 
-}
+};
 
 const verifyToken = (token: string) => {
-  const user = AuthService.verifyAccessToken(token);
+  const user = authService.verifyAccessToken(token);
 
   return user;
 }
@@ -29,4 +29,4 @@ const verifyToken = (token: string) => {
 export default {
   authenticate,
   verifyToken,
-}
+};

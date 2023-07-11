@@ -20,4 +20,6 @@ authRouter.post('/reqVerify', authController.requestEmailVerification);
 
 authRouter.post('/verify', authController.verifyEmail);
 
+authRouter.get('/whoami', authController.checkRefreshToken);
+
 export default authRouter;

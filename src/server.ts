@@ -2,6 +2,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { JwtPayload } from 'jsonwebtoken';
 
+import env from './config/env.config';
+
 import socketIo from './config/socketio.config';
 
 import app from './app';
@@ -14,10 +16,12 @@ declare module 'socket.io' {
   }
 }
 
-export const io = new Server(server);
+export const io = new Server(server, {
+  cors: {
+    origin: env.CLIENT_URL,
+  },
+});
 
 socketIo(io);
-
-server.on('error', () => console.log('Error opening server'));
 
 export default server;

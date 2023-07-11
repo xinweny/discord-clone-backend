@@ -15,8 +15,8 @@ const authenticate = tryCatch(
 
     const user = await UserService.getById(payload._id, '+verified');
 
-    if (!user) throw new CustomError(400, 'User not found.');
-    if (!user.verified) throw new CustomError(401, 'Unverified user', { user });
+    if (!user) throw new CustomError(401, 'Unauthorized');
+    if (!user.verified) throw new CustomError(403, 'Unverified user', { user });
 
     req.user = user;
 

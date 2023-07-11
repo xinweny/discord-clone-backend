@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import ms from 'ms';
 
 import env from '../config/env.config';
 
@@ -58,6 +59,7 @@ const login: RequestHandler[] = [
         httpOnly: true,
         sameSite: 'none',
         secure: true,
+        maxAge: ms(env.JWT_REFRESH_EXPIRE),
       });
 
       res.json({
@@ -74,6 +76,10 @@ const login: RequestHandler[] = [
 const refreshAccessToken: RequestHandler[] = [
   tryCatch(
     async (req, res) => {
+      const refreshToken = req.cookies.jwt;
+
+      if (!refreshToken) throw new CustomError(400, 'Invalid refresh token.');
+
       const decodedToken = await authService.verifyRefreshToken(req.cookies.jwt);
 
       if (!decodedToken) throw new CustomError(400, 'Invalid refresh token.');
@@ -157,7 +163,7 @@ const resetPassword: RequestHandler[] = [
       if (!user) throw new CustomError(400, 'Bad request');
 
       res.json({
-        data: user,
+        data: { userId: user._id },
         message: 'Password changed successfully.',
       });
     }
@@ -212,8 +218,25 @@ const verifyEmail: RequestHandler = tryCatch(
     await userService.updateSensitive(uid, { verified: true });
 
     res.json({
-      data: user,
+      data: { userId: user._id },
       message: 'User email verified successfully.',
+    });
+  }
+);
+
+const checkRefreshToken: RequestHandler = tryCatch(
+  async (req, res) => {
+    const token = req.cookies.jwt;
+
+    if (!token) throw new CustomError(401, 'Unauthorized');
+
+    const user = await authService.verifyRefreshToken(token);
+
+    if (!user) throw new CustomError(401, 'Unauthorized');
+
+    res.json({
+      data: { userId: user._id },
+      message: 'Refresh token verified successfully.',
     });
   }
 );
@@ -227,4 +250,5 @@ export default {
   resetPassword,
   requestEmailVerification,
   verifyEmail,
+  checkRefreshToken,
 };

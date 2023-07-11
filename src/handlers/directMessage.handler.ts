@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io';
 
 import { io } from '../server';
-import SessionService from '../services/session.service';
+import SessionService from '../services/connection.service';
 
 class DirectMessageHandler {
   userId: string;
