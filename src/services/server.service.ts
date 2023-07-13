@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import type { UploadApiResponse } from 'cloudinary';
 
 import CustomError from '../helpers/CustomError';
 import keepKeys from '../helpers/keepKeys';
@@ -12,10 +13,11 @@ import serverInviteService from './serverInvite.service';
 import cloudinaryService from './cloudinary.service';
 
 const getPublic = async (
-  pagination: { page: number, limit: number },
   query?: string,
+  pagination?: { page: number, limit: number },
 ) => {
-  const { page, limit } = pagination;
+  const page = pagination?.page || 1;
+  const limit = pagination?.limit || 10; 
 
   const queryObj = {
     private: false,
@@ -75,7 +77,7 @@ const create = async (
   if (imgFile) {
     const image = await cloudinaryService.upload(imgFile, `avatars/servers/${serverId}`);
 
-    server.imageUrl = image.secure_url;
+    server.avatarUrl = image.secure_url;
   }
 
   // Default channels
@@ -109,21 +111,30 @@ const update = async (id: Types.ObjectId | string, fields: {
   private?: boolean,
   type?: 'text' | 'voice',
   description?: string,
-}, imgFile?: Express.Multer.File) => {
-  let image;
-  
-  if (imgFile) {
-    const server = await Server.findById(id);
+}, imgFiles: { avatar?: Express.Multer.File, banner?: Express.Multer.File }) => {
+  const { avatar, banner } = imgFiles;
 
-    image = await cloudinaryService.upload(imgFile, `avatars/servers/${id}`, server?.imageUrl);
+  const uploadRes: {
+    avatar: UploadApiResponse | null,
+    banner: UploadApiResponse | null,
+  } = { avatar: null, banner: null };
+  
+  if (avatar || banner) {
+    const server = await Server.findById(id, 'avatarUrl bannerUrl');
+
+    if (avatar) uploadRes.avatar = await cloudinaryService.upload(avatar, `avatars/servers/${id}`, server?.avatarUrl);
+    if (banner) uploadRes.banner = await cloudinaryService.upload(banner, `banners/servers/${id}`, server?.bannerUrl);
   }
 
   const query = keepKeys(fields, ['name', 'private', 'description']);
+  const avatarRes = uploadRes.avatar;
+  const bannerRes = uploadRes.banner;
 
   const server = await Server.findByIdAndUpdate(id, {
     $set: {
       ...query,
-      ...(image && { imageUrl: image.secure_url }),
+      ...(avatarRes && { avatarUrl: avatarRes.secure_url }),
+      ...(bannerRes && { bannerUrl: bannerRes.secure_url }),
     },
   }, { new: true, runValidators: true });
 
@@ -171,7 +182,7 @@ const remove = async (id: Types.ObjectId | string) => {
     ),
     Message.deleteMany({ roomId: { $in: channelIds } }),
     cloudinaryService.deleteByFolder(`attachments/${id.toString()}`),
-    (server.imageUrl) ? cloudinaryService.deleteByUrl(server.imageUrl) : Promise.resolve(),
+    (server.avatarUrl) ? cloudinaryService.deleteByUrl(server.avatarUrl) : Promise.resolve(),
     serverInviteService.remove(server._id),
   ]);
 }

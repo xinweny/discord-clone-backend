@@ -7,8 +7,10 @@ import { IReaction } from '../models/Reaction.model';
 declare module 'express-serve-static-core' {
   interface Request {
     user?: IReqUser,
-    file?: Express.Multer.File,
-    files?: Express.Multer.File[],
+    avatar?: Express.Multer.File,
+    banner?: Express.Multer.File,
+    emoji?: Express.Multer.File,
+    attachments?: Express.Multer.File[],
     server?: IServer,
     member?: IServerMember,
     dm?: IDM,

@@ -17,16 +17,20 @@ const getPublicServers: RequestHandler[] = [
     async (req, res) => {
       const query = req.query.query?.toString();
 
+      if (!query) throw new CustomError(400, 'Query string required.');
+
       const page = req.query.page ? +req.query.page : 1;
       const limit = req.query.limit ? +req.query.limit : 10;
 
-      const { servers, count } = await serverService.getPublic({ page, limit }, query);
+      const { servers, count } = await serverService.getPublic(query, { page, limit });
 
       res.json({
-        data: servers,
-        totalDocs: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
+        data: {
+          items: servers,
+          totalDocs: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+        }
       });
     }
   )
@@ -50,7 +54,7 @@ const createServer: RequestHandler[] = [
   authenticate,
   tryCatch(
     async (req, res) => {
-      const data = await serverService.create({ ...req.body }, req.user?._id);
+      const data = await serverService.create({ ...req.body }, req.user?._id, req.avatar);
 
       if (!data) throw new CustomError(400, 'Bad request');
 
@@ -63,13 +67,16 @@ const createServer: RequestHandler[] = [
 ];
 
 const updateServer: RequestHandler[] = [
-  upload.avatar,
+  upload.serverImages,
   ...validateFields(['serverName', 'description']),
   authenticate,
   authorize.server('manageServer'),
   tryCatch(
     async (req, res) => {
-      const updatedServer = await serverService.update(req.server?._id, { ...req.body });
+      const updatedServer = await serverService.update(req.server?._id, { ...req.body }, {
+        avatar: req.avatar,
+        banner: req.banner,
+      });
 
       res.json({
         data: updatedServer,

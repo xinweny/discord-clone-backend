@@ -70,7 +70,7 @@ const createMessage: RequestHandler[] = [
         senderId: (serverId) ? req.member?._id : userId,
         roomId,
         body: req.body.body,
-      }, req.files, serverId);
+      }, req.attachments, serverId);
 
       res.json({
         data: message,

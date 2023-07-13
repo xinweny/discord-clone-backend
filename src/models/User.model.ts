@@ -61,14 +61,12 @@ userSchema.virtual('dms', {
   ref: 'DM',
   localField: 'dmIds',
   foreignField: '_id',
-  justOne: true,
 });
 
 userSchema.virtual('servers', {
   ref: 'Server',
   localField: 'serverIds',
   foreignField: '_id',
-  justOne: true,
 });
 
 userSchema.set('toJSON', { virtuals: true });

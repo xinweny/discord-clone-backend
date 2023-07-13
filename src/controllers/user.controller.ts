@@ -9,7 +9,6 @@ import validateFields from '../middleware/validateFields';
 
 import { IUser } from '../models/User.model';
 import userService from '../services/user.service';
-import relationService from '../services/relation.service';
 
 const getUser: RequestHandler[] = [
   authenticate,
@@ -21,9 +20,16 @@ const getUser: RequestHandler[] = [
       const self = selfId.equals(userId);
       
       if (self) {
-        const user = await userService.getById(userId, '+email +relations');
+        const user = await userService.getById(
+          userId, 
+          '+email +relations -serverIds -dmIds',
+          [
+            { path: 'servers', select: 'name imageUrl' },
+            { path: 'dms', select: 'name imageUrl' },
+          ]
+        );
 
-          res.json({ data: { user } });
+        res.json({ data: user });
       } else {
         const user: Partial<IUser> = await userService.getById(
           userId, '+relations'
@@ -50,7 +56,7 @@ const updateUser: RequestHandler[] = [
   authorize.user,
   tryCatch(
     async (req, res) => {
-      const user = await userService.update(req.user?._id, { ...req.body }, req.file);
+      const user = await userService.update(req.user?._id, { ...req.body }, req.avatar);
 
       res.json({
         data: user,

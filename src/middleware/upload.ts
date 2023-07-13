@@ -9,7 +9,7 @@ const emoji = multer({
     files: 1,
   },
   fileFilter: fileTypeFilter(/jpeg|jpg|png|gif/),
-}).single('file');
+}).single('emoji');
 
 const attachments = multer({
   storage: multer.memoryStorage(),
@@ -17,7 +17,7 @@ const attachments = multer({
     fileSize: 8000000,
     files: 10,
   }
-}).array('files');
+}).array('attachments');
 
 const avatar = multer({
   storage: multer.memoryStorage(),
@@ -26,10 +26,23 @@ const avatar = multer({
     files: 1,
   },
   fileFilter: fileTypeFilter(/jpeg|jpg|png|gif/),
-}).single('file');
+}).single('avatar');
+
+const serverImages = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 1000000,
+    files: 1,
+  },
+  fileFilter: fileTypeFilter(/jpeg|jpg|png|gif/),
+}).fields([
+  { name: 'avatar', maxCount: 1 },
+  { name: 'banner', maxCount: 1 },
+]);
 
 export default {
   emoji,
   attachments,
   avatar,
+  serverImages,
 };

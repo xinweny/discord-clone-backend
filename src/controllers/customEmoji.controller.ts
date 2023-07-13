@@ -29,9 +29,9 @@ const createEmoji: RequestHandler[] = [
   authorize.server('manageExpressions'),
   tryCatch(
     async (req, res) => {
-      if (!req.file) throw new CustomError(400, 'File not found.');
+      if (!req.emoji) throw new CustomError(400, 'File not found.');
 
-      const emoji = await customEmojiService.create(req.params.serverId, req.file, {
+      const emoji = await customEmojiService.create(req.params.serverId, req.emoji, {
         creatorId: req.member!._id,
         name: req.body.name,
       });

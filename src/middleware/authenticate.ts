@@ -11,6 +11,8 @@ const authenticate = tryCatch(
 
     const accessToken = req.headers.authorization.split(' ')[1];
 
+    if (!accessToken) throw new CustomError(401, 'Unauthorized');
+
     const payload = jwt.verify(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
 
     const user = await UserService.getById(payload._id, '+verified');

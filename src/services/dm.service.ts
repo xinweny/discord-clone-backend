@@ -16,6 +16,8 @@ const getById = async (dmId: Types.ObjectId | string) => {
 };
 
 const create = async (participantIds: Types.ObjectId[] | string[]) => {
+  if (participantIds.length > 10) throw new CustomError(400, 'Number of group members cannot exceed 10.');
+
   const isGroup = participantIds.length > 2;
 
   const dm = new DM({

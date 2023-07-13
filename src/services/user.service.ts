@@ -21,10 +21,13 @@ const getOne = async (queryObj: {
   return user;
 };
 
-const getById = async (id: Types.ObjectId | string, select?: string) => {
-  const user = (select)
-    ? await User.findById(id, select)
-    : await User.findById(id);
+const getById = async (
+  id: Types.ObjectId | string,
+  select?: string,
+  populate?: { path: string, select: string }[]) => {
+  const user = (populate)
+    ? await User.findById(id, select).populate(populate)
+    : await User.findById(id, select);
 
   if (!user) throw new CustomError(400, 'User not found.');
 

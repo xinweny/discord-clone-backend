@@ -20,6 +20,21 @@ const dmSchema = new Schema({
   isGroup: { type: Boolean, required: true },
 });
 
+dmSchema.pre('save', async function (next) {
+  if (this.participantIds.length > 10) throw new CustomError(400, 'Number of group members cannot exceed 10.');
+
+  next();
+});
+
+dmSchema.virtual('participants', {
+  ref: 'User',
+  localField: 'participantIds',
+  foreignField: '_id',
+});
+
+dmSchema.set('toJSON', { virtuals: true });
+dmSchema.set('toObject', { virtuals: true });
+
 const DM = mongoose.model<IDM>('DM', dmSchema, 'dms');
 
 if (env.NODE_ENV === 'development') {
@@ -28,11 +43,5 @@ if (env.NODE_ENV === 'development') {
     { unique: true, partialFilterExpression: { isGroup: { $eq: false } } },
   );
 }
-
-dmSchema.pre('save', async function (next) {
-  if (this.participantIds.length > 10) throw new CustomError(400, 'Number of group members cannot exceed 10.');
-
-  next();
-});
 
 export default DM;
